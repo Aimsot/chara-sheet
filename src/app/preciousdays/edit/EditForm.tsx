@@ -20,7 +20,7 @@ import {
 import { Character } from '@/types/preciousdays/character';
 import { generateUUID } from '@/utils/uuid';
 
-import { saveCharacterAction } from '../actions';
+import { deleteCharacterAction, saveCharacterAction } from '../actions';
 
 interface EditFormProps {
   initialData: Character | null;
@@ -161,15 +161,25 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
 
   const handleDelete = async () => {
     if (!char.id || !window.confirm('このキャラクターを完全に削除しますか？')) return;
+
+    // 1. 即座に UI を「処理中」にして、ボタンをロックする（体感ラグの解消）
+    setIsSubmitting(true);
+
     try {
-      const res = await fetch('/api/delete_character', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: char.id }),
-      });
-      if (res.ok) router.push('/preciousdays');
+      // 2. Server Action を呼び出し
+      const result = await deleteCharacterAction(char.id);
+
+      if (result.success) {
+        // 3. 成功したら一覧へ。revalidatePath の効果で、1回の遷移で最新の状態が見えます
+        router.push('/preciousdays');
+      } else {
+        throw new Error(result.error);
+      }
     } catch (err) {
       console.error('Delete Error:', err);
+      alert('削除に失敗しました');
+      // 4. 失敗した時だけボタンのロックを解除する
+      setIsSubmitting(false);
     }
   };
 

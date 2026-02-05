@@ -2,7 +2,7 @@
 
 import crypto from 'crypto';
 
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { revalidateTag, revalidatePath } from 'next/cache';
 
 const R2 = new S3Client({
@@ -51,5 +51,28 @@ export async function saveCharacterAction(data: any) {
   } catch (error) {
     console.error('Save Action Error:', error);
     return { success: false, error: '保存に失敗しました' };
+  }
+}
+
+export async function deleteCharacterAction(id: string) {
+  try {
+    if (!id) throw new Error('IDが指定されていません');
+
+    await R2.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: `${id}.bin`,
+      })
+    );
+
+    // サーバー側のキャッシュを破棄
+    revalidateTag('characters', 'default');
+    // ★重要：ブラウザ側のリストページのキャッシュも即座に無効化する
+    revalidatePath('/preciousdays');
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Delete Action Error:', error);
+    return { success: false, error: error.message };
   }
 }
