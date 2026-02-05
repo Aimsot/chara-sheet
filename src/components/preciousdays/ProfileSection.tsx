@@ -179,9 +179,12 @@ export const ProfileSection: React.FC<ProfileProps> = ({
                   <div className={baseStyles.readOnlyField}>{char.experience}</div>
                 ) : (
                   <input
+                    autoComplete='off'
                     className={formStyles.input}
                     defaultValue={char.experience ?? 0}
+                    inputMode='numeric'
                     name='experience'
+                    pattern='[0-9]*'
                     type='text'
                   />
                 )}

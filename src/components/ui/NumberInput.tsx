@@ -55,11 +55,13 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
   return (
     <input
+      autoComplete='off'
       className={className}
       inputMode='numeric'
       onBlur={handleBlur}
       onChange={handleChange}
       onFocus={(e) => e.target.select()}
+      pattern='[0-9]*'
       placeholder={placeholder}
       type='text'
       value={localValue}
