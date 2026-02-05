@@ -12,32 +12,35 @@ import formStyles from '@/styles/components/forms.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
 import titleStyles from '@/styles/components/titles.module.scss';
 
-// 実際に中身を処理するコンポーネント
 function SignInContent() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // ここでエラーが起きていた
+  const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.BaseSyntheticEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    const result = await signIn('credentials', {
-      password: password,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      setError('合言葉が違います。');
+    try {
+      const result = await signIn('credentials', {
+        password: password,
+        redirect: false,
+      });
+      if (result?.error) {
+        setError('合言葉が違います。');
+        setIsLoading(false);
+      } else {
+        router.push(callbackUrl);
+        router.refresh();
+      }
+    } catch {
+      setError('通信エラーが発生しました。');
       setIsLoading(false);
-    } else {
-      router.push(callbackUrl);
-      router.refresh();
     }
   };
 
@@ -60,6 +63,14 @@ function SignInContent() {
       </header>
 
       <form onSubmit={handleSubmit}>
+        <input
+          autoComplete='username'
+          name='username'
+          readOnly
+          style={{ display: 'none' }}
+          type='text'
+          value='character-editor'
+        />
         <div style={{ marginBottom: '1.5rem' }}>
           <input
             autoComplete='current-password'
@@ -82,7 +93,7 @@ function SignInContent() {
 
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <ActionButton
-            label={isLoading ? '確認中...' : '認証解除'}
+            label={isLoading ? '確認中...' : '確認'}
             style={{ width: '100%' }}
             submit={true}
             variant='outline'
