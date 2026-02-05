@@ -1,4 +1,5 @@
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 // R2クライアントの設定（ロード時と同じ設定を使う）
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
     console.log(`R2から削除を試行中: ${id}.bin`);
 
     await R2.send(command);
+    revalidateTag('characters', 'default');
 
     return NextResponse.json({ message: '削除に成功しました' });
   } catch (error: any) {

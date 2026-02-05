@@ -2,6 +2,7 @@ import crypto from 'crypto';
 
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 
 // R2クライアントの初期化
 const R2 = new S3Client({
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
         ContentType: 'application/octet-stream',
       })
     );
+    revalidateTag('characters', 'default');
 
     return NextResponse.json({ success: true });
   } catch (error) {
