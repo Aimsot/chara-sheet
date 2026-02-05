@@ -104,7 +104,8 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding-top: 6px;
+  height: 28px;
+  margin-top: 6px;
   font-size: 0.7rem;
   color: var(--text-secondary);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -184,8 +185,24 @@
   }
 
   .calcRow {
-    background: rgba(171, 161, 125, 0.1);
+    height: 100%;
+    background: rgba(171, 161, 125, 0.08);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
   }
+}
+
+/* 入力欄の代わり、またはラベルとして表示する数値・テキスト用 */
+.miniValueDisplay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 20px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
 }
 
 /* GL入力欄の間の文字 (Rank) */

@@ -46,7 +46,7 @@ const ResourceCard = ({
                 -
               </button>
             )}
-            <span className={statusStyles.miniValueDisplay}>RANK</span>
+            <span className={statusStyles.miniValueDisplay}>LEVEL</span>
             {!isReadOnly && (
               <button onClick={() => onChange(total + 1)} type='button'>
                 +
@@ -125,6 +125,7 @@ const ResourceSection = ({ char, setChar, isReadOnly }: ResourceSectionProps) =>
         {/* MP */}
         <ResourceCard
           base={char.style ? STYLE_DATA[char.style as StyleKey]?.mp.base || 0 : 0}
+          isReadOnly={isReadOnly}
           label='MP'
           modifier={char.mp.modifier || 0}
           onChange={(val) => updateModifier('mp', val)}
@@ -137,6 +138,7 @@ const ResourceSection = ({ char, setChar, isReadOnly }: ResourceSectionProps) =>
         {/* WP */}
         <ResourceCard
           base={wpBase}
+          isReadOnly={isReadOnly}
           label='WP'
           modifier={char.wp.modifier || 0}
           onChange={(val) => updateModifier('wp', val)}
@@ -144,7 +146,13 @@ const ResourceSection = ({ char, setChar, isReadOnly }: ResourceSectionProps) =>
         />
 
         {/* GL */}
-        <ResourceCard isSimpleMode label='GL' onChange={updateGL} total={char.gl || 0} />
+        <ResourceCard
+          isReadOnly={isReadOnly}
+          isSimpleMode
+          label='GL'
+          onChange={updateGL}
+          total={char.gl || 0}
+        />
       </div>
     </section>
   );
