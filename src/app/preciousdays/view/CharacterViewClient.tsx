@@ -5,7 +5,6 @@ import CharacterSheetTemplate from '@/components/preciousdays/CharacterSheetTemp
 import { Character } from '@/types/preciousdays/character';
 
 export default function CharacterViewClient({ initialData }: { initialData: Character }) {
-  // 閲覧モードなのでステート更新は不要ですが、テンプレートの型に合わせて空の関数を渡します
   const noOp = () => {};
 
   return (

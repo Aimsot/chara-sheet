@@ -61,7 +61,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
       onBlur={handleBlur}
       onChange={handleChange}
       onFocus={(e) => e.target.select()}
-      pattern='[0-9]*'
+      pattern='-?[0-9]*'
       placeholder={placeholder}
       type='text'
       value={localValue}

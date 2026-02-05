@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import EditForm from './EditForm';
 
 async function getCharacter(key: string) {
-  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/load_character?key=${key}`, {
+  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/load_character/${key}`, {
     next: { tags: ['characters', `character-${key}`] },
     cache: 'force-cache',
   });
@@ -16,21 +16,24 @@ async function getCharacter(key: string) {
 export default async function EditPage({
   searchParams,
 }: {
-  searchParams: Promise<{ key?: string }>;
+  searchParams: Promise<{ key?: string; clone?: string }>;
 }) {
-  const { key } = await searchParams;
+  const { key, clone } = await searchParams;
+  const targetId = key || clone;
+
   let initialData = null;
 
-  if (key) {
+  if (targetId) {
     const cookieStore = await cookies();
-    const allowedCookie = cookieStore.get(`edit_allowed_${key}`);
-
-    if (!allowedCookie || allowedCookie.value !== 'true') {
-      redirect('/preciousdays');
+    if (key) {
+      const allowedCookie = cookieStore.get(`edit_allowed_${key}`);
+      if (!allowedCookie || allowedCookie.value !== 'true') {
+        redirect('/preciousdays');
+      }
     }
 
-    initialData = await getCharacter(key);
+    initialData = await getCharacter(targetId);
   }
 
-  return <EditForm characterKey={key} initialData={initialData} />;
+  return <EditForm characterKey={key} initialData={initialData} isClone={!!clone} />;
 }

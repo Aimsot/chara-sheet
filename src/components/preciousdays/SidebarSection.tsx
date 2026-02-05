@@ -140,7 +140,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 className={layoutStyles.mt2}
                 disabled={isSubmitting}
                 icon={<SaveAll size={16} />}
-                label={charKey ? '変更を保存する' : 'キャラクターを登録'}
+                label={charKey && !cloneKey ? '変更を保存する' : 'キャラクターを登録'}
                 style={{ width: '100%' }}
                 submit={true}
                 variant='primary'
@@ -159,7 +159,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                     variant='danger'
                   />
                   <ActionButton
-                    href={`/preciousdays/view/${charKey}`}
+                    href={`/preciousdays/view/${char.id}`}
                     icon={<Eye size={16} />}
                     label='閲覧画面に戻る'
                     style={{ width: '100%', marginTop: '8px' }}

@@ -156,7 +156,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({
                           onClick={() => updateItem(key, 'hitMod', (Number(item.hitMod) || 0) - 1)}
                           type='button'
                         >
-                          -{' '}
+                          -
                         </button>
                         <NumberInput
                           onChange={(v) => updateItem(key, 'hitMod', v)}
@@ -166,7 +166,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = ({
                           onClick={() => updateItem(key, 'hitMod', (Number(item.hitMod) || 0) + 1)}
                           type='button'
                         >
-                          +{' '}
+                          +
                         </button>
                       </div>
                     )}

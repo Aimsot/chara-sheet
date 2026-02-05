@@ -37,7 +37,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   className = '',
   style,
   submit = false,
-  disabled = false, // ★追加
+  disabled = false,
 }) => {
   // バリエーションごとのスタイル決定
   let baseClass = btnStyles.outline; // デフォルト

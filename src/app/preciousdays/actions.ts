@@ -1,10 +1,10 @@
+'use server';
+
 import crypto from 'crypto';
 
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { NextRequest, NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, revalidatePath } from 'next/cache';
 
-// R2クライアントの初期化
 const R2 = new S3Client({
   region: 'auto',
   endpoint: process.env.R2_ENDPOINT || '',
@@ -17,19 +17,12 @@ const R2 = new S3Client({
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '';
 const IV_LENGTH = 16;
 
-export async function POST(req: NextRequest) {
+export async function saveCharacterAction(data: any) {
   try {
-    const data = await req.json();
     const { id } = data;
+    if (!id) throw new Error('IDが必要です');
 
-    if (!id) {
-      return NextResponse.json({ error: 'IDが必要です' }, { status: 400 });
-    }
-    const finalData = {
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    // JSONを文字列化してバッファに変換
+    const finalData = { ...data, updatedAt: new Date().toISOString() };
     const jsonString = JSON.stringify(finalData);
     const buffer = Buffer.from(jsonString);
 
@@ -39,12 +32,9 @@ export async function POST(req: NextRequest) {
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
     let encrypted = cipher.update(buffer);
     encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-    // IV(16byte) + 暗号文 を結合して一つのバイナリデータにする
     const storedData = Buffer.concat([iv, encrypted]);
 
     // --- R2へ保存 ---
-    // ファイル名は ID.bin にして、中身が何か推測できないようにする
     await R2.send(
       new PutObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME,
@@ -53,11 +43,13 @@ export async function POST(req: NextRequest) {
         ContentType: 'application/octet-stream',
       })
     );
-    revalidateTag('characters', 'default');
 
-    return NextResponse.json({ success: true });
+    revalidateTag('characters', 'default');
+    revalidatePath('/preciousdays');
+
+    return { success: true, id };
   } catch (error) {
-    console.error('Save Error:', error);
-    return NextResponse.json({ error: '保存に失敗しました' }, { status: 500 });
+    console.error('Save Action Error:', error);
+    return { success: false, error: '保存に失敗しました' };
   }
 }

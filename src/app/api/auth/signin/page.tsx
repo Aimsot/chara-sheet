@@ -29,17 +29,16 @@ function SignInContent() {
     try {
       const result = await signIn('credentials', {
         password: password,
-        redirect: false,
+        redirect: true,
       });
-
       if (result?.error) {
         setError('合言葉が違います。');
         setIsLoading(false);
-      } else if (result?.ok) {
-        router.refresh();
+      } else {
         router.push(callbackUrl);
+        router.refresh();
       }
-    } catch (err) {
+    } catch {
       setError('通信エラーが発生しました。');
       setIsLoading(false);
     }
