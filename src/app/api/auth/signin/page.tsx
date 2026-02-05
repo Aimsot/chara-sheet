@@ -29,7 +29,7 @@ function SignInContent() {
     try {
       const result = await signIn('credentials', {
         password: password,
-        redirect: false,
+        redirect: true,
       });
       if (result?.error) {
         setError('合言葉が違います。');
@@ -83,6 +83,7 @@ function SignInContent() {
             value={password}
           />
         </div>
+
         <Tooltip
           content={`⚠ ${error}`}
           id='password-error-tooltip'
