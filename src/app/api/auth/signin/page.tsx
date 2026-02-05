@@ -62,6 +62,7 @@ function SignInContent() {
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '1.5rem' }}>
           <input
+            autoComplete='current-password'
             className={formStyles.input}
             data-tooltip-id='password-error-tooltip'
             id='password'
