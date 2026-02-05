@@ -1,0 +1,127 @@
+/* --- 変数定義 --- */
+$accent-color: #c5a966;
+$text-secondary: #888;
+$bg-footer: #0a0a0a; // ほぼ黒に近い色
+
+.footer {
+  position: relative;
+  width: 100%;
+  padding: 40px 20px;
+  margin-top: auto; /* コンテンツが少なくても最下部に配置させる用 */
+  background-color: $bg-footer;
+
+  /* --- 上部の装飾ライン（ヘッダーと対になるデザイン） --- */
+  &::before {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 80%; /* 画面幅いっぱいにせず、余白を残す */
+    max-width: 800px;
+    height: 1px;
+    content: '';
+    background: radial-gradient(circle, var(--accent-color) 0%, transparent 100%);
+    opacity: 0.5;
+    transform: translateX(-50%);
+  }
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* --- タイトルロゴ（小さく） --- */
+.logo {
+  font-family: var(--font-zen-old-mincho), serif;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--accent-color);
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  opacity: 0.9;
+  transition: opacity 0.3s;
+
+  &:hover {
+    text-shadow: 0 0 10px rgba(197, 169, 102, 0.4);
+    opacity: 1;
+  }
+}
+
+/* --- リンク集 --- */
+.links {
+  display: flex;
+  gap: 24px;
+  font-size: 0.85rem;
+
+  a {
+    color: $text-secondary;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    transition: all 0.3s;
+
+    &:hover {
+      color: var(--accent-color);
+    }
+  }
+}
+
+/* --- コピーライト --- */
+.copyright {
+  margin-top: 10px;
+  font-family: sans-serif; /* 英数字は見やすいフォントで */
+  font-size: 0.7rem;
+  color: #555;
+}
+
+/* === スマホ対応 === */
+@media (max-width: 768px) {
+  .footer {
+    padding: 30px 15px;
+    &::before {
+      width: 90%;
+    }
+  }
+
+  .links {
+    gap: 16px;
+    font-size: 0.8rem;
+  }
+}
+
+/* ... (上部の .footer, .inner, .logo, .links などは前回のまま) ... */
+
+/* --- 権利表記エリア --- */
+.copyrightContainer {
+  width: 100%;
+  padding-top: 20px;
+  margin-top: 20px;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05); /* 薄い区切り線を入れる */
+}
+
+.copyright {
+  display: block;
+  max-width: 700px;
+  margin: 0 auto;
+  font-family: sans-serif;
+  font-size: 0.65rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+
+  br {
+    display: block;
+    margin-bottom: 2px;
+  }
+}
+
+/* === スマホ対応 === */
+@media (max-width: 980px) {
+  .copyright {
+    font-size: 0.6rem; /* スマホではさらに少し小さく */
+    line-height: 1.5;
+  }
+}

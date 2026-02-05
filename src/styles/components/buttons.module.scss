@@ -1,0 +1,309 @@
+/* ============================================================
+   Base: すべてのボタンの基本形
+   ============================================================ */
+.base {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: bold;
+  line-height: 1.2;
+  text-decoration: none !important; /* Linkタグの下線を消す */
+  cursor: pointer;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  &:active {
+    transform: translateY(1px);
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   Variants: 色や見た目のバリエーション
+   ============================================================ */
+
+/* 1. ソリッド（塗りつぶし) */
+.solid {
+  composes: base;
+  color: #fff;
+  background-color: var(--accent-dark);
+  border: 1px solid transparent;
+
+  &:hover {
+    background-color: #7a7253;
+    border-color: rgba(255, 255, 255, 0.1);
+    :global(.theme-silver) & {
+      background-color: var(--accent-dark);
+      filter: brightness(0.8);
+    }
+  }
+}
+
+/* 2. シンプルアウトライン: 戻る・キャンセルボタン用 */
+.outline {
+  composes: base;
+  color: var(--accent-color);
+  background: transparent;
+  border: 1px solid var(--accent-color);
+
+  &:hover {
+    color: #fff;
+    background-color: var(--accent-layer);
+    border-color: var(--text-secondary);
+  }
+}
+
+/* 3. リッチゴールド: ここぞというメインアクション（登録完了など） */
+.rich {
+  composes: base;
+  position: relative;
+  z-index: 1;
+  padding: 12px 40px;
+  overflow: hidden;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: 0.15em;
+  background-image: linear-gradient(90deg, #dcb348 0%, #aba17d 100%);
+  border: none;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.5s;
+
+  & > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  // 通常時の色（上に重なっている層）
+  &::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    content: '';
+    background-image: linear-gradient(90deg, var(--accent-dark) 0%, var(--accent-color) 100%);
+    opacity: 1;
+    transition: all 0.5s;
+  }
+
+  &:hover {
+    color: #000;
+    box-shadow: 0 6px 20px rgba(171, 161, 125, 0.4);
+    transform: translateY(-2px);
+
+    &::after {
+      opacity: 0; // 上の層が消えて、下の「輝く色」が露出する
+    }
+  }
+  :global(.theme-silver) & {
+    color: #1a1c1e;
+    background-image: linear-gradient(90deg, #cbd5e0 0%, #a3aeb5 100%); // シルバーの輝き
+
+    &::after {
+      background-image: linear-gradient(90deg, #7a848a 0%, #a3aeb5 100%); // 通常の鋼色
+    }
+
+    &:hover {
+      box-shadow: 0 6px 20px rgba(148, 163, 184, 0.4);
+    }
+  }
+}
+
+/* 4. マジックアウトライン: 新規作成・複製など（魔法陣っぽい発光感） */
+.magicOutline {
+  composes: base;
+  padding: 12px 40px;
+  font-family: var(--font-zen-old-mincho), serif;
+  color: var(--accent-color);
+  letter-spacing: 0.1em;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--accent-color);
+  border-radius: 50px;
+  box-shadow: 0 0 8px rgba(171, 161, 125, 0.1);
+
+  &:hover {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    background: rgba(171, 161, 125, 0.15);
+    border-color: #ffd700;
+    box-shadow: 0 0 20px rgba(171, 161, 125, 0.4), inset 0 0 10px rgba(171, 161, 125, 0.1);
+    :global(.theme-silver) & {
+      text-shadow: 0 0 8px rgba(200, 220, 255, 0.6); /* 青白い光 */
+      background: var(--accent-layer);
+      border-color: #a3aeb5;
+      box-shadow: 0 0 20px rgba(148, 163, 184, 0.4), inset 0 0 10px rgba(148, 163, 184, 0.1);
+    }
+  }
+}
+
+/* 5. デンジャー: 削除・リセット（赤系だがダークテーマに馴染む色） */
+.danger {
+  composes: base;
+  color: #ff6b6b;
+  background: rgba(60, 20, 20, 0.4);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+
+  &:hover {
+    color: #fff;
+    background: rgba(220, 53, 69, 0.9);
+    border-color: rgba(220, 53, 69, 1);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  }
+}
+
+/* 6. ゴースト: 枠線なし（「閉じる」や補助的なリンク） */
+.ghost {
+  composes: base;
+  padding: 8px 16px; /* 少し小さめに */
+  color: var(--text-secondary);
+  background: transparent;
+
+  &:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+    transform: translateY(-1px);
+  }
+}
+
+/* 7. グラス（すりガラス）: 画像の上や、透け感を出したい時 */
+.glass {
+  composes: base;
+  color: #eee;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* 8. ミッドナイト: 漆黒のボタン（ゴールドと対比させたい時） */
+.midnight {
+  composes: base;
+  color: var(--accent-color);
+  background: #0f0f0f;
+  border: 1px solid #333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+
+  &:hover {
+    color: #fff;
+    background: #000;
+    border-color: var(--accent-color);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* 9. プライマリ: 標準的な主要アクション（決定・次へ・選択など） */
+.primary {
+  composes: base;
+  font-weight: 600;
+  color: #1a1a1a;
+  background-color: var(--accent-color); /* メインの真鍮・ゴールド */
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    background-color: var(--accent-color);
+    box-shadow: 0 4px 12px rgba(171, 161, 125, 0.3);
+    filter: brightness(1.1); /* わずかに明度を上げて「押せる」感を出す */
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transform: translateY(0);
+  }
+
+  :global(.theme-silver) & {
+    color: #1a1c1e;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(163, 174, 181, 0.3);
+    }
+  }
+}
+
+/* 10. ディセーブルド・ステータス: 複製禁止やサンプル保護など、アクション不能な状態 */
+.disabledStatus {
+  composes: base;
+  color: var(--text-secondary);
+  pointer-events: none;
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px dashed var(--accent-dark);
+  box-shadow: none !important;
+  opacity: 0.6;
+  transform: none !important;
+
+  & > svg {
+    opacity: 0.5;
+    filter: grayscale(1);
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.2);
+    filter: none !important;
+    transform: none !important;
+  }
+
+  /* シルバーテーマ（編集画面）での見え方 */
+  :global(.theme-silver) & {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #555;
+  }
+}
+
+/* ============================================================
+   Utilities: 特定の機能や形状
+   ============================================================ */
+
+/* アイコンアニメーション（旧 createButton の回転アニメ） */
+/* ボタンにこのクラスを追加し、中のアイコンに .icon クラスをつける */
+.icon {
+  transform: translateX(-2px);
+  & > svg {
+    margin-right: 2px;
+    transform: translateY(1px);
+  }
+}
+.animateIcon {
+  position: relative;
+  overflow: hidden;
+
+  .icon {
+    font-size: 1.4rem;
+    line-height: 1;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  &:hover .icon {
+    transform: rotate(90deg);
+  }
+}
+
+/* ブロック表示（幅いっぱい） */
+.block {
+  display: flex;
+  width: 100%;
+}

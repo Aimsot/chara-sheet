@@ -1,0 +1,137 @@
+/* ============================================================
+   Container: 横スクロール制御
+   ============================================================ */
+.scrollContainer {
+  display: block; /* GridではなくBlockで枠を確保 */
+  width: 100%;
+  padding: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  /* スクロールバーのカスタマイズ */
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--accent-dark);
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* ============================================================
+   Table Base: テーブルの枠組み
+   ============================================================ */
+.gridTable {
+  width: 100%;
+  min-width: 600px;
+  overflow: hidden;
+  background-color: transparent;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+}
+
+/* ============================================================
+   Rows: 行の定義
+   ============================================================ */
+/* 標準的な行
+   ※ 親側で --table-cols や --table-label-width を定義して使う
+*/
+.row {
+  display: grid;
+  /* デフォルト: ラベル1列 + データ6列 */
+  grid-template-columns: var(--table-label-width, 140px) repeat(var(--table-cols, 6), 1fr);
+  align-items: stretch;
+  min-height: 48px;
+  border-bottom: 1px solid var(--card-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+/* ヘッダー行（黒背景） */
+.headerRow {
+  composes: row;
+  min-height: 40px;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  background-color: #000;
+  border-bottom: 2px solid var(--card-border);
+
+  /* ヘッダー内の文字は太く */
+  .cell {
+    font-weight: 700;
+  }
+}
+
+/* ============================================================
+   Cells: セルの定義
+   ============================================================ */
+
+/* データセル（通常の中身） */
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+  background-color: transparent;
+}
+
+/* ラベルセル（左端の見出しなど） */
+.labelCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.25);
+  border-right: 1px solid var(--card-border);
+
+  span {
+    white-space: nowrap;
+  }
+}
+
+.denseTable {
+  .cell {
+    font-size: 0.85rem;
+
+    input,
+    select,
+    textarea {
+      font-size: 0.85rem !important;
+    }
+  }
+
+  .labelCell {
+    padding: 2px 4px;
+    font-size: 0.7rem;
+  }
+}
+
+/* ============================================================
+   State: 状態変化
+   ============================================================ */
+
+/* 読み取り専用行（薄暗くする） */
+.readonly {
+  cursor: default;
+  background-color: rgba(255, 255, 255, 0.05);
+
+  .cell {
+    color: var(--text-secondary);
+    pointer-events: none;
+    span {
+      opacity: 0.6;
+    }
+  }
+}

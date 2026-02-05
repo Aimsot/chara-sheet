@@ -1,0 +1,20 @@
+/* リストページ全体のコンテナ */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* ヘッダーやボタンとの間隔 */
+  margin-top: 1rem;
+}
+
+/* カードを並べるグリッドシステム */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+
+  /* スマホ等で縦並びにする設定 */
+  @media (max-width: 980px) {
+    display: flex;
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,145 @@
+/* ============================================================
+   Animations: ページ読み込み時の演出
+   ============================================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px); /* 少し下から浮き上がる演出を追加 */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* アニメーション適用ユーティリティ */
+.fadeIn {
+  animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ============================================================
+   Container: ページ全体の枠
+   ============================================================ */
+.container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  margin: 0 auto;
+
+  @media (max-width: 980px) {
+    padding: 10px 0;
+  }
+}
+
+/* ============================================================
+   Grid System: 12カラムレイアウト
+   ============================================================ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+  width: 100%;
+
+  /* デフォルトでフェードインさせる（不要なら削除可） */
+  animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+
+  @media (max-width: 980px) {
+    display: flex;
+    flex-direction: column;
+    gap: 24px; /* スマホ時は縦並びの間隔を少し広げる */
+  }
+}
+
+/* カラム操作ヘルパー */
+.span12 {
+  grid-column: span 12;
+}
+
+.span8 {
+  grid-column: span 8;
+  @media (max-width: 980px) {
+    grid-column: span 12;
+  }
+}
+
+.span6 {
+  grid-column: span 6;
+  @media (max-width: 980px) {
+    grid-column: span 12;
+  }
+}
+
+.span4 {
+  grid-column: span 4;
+  @media (max-width: 980px) {
+    grid-column: span 12;
+  }
+}
+
+/* 3カラム用（4つ並べる時など） */
+.span3 {
+  grid-column: span 3;
+  @media (max-width: 980px) {
+    grid-column: span 6;
+  } /* タブレットは2列 */
+  @media (max-width: 600px) {
+    grid-column: span 12;
+  } /* スマホは1列 */
+}
+
+/* ============================================================
+   Flex Utilities: 細かい配置用
+   ============================================================ */
+
+/* 上下左右中央寄せ */
+.flexCenter {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 両端揃え（ヘッダー内などで便利） */
+.flexBetween {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* 縦並びフレックス */
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 右寄せ（ボタン配置などに） */
+.flexRight {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* ============================================================
+   Spacers: 強制的に余白を作る
+   ============================================================ */
+.mt1 {
+  margin-top: 8px;
+}
+.mt2 {
+  margin-top: 16px;
+}
+.mt3 {
+  margin-top: 24px;
+}
+.mb1 {
+  margin-bottom: 8px;
+}
+.mb2 {
+  margin-bottom: 16px;
+}
+.mb3 {
+  margin-bottom: 24px;
+}

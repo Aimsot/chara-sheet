@@ -1,0 +1,72 @@
+/* ============================================================
+   Page Headers: ページごとの見出し
+   ============================================================ */
+
+/* プレシャスデイズ風の装飾付きヘッダーコンテナ */
+.decoratedHeader {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0 0 12px;
+  margin-bottom: 2rem;
+  text-align: center;
+  border-bottom: 3px solid var(--card-border);
+
+  /* H1に対する装飾 */
+  h1 {
+    position: relative;
+    margin: 0 0 20px;
+    font-family: var(--font-zen-old-mincho), serif;
+    font-weight: 900;
+    line-height: 1.2;
+    color: var(--accent-color);
+
+    /* 下部の光るライン */
+    &::after {
+      display: block;
+      width: 100px;
+      height: 2px;
+      margin: 16px auto 0;
+      content: '';
+      background: radial-gradient(circle, var(--accent-color) 0%, transparent 90%);
+      opacity: 0.8;
+    }
+  }
+}
+
+/* メインタイトル（金色のグラデーション） */
+.mainTitle {
+  display: block;
+  font-size: 2.4rem;
+  color: transparent;
+  letter-spacing: 0.05em;
+  background: linear-gradient(
+    to bottom,
+    #fffce8 0%,
+    var(--accent-color) 45%,
+    var(--accent-dark) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  @media (max-width: 980px) {
+    font-size: 1.8rem;
+  }
+}
+
+/* サブタイトル */
+.subTitle {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.2rem;
+  font-weight: normal;
+  color: var(--accent-color);
+  letter-spacing: 0.05em;
+  /* Safari対応 */
+  -webkit-text-fill-color: var(--accent-color);
+
+  @media (max-width: 980px) {
+    font-size: 1rem;
+  }
+}

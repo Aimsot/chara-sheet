@@ -1,0 +1,121 @@
+/* src/styles/components/charaSheet/combat.module.scss */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* 共通のテーブルスタイル */
+.table {
+  width: 100%;
+  font-family: var(--font-zen-old-mincho), serif;
+  font-size: 0.9rem;
+  border-collapse: collapse;
+
+  /* ヘッダー行 (黒背景) */
+  .headerRow {
+    font-weight: bold;
+    color: #fff;
+    background-color: #000;
+
+    th {
+      padding: 4px 8px;
+      text-align: center;
+      white-space: nowrap;
+      border: 1px solid #000;
+
+      /* 左端の項目名は左寄せ */
+      &:first-child {
+        padding-left: 12px;
+        text-align: left;
+      }
+    }
+
+    /* "判定", "修正", "合計" の文字サイズ調整 */
+    .smallHeader {
+      font-size: 0.75rem;
+    }
+  }
+
+  /* データ行 (白背景) */
+  .dataRow {
+    color: #000;
+    background-color: #fff;
+
+    td {
+      padding: 4px 8px;
+      font-weight: bold;
+      vertical-align: middle;
+      text-align: center;
+      border: 1px solid #000; /* 黒い枠線 */
+
+      /* 左端の項目名 */
+      &:first-child {
+        font-weight: bold;
+        text-align: left;
+        background-color: #fff;
+      }
+    }
+  }
+}
+
+/* 入力フォーム (テーブルの中に埋め込む用) */
+.input {
+  width: 100%;
+  max-width: 60px;
+  padding: 0;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #ccc;
+
+  &:focus {
+    outline: none;
+    border-bottom-color: var(--accent-color);
+  }
+}
+
+/* 合計値の表示 (大きく強調) */
+.totalValue {
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+/* (2D) などの補足テキスト */
+.diceNotation {
+  margin-left: 4px;
+  font-size: 0.75rem;
+  font-weight: normal;
+}
+
+/* ダメージ行などの特殊なバー */
+.damageBar {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  margin-top: 4px;
+  font-weight: bold;
+  color: #000;
+  background-color: #fff;
+  border: 2px solid #000; /* 太枠 */
+
+  .label {
+    padding: 2px 8px;
+    margin-right: 12px;
+    font-size: 0.9rem;
+    color: #fff;
+    background-color: #000;
+  }
+
+  .value {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 1.2rem;
+  }
+}

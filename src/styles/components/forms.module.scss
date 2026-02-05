@@ -1,0 +1,295 @@
+/* ============================================================
+   Base Inputs: 基本的な入力フィールド
+   ============================================================ */
+/* テキスト入力、セレクトボックス共通 */
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--text-primary);
+  outline: none;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  transition: border-color 0.2s;
+
+  /* プレースホルダーの色 */
+  &::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.5;
+  }
+
+  /* フォーカス時のアクセント */
+  &:focus {
+    border-color: var(--accent-color);
+  }
+
+  /* 無効化状態 */
+  &:disabled {
+    cursor: not-allowed;
+    background-color: rgba(0, 0, 0, 0.2);
+    opacity: 0.6;
+  }
+}
+
+/* テキストエリア（高さ自動、リサイズ可） */
+.textarea {
+  composes: input;
+  height: auto;
+  min-height: 100px;
+  padding: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* セレクトボックス（カーソルをポインターに） */
+.select {
+  composes: input;
+  cursor: pointer;
+
+  /* デフォルトの矢印を消してカスタムする場合など（今回は標準のまま） */
+  & option {
+    color: var(--text-primary);
+    background-color: var(--card-bg);
+  }
+}
+
+/* ============================================================
+   Complex Controls: 機能付きの入力部品
+   ============================================================ */
+
+/* 数値入力ステッパー (+/-ボタン付き) */
+.stepper {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 40px;
+  padding: 0 4px;
+  /* 枠線や背景が必要な場合はここに追加、現状は親コンテナに依存させる形 */
+
+  button {
+    display: flex;
+    flex: 0 0 24px;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    /* ボタンのデフォルトスタイルリセット */
+    padding: 0;
+    margin: 0;
+    font-size: 0.9rem;
+    color: #fff;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    transition: all 0.2s;
+
+    &:hover {
+      color: #000;
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  input {
+    flex: 1;
+    width: 100%;
+    min-width: 0; /* Flexbox内での幅確保ハック */
+    padding: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: center;
+
+    /* ブラウザデフォルトのスピナーを消す */
+    -moz-appearance: textfield;
+    appearance: none;
+    outline: none;
+    background: transparent;
+    border: none;
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      margin: 0;
+      -webkit-appearance: none;
+    }
+  }
+}
+
+.stepperSmall {
+  composes: stepper;
+  height: 32px;
+  padding: 0 2px;
+
+  button {
+    flex: 0 0 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
+
+  input {
+    font-size: 0.9rem;
+  }
+}
+
+/* ============================================================
+   Layout Wrappers: 配置・ラベルセット
+   ============================================================ */
+
+/* ラベルと入力欄を縦に並べるセット */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--accent-dark);
+  }
+}
+
+/* テキストエリア　*/
+.textareaTable {
+  composes: input;
+  height: auto;
+  min-height: 40px;
+  padding: 8px 12px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  resize: vertical;
+}
+
+/* 入力欄にアイコンや単位を添える場合のラッパー */
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: var(--accent-color);
+  }
+
+  /* 中のinputの枠線を消す */
+  input {
+    background: transparent;
+    border: none;
+    &:focus {
+      border: none;
+    }
+  }
+
+  /* 単位などのテキスト */
+  .suffix {
+    padding-right: 12px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+}
+
+/* ============================================================
+   Ghost Input: 背景なし・下線のみ（テーブル埋め込み用）
+   ============================================================ */
+.inputGhost {
+  width: 100%;
+  max-width: 80px;
+  padding: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  text-align: center;
+  -moz-appearance: textfield;
+
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0;
+
+  /* Chrome, Safari, Edge用 */
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+  }
+
+  &:focus {
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-bottom-color: var(--accent-color);
+  }
+}
+
+/* ============================================================
+   Read Only: 表示用コンポーネント
+   ============================================================ */
+
+/* ラベルと値のセット表示（確認画面などで使用） */
+.displayField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--text-secondary);
+  }
+
+  .value {
+    min-height: 1.5em;
+    font-size: 1rem;
+    color: var(--text-primary);
+  }
+}
+
+.notes {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+
+  p {
+    position: relative;
+    padding-left: 1.2rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+
+    /* 文頭の※印をアクセントカラーで自動付与 */
+    &::before {
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+      color: var(--accent-color);
+      content: '※';
+    }
+
+    /* 数値などの重要な強調箇所 */
+    strong {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  }
+}
+
+.panel {
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}

@@ -1,0 +1,51 @@
+{
+  "name": "chara-sheet",
+  "version": "0.1.0-alpha.1",
+  "description": "Hotch Potch Character Sheet System",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "format": "prettier --write .",
+    "lint": "eslint --fix .",
+    "lint:style": "stylelint \"**/*.{css,scss}\" --fix",
+    "lint:all": "npm run lint && npm run lint:style",
+    "check": "npm run format && npm run lint:all"
+  },
+  "dependencies": {
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "^3.982.0",
+    "@eslint/js": "^9.39.2",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "browser-image-compression": "^2.0.2",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.6",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "framer-motion": "^12.31.0",
+    "globals": "^17.3.0",
+    "lucide-react": "^0.563.0",
+    "next-auth": "^4.24.13",
+    "prettier-plugin-md-nocjsp": "^1.5.1",
+    "react-tooltip": "^5.30.0",
+    "sass": "^1.97.3",
+    "stylelint-config-recess-order": "^7.6.0",
+    "stylelint-config-recommended": "^18.0.0",
+    "stylelint-config-recommended-scss": "^17.0.0",
+    "stylelint-scss": "^7.0.0",
+    "typescript": "^5",
+    "typescript-eslint": "^8.54.0"
+  }
+}

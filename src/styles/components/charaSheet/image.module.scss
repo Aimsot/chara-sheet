@@ -1,0 +1,82 @@
+/* ============================================================
+   Image Uploader: 画像アップロード部品
+   ============================================================ */
+
+/* アップロードエリアの外枠 */
+.uploadBox {
+  position: relative;
+  box-sizing: border-box;
+  flex: 0 0 240px; /* PCでの固定幅 */
+  min-height: 240px;
+  overflow: hidden;
+  background-color: var(--input-bg);
+  border: 3px dashed var(--card-border);
+  border-radius: 8px;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: var(--accent-color);
+  }
+
+  &.isReadOnly {
+    cursor: default;
+    border: 1px solid var(--card-border);
+
+    &:hover {
+      border-color: var(--card-border);
+    }
+  }
+  /* スマホでは幅いっぱいに */
+  @media (max-width: 980px) {
+    flex: none;
+    width: 100%;
+    min-height: 300px;
+  }
+}
+
+/* クリック可能なラベル（全体を覆うリンク） */
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.label.isReadOnly {
+  cursor: default;
+}
+
+/* プレビュー画像 */
+.preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* 画像未設定時のプレースホルダー */
+.placeholder {
+  padding: 20px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-align: center;
+
+  span {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+}
+
+/* input[type="file"] は隠す */
+.hiddenInput {
+  display: none;
+}

@@ -1,0 +1,135 @@
+.topWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  text-align: center;
+}
+
+.titleArea {
+  margin-bottom: 60px;
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-zen-old-mincho);
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1.2;
+    color: var(--accent-color);
+    color: transparent;
+    text-shadow: 0 0 20px rgba(171, 161, 125, 0.4);
+
+    background: linear-gradient(to bottom, #e6d6a7 0%, #c5a966 50%, #8e8561 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  p {
+    margin-top: 16px;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.2em;
+  }
+}
+
+.systemGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.systemCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 30px;
+  overflow: hidden;
+  text-align: left;
+  text-decoration: none;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  &:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transform: translateY(-5px);
+
+    .cardTitle {
+      color: var(--accent-color);
+      text-shadow: 0 0 10px rgba(171, 161, 125, 0.6);
+    }
+  }
+}
+
+.label {
+  align-self: flex-start;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: var(--accent-dark);
+  border: 1px solid var(--accent-dark);
+  border-radius: 4px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  transition: color 0.3s;
+}
+.cardSubtitle {
+  display: block;
+  margin-top: 8px;
+  margin-bottom: -4px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+.cardDesc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  blockquote {
+    padding: 12px;
+    margin: 0 0 16px 0;
+    font-family: var(--font-zen-old-mincho);
+    font-size: 0.85rem;
+    font-style: italic;
+    color: #ccc;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid var(--accent-color);
+    border-radius: 4px;
+    .quoteSource {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.7rem;
+      font-style: normal;
+      color: #888;
+      text-align: right;
+    }
+  }
+
+  /* 下の短い説明文 */
+  p {
+    margin: 0;
+    font-weight: bold;
+    color: var(--text-primary);
+  }
+}
+
+.enterLink {
+  align-self: flex-end;
+  margin-top: auto;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--accent-color);
+}

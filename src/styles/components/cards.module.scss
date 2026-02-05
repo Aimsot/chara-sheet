@@ -1,0 +1,81 @@
+/* ============================================================
+   Base: 基本のカード枠
+   ============================================================ */
+.base {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+}
+
+/* カードの中身（余白あり） */
+.body {
+  flex: 1;
+  padding: 20px;
+}
+
+/* ============================================================
+   Accordion: 開閉機能付きヘッダー
+   ============================================================ */
+.accordionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 16px;
+  cursor: pointer;
+  user-select: none;
+  background-color: #000;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #111;
+  }
+
+  /* タイトル文字 */
+  .title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+
+  /* 開閉アイコン（矢印） */
+  .icon {
+    width: 10px;
+    height: 10px;
+    margin-left: 16px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(45deg); /* 通常：下向き（開いている） */
+    transition: transform 0.3s ease;
+
+    /* 閉じた状態（左向き、または反転） */
+    &.closed {
+      transform: rotate(135deg); /* 上向きにする場合 */
+      /* または transform: rotate(-45deg); // 左向きにする場合 */
+    }
+  }
+}
+
+/* アコーディオンの中身 */
+.accordionContent {
+  max-height: 2000px; /* 十分な高さ */
+  padding: 16px;
+  overflow: hidden;
+  opacity: 1;
+  transition: all 0.3s ease;
+
+  &.closed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    pointer-events: none;
+    opacity: 0;
+  }
+}
