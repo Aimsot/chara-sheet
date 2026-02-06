@@ -236,6 +236,76 @@
   }
 }
 
+/* トグルスイッチのラッパー */
+.toggleField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+}
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  span {
+    margin-right: 6px;
+  }
+}
+
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+
+  input {
+    width: 0;
+    height: 0;
+    opacity: 0;
+
+    /* チェックが入った状態（isCopyProhibited: true） */
+    &:checked + .slider {
+      background-color: var(--accent-color); // アクティブな色に
+    }
+
+    &:checked + .slider::before {
+      transform: translateX(20px); // 丸を右へ移動
+    }
+  }
+
+  /* スライダーの背景（デフォルトはオフ：灰色） */
+  .slider {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.1); // オフの時は暗め
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    transition: 0.3s;
+
+    /* スライダーの中の丸 */
+    &::before {
+      position: absolute;
+      bottom: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      content: '';
+      background-color: #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: 0.3s;
+    }
+  }
+}
+
 /* ============================================================
    Read Only: 表示用コンポーネント
    ============================================================ */

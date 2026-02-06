@@ -1,17 +1,10 @@
-// src/app/preciousdays/edit/page.tsx
+/* src/app/preciousdays/edit/page.tsx */
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import EditForm from './EditForm';
+import { getCharacterById } from '@/lib/preciousdays/data'; // 👈 直接読み込み関数をインポート
 
-async function getCharacter(key: string) {
-  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/load_character/${key}`, {
-    next: { tags: ['characters', `character-${key}`] },
-    cache: 'force-cache',
-  });
-  if (!res.ok) return null;
-  return res.json();
-}
+import EditForm from './EditForm';
 
 export default async function EditPage({
   searchParams,
@@ -21,18 +14,31 @@ export default async function EditPage({
   const { key, clone } = await searchParams;
   const targetId = key || clone;
 
-  let initialData = null;
+  if (!targetId) {
+    redirect('/preciousdays');
+  }
 
-  if (targetId) {
-    const cookieStore = await cookies();
-    if (key) {
+  // 1. API(fetch) を介さず、ファイルを直接読み込む
+  const initialData = await getCharacterById(targetId);
+
+  // キャラクターが存在しない場合は一覧へ
+  if (!initialData) {
+    redirect('/preciousdays');
+  }
+
+  // 2. 権限チェックのロジックを修正
+  if (key) {
+    // ✨ パスワードが設定されているキャラクターの場合のみ、クッキーを確認する
+    if (initialData.password && initialData.password !== '') {
+      const cookieStore = await cookies();
       const allowedCookie = cookieStore.get(`edit_allowed_${key}`);
+
       if (!allowedCookie || allowedCookie.value !== 'true') {
+        // パスワードがあるのに認証クッキーがない場合は追い出す
         redirect('/preciousdays');
       }
     }
-
-    initialData = await getCharacter(targetId);
+    // パスワードが空（未設定）の場合は、クッキーチェックをスルーして編集を許可する
   }
 
   return <EditForm characterKey={key} initialData={initialData} isClone={!!clone} />;

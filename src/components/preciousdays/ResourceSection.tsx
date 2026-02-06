@@ -11,8 +11,9 @@ import { NumberInput } from '../ui/NumberInput';
 
 interface ResourceSectionProps {
   char: Character;
-  setChar: React.Dispatch<React.SetStateAction<Character>>;
   isReadOnly?: boolean;
+  handleResourceUpdate: (key: 'hp' | 'mp' | 'wp', val: number) => void;
+  handleGLUpdate: (val: number) => void;
 }
 
 // --- 子コンポーネントの定義 (内部で自分自身を呼ばないように修正) ---
@@ -33,8 +34,32 @@ const ResourceCard = ({
   isSimpleMode?: boolean;
   isReadOnly?: boolean;
 }) => {
+  const getGLDynamicStyle = (level: number) => {
+    if (label !== 'GL') return {};
+
+    // レベル(0-6)に応じたパーセンテージ計算
+    // 0=10%, 6=90% くらいで混ぜると綺麗です
+    const mixPercentage = 10 + level * 13;
+
+    return {
+      // 現在のアクセントカラー(--accent-color)と透明、または黒を混ぜる
+      backgroundColor: `color-mix(in srgb, var(--accent-color), transparent ${
+        100 - mixPercentage
+      }%)`,
+      borderColor:
+        level >= 4
+          ? `var(--accent-color)`
+          : `color-mix(in srgb, var(--accent-color), transparent 70%)`,
+      color: level >= 4 ? '#fff' : 'var(--text-primary)',
+      boxShadow: level >= 6 ? `0 0 15px var(--accent-glow)` : 'none',
+      transition: 'all 0.3s ease-out',
+    };
+  };
   return (
-    <div className={`${statusStyles.resourceCard} ${isSimpleMode ? statusStyles.glCard : ''}`}>
+    <div
+      className={`${statusStyles.resourceCard} ${isSimpleMode ? statusStyles.glCard : ''}`}
+      style={getGLDynamicStyle(total)}
+    >
       <div className={statusStyles.cardHeader}>{label}</div>
       <div className={statusStyles.totalValue}>{total}</div>
 
@@ -81,27 +106,12 @@ const ResourceCard = ({
   );
 };
 
-const ResourceSection = ({ char, setChar, isReadOnly }: ResourceSectionProps) => {
-  // HP/MP/WP の更新ハンドラ
-  const updateModifier = (key: 'hp' | 'mp' | 'wp', val: number) => {
-    setChar((prev) => ({
-      ...prev,
-      [key]: {
-        ...prev[key],
-        modifier: val,
-      },
-    }));
-  };
-
-  // GL (Grade Level) の更新ハンドラ
-  const updateGL = (val: number) => {
-    if (val < 0) return;
-    setChar((prev) => ({
-      ...prev,
-      gl: val,
-    }));
-  };
-
+const ResourceSection = ({
+  char,
+  isReadOnly,
+  handleResourceUpdate,
+  handleGLUpdate,
+}: ResourceSectionProps) => {
   // WPの基本値計算
   const wpBase = (char.abilities.passion?.total || 0) + (char.abilities.affection?.total || 0);
 
@@ -115,7 +125,7 @@ const ResourceSection = ({ char, setChar, isReadOnly }: ResourceSectionProps) =>
           isReadOnly={isReadOnly}
           label='HP'
           modifier={char.hp.modifier || 0}
-          onChange={(val) => updateModifier('hp', val)}
+          onChange={(val) => handleResourceUpdate('hp', val)}
           total={
             (char.style ? STYLE_DATA[char.style as StyleKey]?.hp.base || 0 : 0) +
             (char.hp.modifier || 0)
@@ -128,7 +138,7 @@ const ResourceSection = ({ char, setChar, isReadOnly }: ResourceSectionProps) =>
           isReadOnly={isReadOnly}
           label='MP'
           modifier={char.mp.modifier || 0}
-          onChange={(val) => updateModifier('mp', val)}
+          onChange={(val) => handleResourceUpdate('mp', val)}
           total={
             (char.style ? STYLE_DATA[char.style as StyleKey]?.mp.base || 0 : 0) +
             (char.mp.modifier || 0)
@@ -141,7 +151,7 @@ const ResourceSection = ({ char, setChar, isReadOnly }: ResourceSectionProps) =>
           isReadOnly={isReadOnly}
           label='WP'
           modifier={char.wp.modifier || 0}
-          onChange={(val) => updateModifier('wp', val)}
+          onChange={(val) => handleResourceUpdate('wp', val)}
           total={wpBase + (char.wp.modifier || 0)}
         />
 
@@ -150,7 +160,7 @@ const ResourceSection = ({ char, setChar, isReadOnly }: ResourceSectionProps) =>
           isReadOnly={isReadOnly}
           isSimpleMode
           label='GL'
-          onChange={updateGL}
+          onChange={handleGLUpdate}
           total={char.gl || 0}
         />
       </div>

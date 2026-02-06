@@ -29,6 +29,7 @@ export default function CharacterListClient({
         </h1>
       </header>
 
+      {/* <DebugUploader /> */}
       <div className={layoutStyles.flexCenter} style={{ marginBottom: '30px' }}>
         <ActionButton
           icon={<DiamondPlus size={16} />}

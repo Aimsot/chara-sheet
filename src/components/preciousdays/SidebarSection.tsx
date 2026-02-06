@@ -13,7 +13,9 @@ import { ActionButton } from '../ui/ActionButton';
 
 interface StatusSidebarProps {
   char: Character;
+  setChar: React.Dispatch<React.SetStateAction<Character>>;
   charKey: string | null;
+  mode: 'create' | 'edit' | 'view';
   isSubmitting?: boolean;
   className?: string;
   isReadOnly?: boolean;
@@ -22,7 +24,9 @@ interface StatusSidebarProps {
 
 export const SidebarSection: React.FC<StatusSidebarProps> = ({
   char,
+  setChar,
   charKey,
+  mode,
   isSubmitting,
   className,
   isReadOnly,
@@ -31,7 +35,6 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   const router = useRouter();
   const search = useSearchParams();
   const cloneKey = search.get('clone');
-  const isSampleData = char?.id?.startsWith('sample');
 
   const [authPassword, setAuthPassword] = useState('');
   const [isAuthLoading, setIsAuthLoading] = useState(false);
@@ -42,12 +45,16 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   };
 
   // --- 認証処理 (閲覧モード用) ---
-  const handleAuthSubmit = async (e?: React.FormEvent | React.KeyboardEvent | React.MouseEvent) => {
-    e?.preventDefault(); // リロード防止
-    e?.stopPropagation(); // 親フォームへの伝播防止（重要）
-
+  const handleAuthSubmit = async () => {
+    if (!char.password) {
+      router.push(`/preciousdays/edit?key=${char.id}`);
+      return;
+    }
+    if (!authPassword) {
+      alert('パスワードを入力してください');
+      return;
+    }
     setIsAuthLoading(true);
-
     try {
       const res = await fetch('/api/verify_password', {
         method: 'POST',
@@ -59,7 +66,6 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
       });
 
       const data = await res.json();
-
       if (data.success) {
         router.push(`/preciousdays/edit?key=${char.id}`);
       } else {
@@ -67,18 +73,24 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
       }
     } catch (error) {
       console.error('Auth Submit Error:', error);
-      alert('エラーが発生しました');
     } finally {
       setIsAuthLoading(false);
     }
   };
+
   return (
     <aside className={`${layoutStyles.span4} ${className || ''}`}>
       <div className={sidebarStyles.container}>
         {/* PASSWORD エリア */}
         <div className={`${baseStyles.stack} ${formStyles.panel}`}>
           <div onSubmit={handleAuthSubmit}>
-            <label className={formStyles.label}>編集用パスワード</label>
+            <label className={formStyles.label}>
+              {mode === 'view'
+                ? '編集用パスワード'
+                : char.password
+                ? 'パスワードを変更する'
+                : 'パスワードを設定する（任意）'}
+            </label>
             <input
               autoComplete='current-password'
               className={formStyles.input}
@@ -95,15 +107,15 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleAuthSubmit(e);
+                  handleAuthSubmit();
                 }
               }}
               placeholder={
-                isReadOnly
-                  ? 'パスワードを入力' // 1. 閲覧時
-                  : charKey
-                  ? '変更する場合のみ入力 (空欄なら維持)' // 3. 編集時 (既存)
-                  : '4〜12文字の半角英数' // 2. 新規作成時
+                mode === 'view'
+                  ? '認証パスワードを入力'
+                  : char.password
+                  ? '変更する場合のみ入力（空欄なら維持）'
+                  : '4〜12文字の半角英数'
               }
               type='password'
               value={isReadOnly ? authPassword : editPassword}
@@ -134,17 +146,41 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
         {/* アクションボタンエリア */}
         <div className={baseStyles.stack}>
           {/* 保存ボタン (編集モード時のみ) */}
-          {!isReadOnly && (
+          {mode !== 'view' && (
             <>
-              <ActionButton
-                className={layoutStyles.mt2}
-                disabled={isSubmitting}
-                icon={<SaveAll size={16} />}
-                label={charKey && !cloneKey ? '変更を保存する' : 'キャラクターを登録'}
-                style={{ width: '100%' }}
-                submit={true}
-                variant='primary'
-              />
+              <div className={`${baseStyles.stack} ${formStyles.panel}`}>
+                <label className={formStyles.toggleLabel}>
+                  <span>シートの複製禁止</span>
+                  <div className={formStyles.toggleSwitch}>
+                    <input
+                      checked={char.isCopyProhibited || false}
+                      name='isCopyProhibited'
+                      onChange={(e) => {
+                        setChar((prev: Character) => ({
+                          ...prev,
+                          isCopyProhibited: e.target.checked,
+                        }));
+                      }}
+                      type='checkbox'
+                    />
+                    <span className={formStyles.slider}></span>
+                  </div>
+                </label>
+              </div>
+              <div>
+                <ActionButton
+                  className={layoutStyles.mt2}
+                  disabled={isSubmitting}
+                  icon={<SaveAll size={16} />}
+                  label={charKey && !cloneKey ? '変更を保存する' : 'キャラクターを登録'}
+                  style={{ width: '100%' }}
+                  submit={true}
+                  variant='primary'
+                />
+                <div className={formStyles.notes} style={{ marginTop: 0 }}>
+                  <p>Ctrl + S でも保存ができます</p>
+                </div>
+              </div>
 
               {/* 閲覧ページに戻るボタン (編集モード かつ 既存キャラ複製の場合) */}
               {charKey && cloneKey === null && (
@@ -169,9 +205,8 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               )}
             </>
           )}
-
-          {/* その他のメニュー (閲覧モード時) */}
-          {isReadOnly && (
+          {/* 閲覧モード専用: 複製ボタン */}
+          {mode === 'view' && (
             <div
               style={{
                 marginTop: '20px',
@@ -181,7 +216,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               }}
             >
               {/* 複製ボタン */}
-              {!isSampleData ? (
+              {!char.isCopyProhibited ? (
                 <ActionButton
                   icon={<Copy size={16} />}
                   label='このキャラを複製する'
@@ -194,7 +229,6 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               )}
             </div>
           )}
-
           {/* 一覧に戻るボタン (共通) */}
           <ActionButton
             className={layoutStyles.mt2}

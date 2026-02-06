@@ -22,6 +22,7 @@ export const INITIAL_CHARACTER: Character = {
   playerName: '',
   characterName: '',
   masterName: '',
+  isCopyProhibited: false,
 
   hp: { modifier: 0 },
   mp: { modifier: 0 },
@@ -78,7 +79,7 @@ export const INITIAL_CHARACTER: Character = {
     accessory: { ...EMPTY_EQUIPMENT },
     guardian: { ...EMPTY_EQUIPMENT },
   },
-  items: [],
+  items: [{ id: 'i1', name: '', weight: 1, quantity: 1, notes: '' }],
   skills: [{ id: 's1', name: 'マナインフロー', level: 0, effect: '魔術が使用可能になる' }],
 };
 
@@ -90,6 +91,8 @@ export const DUMMY_CHARACTERS: Character[] = [
     id: 'sample01',
     playerName: 'サンプル',
     characterName: 'ソウルインフューザー',
+    isCopyProhibited: true,
+
     species: 'human',
     style: 'enchanter',
     element: 'wind',
@@ -188,6 +191,7 @@ export const DUMMY_CHARACTERS: Character[] = [
     id: 'sample02',
     playerName: 'サンプル',
     characterName: 'マジカルコンダクター',
+    isCopyProhibited: true,
     species: 'elf',
     style: 'caster',
     element: 'dark',
@@ -286,6 +290,7 @@ export const DUMMY_CHARACTERS: Character[] = [
     id: 'sample03',
     playerName: 'サンプル',
     characterName: 'マークスメイジ',
+    isCopyProhibited: true,
     species: 'angel',
     style: 'shooter',
     element: 'fire',
@@ -384,6 +389,7 @@ export const DUMMY_CHARACTERS: Character[] = [
     id: 'sample04',
     playerName: 'サンプル',
     characterName: 'マーシャルダンサー',
+    isCopyProhibited: true,
     species: 'therian',
     style: 'shapeshifter',
     element: 'earth',

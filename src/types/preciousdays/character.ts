@@ -1,8 +1,9 @@
 export interface Character {
-  system: string;
+  system: string; // TRPGのシステム名
   id: string; // キャラクターシートのID
   password?: string; // 保存用パスワード
   image?: string; // 画像データ(Base64)
+  isCopyProhibited?: boolean; // 複製禁止フラグ
 
   // --- 基本情報 ---
   playerName?: string; // プレイヤー名
@@ -48,7 +49,7 @@ export interface Character {
   // --- スキル ---
   skills: Skill[];
 
-  // --- ★新規追加: 戦闘値・特殊判定 ---
+  // --- 戦闘値・特殊判定 ---
   combatValues: {
     magic: CombatValue; // 魔術値
     dodge: CombatValue; // 回避値
@@ -60,7 +61,7 @@ export interface Character {
     appraisal: CombatValue; // 鑑定
   };
 
-  // --- ★変更: 装備品 (配列ではなく部位ごとのオブジェクトに変更) ---
+  // --- 装備品 (配列ではなく部位ごとのオブジェクトに変更) ---
   equipment: {
     rHand: EquipmentItem; // 右手
     lHand: EquipmentItem; // 左手
@@ -70,7 +71,7 @@ export interface Character {
     guardian: EquipmentItem; // 守護魔術
   };
 
-  // --- ★新規追加: 携帯品 ---
+  // ---  携帯品 ---
   items: Item[];
 
   // 総重量（計算用）

@@ -10,7 +10,7 @@ export default function CharacterViewClient({ initialData }: { initialData: Char
   return (
     <CharacterSheetTemplate
       char={initialData}
-      isLoading={false} // 既にデータはあるので常に false
+      isLoading={false}
       mode='view'
       previewUrl={initialData.image || null}
       setChar={noOp}
