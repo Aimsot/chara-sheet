@@ -56,12 +56,12 @@ export const SPECIES_DATA = {
   therian: {
     name: '獣族（セリアン）',
     abilities: {
-      physical: 10,
-      intellect: 5,
-      mystic: 5,
+      physical: 8,
+      intellect: 7,
+      mystic: 8,
       agility: 12,
-      passion: 9,
-      affection: 9,
+      passion: 7,
+      affection: 8,
     },
     description: '俊敏な動きと野生の直感を持つ。',
   },

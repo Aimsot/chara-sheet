@@ -1,10 +1,13 @@
 import React, { memo, useMemo, useState } from 'react';
 
 import { NumberInput } from '@/components/ui/NumberInput';
+import { SPECIES_DATA, SpeciesKey } from '@/constants/preciousdays';
 import cardStyles from '@/styles/components/cards.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
 import tableStyles from '@/styles/components/tables.module.scss'; // tableStylesへ統一
 import { Character } from '@/types/preciousdays/character';
+
+import WeightSection from './WeightSection';
 
 interface EquipmentSectionProps {
   char: Character;
@@ -50,10 +53,9 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
     const [isOpen, setIsOpen] = useState(isReadOnly);
 
     const totals = useMemo(() => {
-      const initial = { weight: 0, hitMod: 0, dodgeMod: 0, defenseMod: 0, magicDefense: 0 };
-      if (!char.equipment) return initial;
+      const initialEquip = { weight: 0, hitMod: 0, dodgeMod: 0, defenseMod: 0, magicDefense: 0 };
 
-      return Object.values(char.equipment).reduce(
+      const equipStats = Object.values(char.equipment || {}).reduce(
         (acc, item) => ({
           weight: acc.weight + (Number(item.weight) || 0),
           hitMod: acc.hitMod + (Number(item.hitMod) || 0),
@@ -61,9 +63,27 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
           defenseMod: acc.defenseMod + (Number(item.defenseMod) || 0),
           magicDefense: acc.magicDefense + (Number(item.magicDefense) || 0),
         }),
-        initial
+        initialEquip
       );
-    }, [char.equipment]);
+
+      const itemsWeight =
+        char.items?.reduce((acc, item) => {
+          return acc + (Number(item.weight) || 0) * (Number(item.quantity) || 0);
+        }, 0) || 0;
+
+      const totalWeight = equipStats.weight + itemsWeight;
+
+      const speciesBase = SPECIES_DATA[char.species as SpeciesKey]?.abilities.physical || 0;
+      const bonus = char.abilities.physical.bonus || 0;
+      const weightLimit = speciesBase + bonus;
+
+      return {
+        ...equipStats,
+        totalWeight,
+        weightLimit,
+        isOver: totalWeight > weightLimit,
+      };
+    }, [char.equipment, char.items, char.species, char.abilities.physical]);
 
     return (
       <section className={cardStyles.base}>
@@ -73,6 +93,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
         </div>
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
+          <WeightSection char={char} />
           <div className={tableStyles.scrollContainer}>
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable}`}

@@ -7,6 +7,8 @@ import formStyles from '@/styles/components/forms.module.scss';
 import tableStyles from '@/styles/components/tables.module.scss';
 import { Character, Item } from '@/types/preciousdays/character';
 
+import WeightSection from './WeightSection';
+
 interface ItemSectionProps {
   char: Character;
   isReadOnly?: boolean;
@@ -48,6 +50,8 @@ export const ItemSection: React.FC<ItemSectionProps> = ({
       </div>
 
       <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
+        <WeightSection char={char} />
+
         <div className={tableStyles.scrollContainer}>
           <div className={`${tableStyles.gridTable} ${tableStyles.denseTable}`}>
             {/* ヘッダー行 */}
@@ -209,7 +213,7 @@ export const ItemSection: React.FC<ItemSectionProps> = ({
                 className={tableStyles.labelCell}
                 style={{ color: '#fff', textAlign: 'right', paddingRight: '1rem' }}
               >
-                小計
+                合計
               </div>
               <div className={tableStyles.cell} style={{ fontSize: '1.2rem' }}>
                 {totalItemWeight}

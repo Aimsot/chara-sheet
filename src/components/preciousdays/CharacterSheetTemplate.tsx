@@ -107,7 +107,6 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
   const containerProps = isReadOnly
     ? {}
     : {
-        // handleSubmit を型安全に呼び出す
         onSubmit: (e: React.SubmitEvent<HTMLFormElement>) => handleSubmit?.(e),
         style: { minHeight: '100vh', paddingBottom: '4rem' },
       };
@@ -121,7 +120,6 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
         </h1>
       </header>
 
-      {/* 共通の戻るボタンなどは省略せずに維持 */}
       <div className={`${layoutStyles.grid} ${layoutStyles.mb4}`}>
         <div className={`${layoutStyles.span4} ${baseStyles.stack}`}>
           <ActionButton

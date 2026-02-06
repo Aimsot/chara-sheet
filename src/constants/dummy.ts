@@ -63,6 +63,7 @@ export const INITIAL_CHARACTER: Character = {
     magic: { ...EMPTY_COMBAT_VALUE },
     dodge: { ...EMPTY_COMBAT_VALUE },
     defense: { ...EMPTY_COMBAT_VALUE },
+    damage: { ...EMPTY_COMBAT_VALUE },
   },
 
   // 特殊な判定
@@ -112,6 +113,7 @@ export const DUMMY_CHARACTERS: Character[] = [
       magic: { modifier: -1 },
       dodge: { modifier: 0 },
       defense: { modifier: 0 },
+      damage: { modifier: 0 },
     },
     specialChecks: {
       enemyLore: { modifier: 0 },
@@ -211,6 +213,7 @@ export const DUMMY_CHARACTERS: Character[] = [
       magic: { modifier: 0 },
       dodge: { modifier: 0 },
       defense: { modifier: 0 },
+      damage: { modifier: 0 },
     },
     specialChecks: {
       enemyLore: { modifier: 0 },
@@ -310,6 +313,7 @@ export const DUMMY_CHARACTERS: Character[] = [
       magic: { modifier: 0 },
       dodge: { modifier: 0 },
       defense: { modifier: 0 },
+      damage: { modifier: 0 },
     },
     specialChecks: {
       enemyLore: { modifier: 0 },
@@ -409,6 +413,7 @@ export const DUMMY_CHARACTERS: Character[] = [
       magic: { modifier: 1 },
       dodge: { modifier: 0 },
       defense: { modifier: 0 },
+      damage: { modifier: 0 },
     },
     specialChecks: {
       enemyLore: { modifier: 0 },

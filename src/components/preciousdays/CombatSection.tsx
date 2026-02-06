@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { STYLE_MAGIC_TYPE } from '@/constants/preciousdays';
 import cardStyles from '@/styles/components/cards.module.scss';
@@ -29,13 +29,13 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
       display: 'grid',
       gridTemplateColumns: '160px 1fr 1fr 1fr 1fr', // 5列構成
     };
-
     const specialGridStyle = {
       display: 'grid',
       gridTemplateColumns: '160px 1fr 1fr 1fr', // 4列構成
     };
+    const damageGridStyle = { display: 'grid', gridTemplateColumns: '160px 1fr' };
 
-    // --- 計算ロジック (ロジック維持) ---
+    // --- 計算ロジック ---
     const stats = useMemo(() => {
       const p = char.abilities.physical.total || 0;
       const i = char.abilities.intellect.total || 0;
@@ -44,14 +44,6 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
       const pa = char.abilities.passion.total || 0;
       const af = char.abilities.affection.total || 0;
 
-      const getEquipTotal = (key: keyof import('@/types/preciousdays/character').EquipmentItem) => {
-        if (!char.equipment) return 0;
-        return Object.values(char.equipment).reduce((sum, item) => {
-          const val = Number(item[key]) || 0;
-          return sum + val;
-        }, 0);
-      };
-
       const magicType = STYLE_MAGIC_TYPE[char.style] || '付与術式';
 
       let magicBase = 0;
@@ -59,38 +51,39 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
       else if (magicType === '詠唱術式') magicBase = i + pa;
       else if (magicType === '神性術式') magicBase = m + af;
 
-      const equipDodge = getEquipTotal('dodgeMod');
-      // 回避値: 精神 + 敏捷 + 7
-      const dodgeBase = m + a + 7;
-      // 防御値: 体力 (Physical)
-      const defenseBase = p;
-      // 知識系: 知力
-      const loreBase = i;
-
       return {
         magic: { base: magicBase, label: magicType },
-        dodge: { base: dodgeBase },
-        defense: { base: defenseBase },
-        lore: { base: loreBase },
+        dodge: { base: m + a + 7 },
+        defense: { base: p },
+        lore: { base: i },
       };
-    }, [char.abilities, char.style, char.equipment]);
+    }, [char.abilities, char.style]);
 
-    // --- 装備品の修正値を計算するヘルパー関数 (ロジック維持) ---
-    const calculateEquipBonus = (key: string): number => {
-      let total = 0;
-      const slots = ['rHand', 'lHand', 'head', 'body', 'accessory', 'guardian'] as const;
+    // --- 装備修正の計算 ---
+    const calculateEquipBonus = useCallback(
+      (key: string): number => {
+        let total = 0;
+        const slots = ['rHand', 'lHand', 'head', 'body', 'accessory', 'guardian'] as const;
+        const magicType = STYLE_MAGIC_TYPE[char.style] || '付与術式';
 
-      slots.forEach((slot) => {
-        const item = char.equipment[slot];
-        if (!item) return;
+        slots.forEach((slot) => {
+          const item = char.equipment?.[slot];
+          if (!item) return;
 
-        if (key === 'dodge') total += item.dodgeMod || 0;
-        if (key === 'defense') total += item.defenseMod || 0;
-        if (key === 'magic') total += item.hitMod || 0;
-      });
+          if (key === 'dodge') total += Number(item.dodgeMod) || 0;
+          if (key === 'defense') total += Number(item.defenseMod) || 0;
 
-      return total;
-    };
+          // ✨ 付与術式の時だけ反映
+          if (magicType === '付与術式') {
+            if (key === 'magic') total += Number(item.hitMod) || 0;
+            if (key === 'damage') total += Number(item.damage) || 0; // 攻撃力を加算
+          }
+        });
+        return total;
+      },
+      [char.equipment, char.style]
+    );
+
     // --- 行レンダリング  ---
     const renderRow = (
       label: string,
@@ -98,7 +91,7 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
       key: string,
       baseValue: number,
       diceText: string = '',
-      isSpecial: boolean = false // 特殊判定かどうかで列数を制御
+      isSpecial: boolean = false
     ) => {
       const modifier = (char[target] as any)?.[key]?.modifier;
       const isInvalid = Number.isNaN(modifier);
@@ -111,13 +104,10 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
           key={key}
           style={isSpecial ? specialGridStyle : combatGridStyle}
         >
-          {/* 項目名ラベル */}
           <div className={tableStyles.labelCell}>{label}</div>
 
-          {/* 1. 判定値 (能力値由来) */}
           <div className={tableStyles.cell}>{baseValue}</div>
 
-          {/* 2. 装備修正値 (戦闘値セクションのみ表示) */}
           {!isSpecial && (
             <div className={tableStyles.cell}>
               <span style={{ color: equipMod !== 0 ? 'inherit' : 'var(--text-muted)' }}>
@@ -178,6 +168,12 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
       return stats.magic?.label ?? '付与術式';
     }, [stats.magic]);
 
+    const damageTotal = useMemo(() => {
+      const equip = calculateEquipBonus('damage');
+      const mod = char.combatValues?.damage?.modifier || 0;
+      return 0 + equip + mod; // ベースは 0
+    }, [calculateEquipBonus, char.combatValues?.damage?.modifier]);
+
     return (
       <section className={cardStyles.base}>
         <div className={cardStyles.accordionHeader} onClick={() => setIsOpen(!isOpen)}>
@@ -186,7 +182,7 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
         </div>
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
-          {/* セクション1: 戦闘値 (5列) */}
+          {/*  戦闘値 (5列) */}
           <div className={tableStyles.scrollContainer}>
             <div className={tableStyles.gridTable}>
               <div className={tableStyles.headerRow} style={combatGridStyle}>
@@ -202,7 +198,32 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
             </div>
           </div>
 
-          {/* セクション2: 特殊判定 (4列) */}
+          {/* 新設：ダメージ行 */}
+          <div
+            className={`${tableStyles.scrollContainer} ${layoutStyles.mt4}`}
+            style={{ margin: '12px 0' }}
+          >
+            <div className={tableStyles.gridTable} style={damageGridStyle}>
+              <div
+                className={tableStyles.labelCell}
+                style={{
+                  backgroundColor: '#000',
+                  color: 'var(--text-secondary)',
+                  textAlign: 'center',
+                }}
+              >
+                ダメージ
+              </div>
+              <div
+                className={tableStyles.cell}
+                style={{ fontSize: '1.25rem', fontWeight: 'bold', paddingLeft: '16px' }}
+              >
+                2D + {damageTotal}
+              </div>
+            </div>
+          </div>
+
+          {/*  特殊判定 (4列) */}
           <div className={`${tableStyles.scrollContainer} ${layoutStyles.mt4}`}>
             <div className={tableStyles.gridTable}>
               <div className={tableStyles.headerRow} style={specialGridStyle}>
@@ -214,6 +235,16 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
               {renderRow('エネミー識別', 'specialChecks', 'enemyLore', stats.lore.base, '', true)}
               {renderRow('鑑定', 'specialChecks', 'appraisal', stats.lore.base, '', true)}
             </div>
+          </div>
+          <div className={formStyles.notes}>
+            <p>
+              魔術値の装備修正は<strong>付与術式専用</strong>です。その他の術式では
+              <strong>加算されません</strong>
+            </p>
+            <p>
+              ダメージの装備修正は<strong>付与術式専用</strong>です。その他の術式では
+              <strong>加算されません</strong>
+            </p>
           </div>
         </div>
       </section>

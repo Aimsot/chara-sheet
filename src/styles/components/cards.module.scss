@@ -79,3 +79,16 @@
     opacity: 0;
   }
 }
+
+/* ステータス行専用の横長カード */
+.statusRow {
+  composes: base;
+  flex-direction: row; // 横並び
+  align-items: stretch;
+  min-height: 48px;
+  margin-top: 1rem;
+
+  &.warning {
+    border: 2px solid #ff4d4f; // 警告時は枠を太く赤く
+  }
+}

@@ -54,6 +54,7 @@ export interface Character {
     magic: CombatValue; // 魔術値
     dodge: CombatValue; // 回避値
     defense: CombatValue; // 防御値
+    damage: CombatValue; // ダメージ値
   };
 
   specialChecks: {
