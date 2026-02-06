@@ -60,11 +60,11 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
       else if (magicType === '神性術式') magicBase = m + af;
 
       const equipDodge = getEquipTotal('dodgeMod');
-      const dodgeBase = m + a + 7 + equipDodge;
-
-      const equipDefense = getEquipTotal('defenseMod');
-      const defenseBase = p + equipDefense;
-
+      // 回避値: 精神 + 敏捷 + 7
+      const dodgeBase = m + a + 7;
+      // 防御値: 体力 (Physical)
+      const defenseBase = p;
+      // 知識系: 知力
       const loreBase = i;
 
       return {
