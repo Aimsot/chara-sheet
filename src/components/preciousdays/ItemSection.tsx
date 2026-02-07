@@ -208,28 +208,19 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
     return (
       <section className={cardStyles.base}>
         <div className={cardStyles.accordionHeader} onClick={() => setIsOpen(!isOpen)}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              width: '100%',
-              paddingRight: '1rem',
-            }}
-          >
-            <h2 className={cardStyles.title}>所持品</h2>
+          <h2 className={cardStyles.title}>所持品</h2>
+
+          <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+        </div>
+
+        <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
+          <div className={tableStyles.scrollContainer}>
             <WeightSection
               abilities={abilities}
               equipment={equipment}
               items={items}
               species={species}
             />
-          </div>
-          <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
-        </div>
-
-        <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
-          <div className={tableStyles.scrollContainer}>
             <div className={tableStyles.gridTable}>
               {/* ヘッダー */}
               <div className={tableStyles.headerRow} style={itemGridStyle}>

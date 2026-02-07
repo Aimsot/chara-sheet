@@ -335,13 +335,13 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
         </div>
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
-          <WeightSection
-            abilities={abilities}
-            equipment={equipment}
-            items={items}
-            species={species}
-          />
           <div className={tableStyles.scrollContainer}>
+            <WeightSection
+              abilities={abilities}
+              equipment={equipment}
+              items={items}
+              species={species}
+            />
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable}`}
               style={{ minWidth: equipGridStyle.minWidth }}
