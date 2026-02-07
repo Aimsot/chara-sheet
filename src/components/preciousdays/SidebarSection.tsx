@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
 
-import { ArrowBigLeftDash, Ban, Copy, Eye, PenIcon, SaveAll, Trash2 } from 'lucide-react';
+import {
+  ArrowBigLeftDash,
+  Ban,
+  Copy,
+  Eye,
+  LoaderCircle,
+  PenIcon,
+  Save,
+  Trash2,
+} from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import btnStyles from '@/styles/components/buttons.module.scss';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss';
 import sidebarStyles from '@/styles/components/charaSheet/sidebar.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
@@ -66,14 +76,15 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
       });
 
       const data = await res.json();
+
       if (data.success) {
         router.push(`/preciousdays/edit?key=${char.id}`);
       } else {
         alert(data.message || 'パスワードが違います');
+        setIsAuthLoading(false);
       }
     } catch (error) {
       console.error('Auth Submit Error:', error);
-    } finally {
       setIsAuthLoading(false);
     }
   };
@@ -133,8 +144,14 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
             {isReadOnly && (
               <ActionButton
                 disabled={isAuthLoading}
-                icon={<PenIcon size={14} />}
-                label={isAuthLoading ? '確認中...' : '認証して編集画面へ'}
+                icon={
+                  isAuthLoading ? (
+                    <LoaderCircle className={btnStyles.spinner} size={16} />
+                  ) : (
+                    <PenIcon size={16} />
+                  )
+                }
+                label={isAuthLoading ? '' : '認証して編集画面へ'}
                 onClick={handleAuthSubmit}
                 style={{ width: '100%', marginTop: '10px' }}
                 variant='solid'
@@ -171,8 +188,20 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 <ActionButton
                   className={layoutStyles.mt2}
                   disabled={isSubmitting}
-                  icon={<SaveAll size={16} />}
-                  label={charKey && !cloneKey ? '変更を保存する' : 'キャラクターを登録'}
+                  icon={
+                    isSubmitting ? (
+                      <LoaderCircle className={btnStyles.spinner} size={16} />
+                    ) : (
+                      <Save size={16} />
+                    )
+                  }
+                  label={
+                    isSubmitting
+                      ? ''
+                      : charKey && !cloneKey
+                      ? '変更を保存する'
+                      : 'キャラクターを登録'
+                  }
                   style={{ width: '100%' }}
                   submit={true}
                   variant='primary'

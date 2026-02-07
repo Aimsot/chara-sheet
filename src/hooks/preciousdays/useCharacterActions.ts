@@ -314,13 +314,11 @@ export const useCharacterActions = (
 
         const result = await saveCharacterAction(finalCharData);
         if (result.success) {
-          alert('保存が完了しました！');
-          router.push(`/preciousdays/view/${result.id}`);
+          setIsSubmitting(false);
         }
       } catch (error) {
         console.error(error);
         alert('保存エラーが発生しました');
-      } finally {
         setIsSubmitting(false);
       }
     },
