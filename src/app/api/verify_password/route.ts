@@ -63,30 +63,23 @@ export async function POST(req: NextRequest) {
     const charData = JSON.parse(decrypted.toString());
     const storedPassword = charData.password;
 
-    // 3. 認証判定
     let isAuthorized = false;
 
-    // A. 保存データにパスワードがない場合 -> 無条件でOK
     if (!storedPassword) {
       isAuthorized = true;
-    }
-    // B. パスワードがある場合 -> 入力されたものと比較
-    else if (storedPassword === password) {
+    } else if (storedPassword === password) {
       isAuthorized = true;
     }
 
-    // 4. 結果を返却
     if (isAuthorized) {
-      // ★★★ 成功時：Cookieを発行してブラウザに保存させる ★★★
       const cookieStore = await cookies();
 
-      // Cookie名: edit_allowed_[ID]
       cookieStore.set(`edit_allowed_${id}`, 'true', {
-        httpOnly: true, // JavaScriptからアクセス不可にする（セキュリティ向上）
-        secure: process.env.NODE_ENV === 'production', // 本番環境ではHTTPS必須
-        path: '/', // サイト全体で有効
-        maxAge: 60 * 60 * 24, // 1日間有効 (秒単位)
-        sameSite: 'lax', // CSRF対策
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: 60 * 60 * 24,
+        sameSite: 'lax',
       });
 
       return NextResponse.json({ success: true });

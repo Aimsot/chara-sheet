@@ -296,7 +296,7 @@ export const useCharacterActions = (
         const finalCharData = {
           ...char,
           id: char.id || generateUUID(),
-          characterName: char.characterName || '（名称未設定）',
+          characterName: char.characterName || '',
         };
 
         if (selectedFile) {

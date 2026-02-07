@@ -62,7 +62,7 @@ export const CharacterRow = ({ characters }: { characters: Character[] }) => {
           <Link className={styles.row} href={`/preciousdays/view/${char.id}`} key={char.id}>
             <div className={styles.colName}>
               {/* 名前がない場合は ID や '名称未設定' を出す */}
-              <div className={styles.nameLink}>{char.characterName || '名称未設定'}</div>
+              <div className={styles.nameLink}>{char.characterName || '(名称未設定)'}</div>
             </div>
 
             <div className={styles.colPlayer}>{char.playerName || 'プレイヤー未設定'}</div>

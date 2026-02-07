@@ -1,3 +1,5 @@
+import { Metadata } from 'next';
+
 import { MainLayout } from '@/components/layouts/MainLayout';
 import layoutStyles from '@/styles/components/layout.module.scss';
 
@@ -8,3 +10,12 @@ export default function PreciousDaysLayout({ children }: { children: React.React
     </MainLayout>
   );
 }
+
+export const metadata: Metadata = {
+  title: 'プレシャスデイズ | Hotch Potch.',
+  description: '魔術師育成スローライフRPGプレシャスデイズのキャラクターシートです。',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
