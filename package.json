@@ -1,6 +1,6 @@
 {
   "name": "chara-sheet",
-  "version": "0.1.0-alpha.12",
+  "version": "0.1.0-alpha.13",
   "description": "Hotch Potch Character Sheet System",
   "private": true,
   "scripts": {
@@ -11,7 +11,8 @@
     "lint": "eslint --fix .",
     "lint:style": "stylelint \"**/*.{css,scss}\" --fix",
     "lint:all": "npm run lint && npm run lint:style",
-    "check": "npm run format && npm run lint:all"
+    "check": "npm run format && npm run lint:all",
+    "prepare": "husky"
   },
   "dependencies": {
     "next": "16.1.6",
@@ -36,6 +37,7 @@
     "eslint-plugin-react": "^7.37.5",
     "framer-motion": "^12.31.0",
     "globals": "^17.3.0",
+    "husky": "^9.1.7",
     "lucide-react": "^0.563.0",
     "next-auth": "^4.24.13",
     "prettier-plugin-md-nocjsp": "^1.5.1",

@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation';
 
 import CharacterSheetTemplate from '@/components/preciousdays/CharacterSheetTemplate';
 import Loading from '@/components/ui/Loading';
+import { INITIAL_CHARACTER } from '@/constants/preciousdays';
 import { useCharacterActions } from '@/hooks/preciousdays/useCharacterActions';
 import { Character } from '@/types/preciousdays/character';
-import { INITIAL_CHARACTER } from '@/constants/preciousdays';
 
 interface EditFormProps {
   initialData: Character | null;

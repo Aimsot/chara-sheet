@@ -1,0 +1,9 @@
+# .husky/pre-commit
+# コミット対象に package.json が含まれているかチェックする
+if ! git diff --cached --name-only | grep -q "package.json"; then
+  echo "⚠️  package.json がコミットに含まれていません！"
+  echo "   バージョンを更新しましたか？ (npm version patch を推奨)"
+  # 警告だけでコミットを許すなら exit 0
+  # 強制的に止めたいなら exit 1
+  exit 1
+fi
