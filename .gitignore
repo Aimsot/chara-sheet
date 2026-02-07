@@ -42,3 +42,4 @@ next-env.d.ts
 
 # sampleData
 src/constants/dummy.ts
+src/components/preciousdays/DebugUploader.tsx
