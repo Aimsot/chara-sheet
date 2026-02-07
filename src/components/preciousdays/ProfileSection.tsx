@@ -135,9 +135,9 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                   {!isReadOnly ? (
                     <input
                       className={formStyles.input}
-                      defaultValue={playerName ?? ''}
-                      onBlur={(e) => updateBaseField('playerName', e.target.value)} // onBlur
+                      onChange={(e) => updateBaseField('playerName', e.target.value)} // onBlur
                       type='text'
+                      value={playerName}
                     />
                   ) : (
                     <div className={baseStyles.readOnlyField}>{playerName}</div>

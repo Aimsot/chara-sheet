@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState } from 'react';
 
 interface NumberInputProps {
   value: number;
@@ -15,15 +15,16 @@ export const NumberInput: React.FC<NumberInputProps> = memo(
     const [localValue, setLocalValue] = useState<string>(
       value === undefined || value === null || Number.isNaN(value) ? '0' : value.toString()
     );
-
-    useEffect(() => {
+    const [prevValue, setPrevValue] = useState<number>(value);
+    if (value !== prevValue) {
+      setPrevValue(value);
       const numericLocal = parseInt(localValue, 10);
       const safeValue = Number.isNaN(value) ? 0 : value;
 
       if (safeValue !== (Number.isNaN(numericLocal) ? 0 : numericLocal)) {
         setLocalValue(safeValue.toString());
       }
-    }, [value]);
+    }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value;

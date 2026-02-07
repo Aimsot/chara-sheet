@@ -46,13 +46,30 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isDirty) {
-        e.preventDefault();
+      if (isSubmitting || !isDirty) return;
+      e.preventDefault();
+    };
+
+    const handlePopState = () => {
+      if (isSubmitting || !isDirty) return;
+
+      if (!window.confirm('編集中ですが、保存せずに移動してもよろしいですか？')) {
+        window.history.pushState(null, '', window.location.href);
       }
     };
+
+    if (isDirty && !isSubmitting) {
+      window.history.pushState(null, '', window.location.href);
+    }
+
     window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isDirty]);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isDirty, isSubmitting]);
 
   // Ctrl+S ショートカット & Enter送信防止
   useEffect(() => {

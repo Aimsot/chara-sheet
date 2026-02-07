@@ -293,18 +293,20 @@ export const useCharacterActions = (
     [setChar]
   );
 
-  // 保存処理 (ここは charRef.current を使う)
+  // 保存処理
   const handleSubmit = useCallback(
     async (e: React.BaseSyntheticEvent) => {
       e.preventDefault();
-      const currentChar = charRef.current; // 最新のcharを取得
+      const currentChar = charRef.current;
 
       if (!currentChar.playerName) return alert('プレイヤー名を入力してください');
       if (!setIsSubmitting || !router) return;
+
       setIsSubmitting(true);
       try {
         const finalCharData = {
           ...currentChar,
+          // 新規作成時はIDがない場合があるため生成、既存編集時はそのまま
           id: currentChar.id || generateUUID(),
           characterName: currentChar.characterName || '',
         };
@@ -323,8 +325,10 @@ export const useCharacterActions = (
         }
 
         const result = await saveCharacterAction(finalCharData);
+
         if (result.success) {
           setIsSubmitting(false);
+          window.location.href = `/preciousdays/edit?key=${result.id}`;
         }
       } catch (error) {
         console.error(error);
@@ -332,7 +336,7 @@ export const useCharacterActions = (
         setIsSubmitting(false);
       }
     },
-    [selectedFile, setIsSubmitting, router] // char への依存も削除！
+    [selectedFile, setIsSubmitting, router]
   );
 
   // 削除処理
