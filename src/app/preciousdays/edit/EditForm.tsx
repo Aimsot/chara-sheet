@@ -42,7 +42,7 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
     return JSON.stringify(char) !== JSON.stringify(baseData);
   }, [char, initialData]);
 
-  const actions = useCharacterActions(char, setChar, selectedFile, setIsSubmitting, router);
+  const actions = useCharacterActions(char, setChar, selectedFile, setIsSubmitting);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -121,6 +121,7 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
     <div className='theme-silver'>
       <CharacterSheetTemplate
         char={char}
+        isDirty={isDirty}
         isLoading={false}
         isSubmitting={isSubmitting}
         mode={isEditMode ? 'edit' : 'create'}
@@ -128,7 +129,6 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
         setChar={setChar}
         setPreviewUrl={setPreviewUrl}
         setSelectedFile={setSelectedFile}
-        isDirty={isDirty}
         {...actions}
       />
     </div>

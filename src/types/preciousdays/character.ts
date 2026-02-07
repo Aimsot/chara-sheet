@@ -125,3 +125,19 @@ export interface Item {
   notes: string;
   isEquipped?: boolean; // チェックボックス用（もし必要なら）
 }
+
+// ==========================================
+// 一覧表示専用の軽量な型
+// ==========================================
+export type CharacterSummary = {
+  id: string;
+  characterName: string;
+  playerName: string;
+  species: string;
+  style: string;
+  element: string;
+  updatedAt: string;
+  hp: number;
+  mp: number;
+  wp: number;
+};

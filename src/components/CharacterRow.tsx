@@ -1,5 +1,7 @@
 'use client';
 
+import { memo } from 'react';
+
 import Link from 'next/link';
 
 import {
@@ -11,7 +13,7 @@ import {
   StyleKey,
 } from '@/constants/preciousdays';
 import styles from '@/styles/components/charaList/row.module.scss';
-import { Character } from '@/types/preciousdays/character';
+import { CharacterSummary } from '@/types/preciousdays/character';
 
 // 属性に応じたクラス名を返すヘルパー
 const getElementClass = (elementKey: string) => {
@@ -33,7 +35,7 @@ const getElementClass = (elementKey: string) => {
   }
 };
 
-export const CharacterRow = ({ characters }: { characters: Character[] }) => {
+export const CharacterRow = memo(({ characters }: { characters: CharacterSummary[] }) => {
   return (
     <div className={styles.listContainer}>
       <div className={styles.tableHeader}>
@@ -44,16 +46,6 @@ export const CharacterRow = ({ characters }: { characters: Character[] }) => {
       </div>
 
       {characters.map((char) => {
-        // --- 安全な計算処理 ---
-        // char.abilities がない場合でも 0 として計算されるようにガード
-        const styleKey = (char.style as StyleKey) || '';
-        const hpTotal = (STYLE_DATA[styleKey].hp.base || 0) + (char.hp?.modifier || 0);
-        const mpTotal = (STYLE_DATA[styleKey].mp.base || 0) + (char.mp?.modifier || 0);
-        const wpTotal =
-          (char.abilities?.passion?.total || 0) +
-          (char.abilities?.affection?.total || 0) +
-          (char.wp?.modifier || 0);
-
         // 属性名取得 (char.element が undefined でも壊れない)
         const elementName = ELEMENT_DATA[char.element as ElementKey]?.name || char.element || '無';
         const elementStyleClass = getElementClass(char.element);
@@ -89,18 +81,17 @@ export const CharacterRow = ({ characters }: { characters: Character[] }) => {
             </div>
 
             <div className={styles.colStats}>
-              {/* HP/MP も ?. を使って安全に参照 */}
               <div className={`${styles.statBox} ${styles.hp}`}>
                 <span className={styles.statLabel}>HP</span>
-                <span className={styles.statValue}>{hpTotal ?? 0}</span>
+                <span className={styles.statValue}>{char.hp}</span>
               </div>
               <div className={`${styles.statBox} ${styles.mp}`}>
                 <span className={styles.statLabel}>MP</span>
-                <span className={styles.statValue}>{mpTotal ?? 0}</span>
+                <span className={styles.statValue}>{char.mp}</span>
               </div>
               <div className={`${styles.statBox} ${styles.wp}`}>
                 <span className={styles.statLabel}>WP</span>
-                <span className={styles.statValue}>{wpTotal}</span>
+                <span className={styles.statValue}>{char.wp}</span>
               </div>
             </div>
           </Link>
@@ -108,4 +99,6 @@ export const CharacterRow = ({ characters }: { characters: Character[] }) => {
       })}
     </div>
   );
-};
+});
+
+CharacterRow.displayName = 'CharacterRow';

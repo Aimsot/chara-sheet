@@ -15,7 +15,6 @@ import { SkillSection } from '@/components/preciousdays/SkillSection';
 import Loading from '@/components/ui/Loading';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
-import titleStyles from '@/styles/components/titles.module.scss';
 import { Character, Item, Skill } from '@/types/preciousdays/character';
 
 import { ActionButton } from '../ui/ActionButton';
@@ -96,22 +95,9 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
   } = props;
 
   const isReadOnly = mode === 'view';
-  const charKey = char?.id;
-
-  const getTitle = () => {
-    if (mode === 'view') return '閲覧画面';
-    return charKey ? 'キャラクター編集画面' : 'キャラクター新規作成画面';
-  };
 
   return (
     <div className={layoutStyles.container}>
-      <header className={titleStyles.decoratedHeader}>
-        <h1>
-          <span className={titleStyles.mainTitle}>プレシャスデイズ</span>
-          <span className={titleStyles.subTitle}>{getTitle()}</span>
-        </h1>
-      </header>
-
       <div className={`${layoutStyles.grid} ${layoutStyles.mb4}`}>
         <div className={`${layoutStyles.span4} ${baseStyles.stack}`}>
           <ActionButton
@@ -214,11 +200,11 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             handleDelete={handleDelete}
             id={char.id}
             isCopyProhibited={char.isCopyProhibited}
+            isDirty={isDirty}
             isReadOnly={isReadOnly}
             isSubmitting={isSubmitting}
             mode={mode}
             password={char.password}
-            isDirty={isDirty}
             setChar={setChar}
           />
 
