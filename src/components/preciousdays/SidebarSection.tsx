@@ -22,9 +22,10 @@ import { Character } from '@/types/preciousdays/character';
 import { ActionButton } from '../ui/ActionButton';
 
 interface StatusSidebarProps {
-  char: Character;
+  id: string | undefined;
+  password: string | undefined;
+  isCopyProhibited: boolean | undefined;
   setChar: React.Dispatch<React.SetStateAction<Character>>;
-  charKey: string | null;
   mode: 'create' | 'edit' | 'view';
   isSubmitting?: boolean;
   className?: string;
@@ -33,9 +34,10 @@ interface StatusSidebarProps {
 }
 
 export const SidebarSection: React.FC<StatusSidebarProps> = ({
-  char,
+  id,
+  password,
+  isCopyProhibited,
   setChar,
-  charKey,
   mode,
   isSubmitting,
   className,
@@ -50,14 +52,14 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [editPassword, setEditPassword] = useState('');
   // --- 複製処理 ---
-  const handleDuplicate = async (targetChar: Character) => {
-    router.push(`/preciousdays/edit?clone=${targetChar.id}`);
+  const handleDuplicate = async (targetChar: string) => {
+    router.push(`/preciousdays/edit?clone=${targetChar}`);
   };
 
   // --- 認証処理 (閲覧モード用) ---
   const handleAuthSubmit = async () => {
-    if (!char.password) {
-      router.push(`/preciousdays/edit?key=${char.id}`);
+    if (!password) {
+      router.push(`/preciousdays/edit?key=${id}`);
       return;
     }
     if (!authPassword) {
@@ -70,7 +72,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: char.id,
+          id: id,
           password: authPassword,
         }),
       });
@@ -78,7 +80,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
       const data = await res.json();
 
       if (data.success) {
-        router.push(`/preciousdays/edit?key=${char.id}`);
+        router.push(`/preciousdays/edit?key=${id}`);
       } else {
         alert(data.message || 'パスワードが違います');
         setIsAuthLoading(false);
@@ -98,7 +100,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
             <label className={formStyles.label}>
               {mode === 'view'
                 ? '編集用パスワード'
-                : char.password
+                : password
                 ? 'パスワードを変更する'
                 : 'パスワードを設定する（任意）'}
             </label>
@@ -124,7 +126,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               placeholder={
                 mode === 'view'
                   ? '認証パスワードを入力'
-                  : char.password
+                  : password
                   ? '変更する場合のみ入力（空欄なら維持）'
                   : '4〜12文字の半角英数'
               }
@@ -170,7 +172,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                   <span>シートの複製禁止</span>
                   <div className={formStyles.toggleSwitch}>
                     <input
-                      checked={char.isCopyProhibited || false}
+                      checked={isCopyProhibited || false}
                       name='isCopyProhibited'
                       onChange={(e) => {
                         setChar((prev: Character) => ({
@@ -196,11 +198,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                     )
                   }
                   label={
-                    isSubmitting
-                      ? ''
-                      : charKey && !cloneKey
-                      ? '変更を保存する'
-                      : 'キャラクターを登録'
+                    isSubmitting ? '' : id && !cloneKey ? '変更を保存する' : 'キャラクターを登録'
                   }
                   style={{ width: '100%' }}
                   submit={true}
@@ -212,7 +210,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               </div>
 
               {/* 閲覧ページに戻るボタン (編集モード かつ 既存キャラ複製の場合) */}
-              {charKey && cloneKey === null && (
+              {id && cloneKey === null && (
                 <>
                   <ActionButton
                     className={layoutStyles.mt2}
@@ -224,7 +222,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                     variant='danger'
                   />
                   <ActionButton
-                    href={`/preciousdays/view/${char.id}`}
+                    href={`/preciousdays/view/${id}`}
                     icon={<Eye size={16} />}
                     label='閲覧画面に戻る'
                     style={{ width: '100%', marginTop: '8px' }}
@@ -245,11 +243,11 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               }}
             >
               {/* 複製ボタン */}
-              {!char.isCopyProhibited ? (
+              {!isCopyProhibited && id ? (
                 <ActionButton
                   icon={<Copy size={16} />}
                   label='このキャラを複製する'
-                  onClick={() => handleDuplicate(char)}
+                  onClick={() => handleDuplicate(id)}
                   style={{ width: '100%' }}
                   variant='midnight'
                 />

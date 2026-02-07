@@ -1,6 +1,5 @@
-import { memo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 
-import Loading from '@/components/ui/Loading';
 import { LIFEPATH_DATA } from '@/constants/preciousdays';
 import cardStyles from '@/styles/components/cards.module.scss';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss'; // 2カラム配置用
@@ -9,15 +8,24 @@ import layoutStyles from '@/styles/components/layout.module.scss';
 import { Character } from '@/types/preciousdays/character';
 
 interface LifepathProps {
-  char: Character;
+  origin: string | undefined;
+  secret: string | undefined;
+  future: string | undefined;
   updateBaseField: (field: keyof Character, value: any) => void;
   isReadOnly?: boolean;
 }
 
 export const LifepathSection: React.FC<LifepathProps> = memo(
-  ({ char, updateBaseField, isReadOnly }) => {
+  ({ origin, secret, future, updateBaseField, isReadOnly }) => {
     const [isOpen, setIsOpen] = useState(isReadOnly);
-
+    const lifepathValues = useMemo(
+      () => ({
+        origin,
+        secret,
+        future,
+      }),
+      [origin, secret, future]
+    );
     return (
       <section className={`${cardStyles.base} ${layoutStyles.span12}`}>
         {/* ヘッダー */}
@@ -26,34 +34,30 @@ export const LifepathSection: React.FC<LifepathProps> = memo(
           <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
         </div>
 
-        {!char ? (
-          <Loading />
-        ) : (
-          <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
-            <div className={layoutStyles.grid}>
-              {LIFEPATH_DATA.map((field) => (
+        <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
+          <div className={layoutStyles.grid}>
+            {LIFEPATH_DATA.map((field) => {
+              const currentValue = lifepathValues[field.k as keyof typeof lifepathValues] || '';
+
+              return (
                 <div className={`${layoutStyles.span12} ${formStyles.fieldGroup}`} key={field.k}>
                   <label>{field.l}</label>
 
                   {isReadOnly ? (
-                    /* 閲覧モード: 下線形式のテキスト */
-                    <div className={baseStyles.readOnlyField}>{(char as any)[field.k] || ''}</div>
+                    <div className={baseStyles.readOnlyField}>{currentValue}</div>
                   ) : (
-                    /* 編集モード: 通常の入力欄 */
                     <input
                       className={formStyles.input}
-                      defaultValue={char[field.k] ?? ''}
-                      id={field.k}
-                      name={field.k}
-                      onBlur={(e) => updateBaseField(field.k, e.target.value)}
+                      defaultValue={currentValue}
+                      onBlur={(e) => updateBaseField(field.k as keyof Character, e.target.value)}
                       type='text'
                     />
                   )}
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        )}
+        </div>
       </section>
     );
   }

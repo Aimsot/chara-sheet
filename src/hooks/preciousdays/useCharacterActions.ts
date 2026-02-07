@@ -1,9 +1,10 @@
-import { useCallback } from 'react';
+/* src/hooks/preciousdays/useCharacterActions.ts */
+import { useCallback, useEffect, useRef } from 'react'; // useRef, useEffect を追加
 
 import imageCompression from 'browser-image-compression';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-import { saveCharacterAction, deleteCharacterAction } from '@/app/preciousdays/actions'; // パスは環境に合わせて調整してください
+import { saveCharacterAction, deleteCharacterAction } from '@/app/preciousdays/actions';
 import {
   SPECIES_DATA,
   SpeciesKey,
@@ -24,7 +25,13 @@ export const useCharacterActions = (
   setIsSubmitting?: React.Dispatch<React.SetStateAction<boolean>>,
   router?: AppRouterInstance
 ) => {
-  // プロフィールの更新 (onBlur用)
+  // ▼ 1. 最新の char を常に参照できるようにする (Refテクニック)
+  const charRef = useRef(char);
+  useEffect(() => {
+    charRef.current = char;
+  }, [char]);
+
+  // プロフィールの更新
   const updateBaseField = useCallback(
     (field: keyof Character, value: any) => {
       setChar((prev) => ({ ...prev, [field]: value }));
@@ -32,10 +39,9 @@ export const useCharacterActions = (
     [setChar]
   );
 
-  // 外見情報の更新 (onBlur用)
+  // 外見情報の更新
   const updateAppearance = useCallback(
     (field: string, value: string) => {
-      if (!setChar) return;
       setChar((prev: any) => ({
         ...prev,
         appearance: {
@@ -84,6 +90,7 @@ export const useCharacterActions = (
     },
     [setChar]
   );
+
   // 能力値ボーナス変更（バリデーション付き）
   const handleAbilitiesBonusChange = useCallback(
     (
@@ -91,13 +98,17 @@ export const useCharacterActions = (
       val: number,
       setErrorInfo: (info: { key: string; message: string } | null) => void
     ) => {
-      const abilityKey = key as keyof typeof char.abilities;
+      // ▼ 2. Refから最新の値を取得（これで依存配列を空にできる！）
+      const { abilities, species } = charRef.current;
+
+      const abilityKey = key as keyof typeof abilities;
       const safeVal = Number.isNaN(val) ? 0 : Math.max(0, val);
-      const speciesKey = (char.species || 'human') as SpeciesKey;
+
+      const speciesKey = (species || 'human') as SpeciesKey;
       const base = SPECIES_DATA[speciesKey]?.abilities[abilityKey] || 0;
 
       // バリデーション
-      const otherBonusTotal = Object.entries(char.abilities).reduce((acc, [k, v]) => {
+      const otherBonusTotal = Object.entries(abilities).reduce((acc, [k, v]) => {
         return k === abilityKey ? acc : acc + (v.bonus || 0);
       }, 0);
 
@@ -113,25 +124,28 @@ export const useCharacterActions = (
       }
 
       const updatedAbilities = {
-        ...char.abilities,
-        [abilityKey]: { ...char.abilities[abilityKey], bonus: safeVal },
+        ...abilities,
+        [abilityKey]: { ...abilities[abilityKey], bonus: safeVal },
       };
       updateAbilities({ abilities: updatedAbilities });
     },
-    [char, updateAbilities]
+    [updateAbilities] // ★ abilities, species への依存を排除！
   );
 
   // 能力値その他修正変更
   const handleAbilitiesOtherModifierChange = useCallback(
     (key: string, val: number) => {
-      const abilityKey = key as keyof typeof char.abilities;
+      // Refから取得
+      const { abilities } = charRef.current;
+
+      const abilityKey = key as keyof typeof abilities;
       const updatedAbilities = {
-        ...char.abilities,
-        [abilityKey]: { ...char.abilities[abilityKey], otherModifier: val },
+        ...abilities,
+        [abilityKey]: { ...abilities[abilityKey], otherModifier: val },
       };
       updateAbilities({ abilities: updatedAbilities });
     },
-    [char, updateAbilities]
+    [updateAbilities] // ★ abilities への依存を排除！
   );
 
   // --- スキル追加 ---
@@ -151,28 +165,22 @@ export const useCharacterActions = (
   // --- スキル削除 ---
   const handleSkillsRemove = useCallback(
     (index: number) => {
-      // setChar の中で現在の最新ステートを参照してチェックを行う
       setChar((prev) => {
         const targetSkill = prev.skills[index];
-
-        // 固定スキルの削除防止
         if (targetSkill.id === 's1') {
           alert('このスキルは削除できません。');
           return prev;
         }
-
-        // 入力がある場合の確認
         const hasInput =
           targetSkill.name.trim() !== '' ||
           targetSkill.effect.trim() !== '' ||
           targetSkill.level !== 1;
 
-        if (hasInput) {
-          if (
-            !window.confirm('入力された内容がありますが、このスキルを削除してもよろしいですか？')
-          ) {
-            return prev;
-          }
+        if (
+          hasInput &&
+          !window.confirm('入力された内容がありますが、このスキルを削除してもよろしいですか？')
+        ) {
+          return prev;
         }
 
         const newSkills = [...prev.skills];
@@ -285,18 +293,20 @@ export const useCharacterActions = (
     [setChar]
   );
 
-  // 保存処理
+  // 保存処理 (ここは charRef.current を使う)
   const handleSubmit = useCallback(
     async (e: React.BaseSyntheticEvent) => {
       e.preventDefault();
-      if (!char.playerName) return alert('プレイヤー名を入力してください');
+      const currentChar = charRef.current; // 最新のcharを取得
+
+      if (!currentChar.playerName) return alert('プレイヤー名を入力してください');
       if (!setIsSubmitting || !router) return;
       setIsSubmitting(true);
       try {
         const finalCharData = {
-          ...char,
-          id: char.id || generateUUID(),
-          characterName: char.characterName || '',
+          ...currentChar,
+          id: currentChar.id || generateUUID(),
+          characterName: currentChar.characterName || '',
         };
 
         if (selectedFile) {
@@ -322,21 +332,22 @@ export const useCharacterActions = (
         setIsSubmitting(false);
       }
     },
-    [char, selectedFile, setIsSubmitting, router]
+    [selectedFile, setIsSubmitting, router] // char への依存も削除！
   );
 
   // 削除処理
   const handleDelete = useCallback(async () => {
-    if (!char.id || !window.confirm('本当に削除しますか？')) return;
+    const currentChar = charRef.current;
+    if (!currentChar.id || !window.confirm('本当に削除しますか？')) return;
     if (!setIsSubmitting || !router) return;
     setIsSubmitting(true);
     try {
-      const result = await deleteCharacterAction(char.id);
+      const result = await deleteCharacterAction(currentChar.id);
       if (result.success) router.push('/preciousdays');
     } finally {
       setIsSubmitting(false);
     }
-  }, [char.id, setIsSubmitting, router]);
+  }, [setIsSubmitting, router]);
 
   return {
     updateAbilities,

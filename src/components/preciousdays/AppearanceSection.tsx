@@ -9,14 +9,14 @@ import layoutStyles from '@/styles/components/layout.module.scss';
 import { Character } from '@/types/preciousdays/character';
 
 interface AppearanceProps {
-  char: Character;
+  appearance: Character['appearance'];
   updateAppearance: (field: keyof Character['appearance'], value: string) => void;
   isReadOnly: boolean;
 }
 
 // React.memoでラップ
 export const AppearanceSection: React.FC<AppearanceProps> = memo(
-  ({ char, updateAppearance, isReadOnly }) => {
+  ({ appearance, updateAppearance, isReadOnly }) => {
     const [isOpen, setIsOpen] = useState(isReadOnly);
 
     return (
@@ -33,13 +33,12 @@ export const AppearanceSection: React.FC<AppearanceProps> = memo(
                 <label htmlFor={item.k}>{item.l}</label>
 
                 {isReadOnly ? (
-                  <div className={baseStyles.readOnlyField}>{char.appearance?.[item.k] || ''}</div>
+                  <div className={baseStyles.readOnlyField}>{appearance?.[item.k] || ''}</div>
                 ) : (
                   <input
                     className={formStyles.input}
-                    defaultValue={char.appearance?.[item.k] ?? ''}
-                    // 親から渡された安定した関数を呼び出す
-                    onBlur={(e) => updateAppearance('eyeColor', e.target.value)}
+                    defaultValue={appearance?.[item.k] ?? ''}
+                    onBlur={(e) => updateAppearance(item.k, e.target.value)}
                     type='text'
                   />
                 )}

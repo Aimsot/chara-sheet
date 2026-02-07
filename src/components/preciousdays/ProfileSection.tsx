@@ -11,8 +11,11 @@ import layoutStyles from '@/styles/components/layout.module.scss';
 import { Character } from '@/types/preciousdays/character';
 
 interface ProfileProps {
-  char: Character;
-  setChar: (char: Character) => void;
+  characterName: string | undefined;
+  playerName: string | undefined;
+  masterName: string | undefined;
+  species: string;
+  experience: number | undefined;
   updateAbilities: (updates: Partial<Character>) => void;
   updateBaseField: (field: keyof Character, value: any) => void;
   previewUrl: string | null;
@@ -23,7 +26,11 @@ interface ProfileProps {
 
 export const ProfileSection: React.FC<ProfileProps> = memo(
   ({
-    char,
+    characterName,
+    playerName,
+    masterName,
+    species,
+    experience,
     updateAbilities,
     updateBaseField,
     previewUrl,
@@ -111,11 +118,11 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span12} ${formStyles.fieldGroup}`}>
                   <label>キャラクター名</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField}>{char.characterName}</div>
+                    <div className={baseStyles.readOnlyField}>{characterName}</div>
                   ) : (
                     <input
                       className={formStyles.input}
-                      defaultValue={char.characterName ?? ''}
+                      defaultValue={characterName ?? ''}
                       onBlur={(e) => updateBaseField('characterName', e.target.value)} // onBlur
                       type='text'
                     />
@@ -128,12 +135,12 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                   {!isReadOnly ? (
                     <input
                       className={formStyles.input}
-                      defaultValue={char.playerName ?? ''}
+                      defaultValue={playerName ?? ''}
                       onBlur={(e) => updateBaseField('playerName', e.target.value)} // onBlur
                       type='text'
                     />
                   ) : (
-                    <div className={baseStyles.readOnlyField}>{char.playerName}</div>
+                    <div className={baseStyles.readOnlyField}>{playerName}</div>
                   )}
                 </div>
 
@@ -143,12 +150,12 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                   {!isReadOnly ? (
                     <input
                       className={formStyles.input}
-                      defaultValue={char.masterName ?? ''}
+                      defaultValue={masterName ?? ''}
                       onBlur={(e) => updateBaseField('masterName', e.target.value)} // onBlur
                       type='text'
                     />
                   ) : (
-                    <div className={baseStyles.readOnlyField}>{char.masterName}</div>
+                    <div className={baseStyles.readOnlyField}>{masterName}</div>
                   )}
                 </div>
 
@@ -158,13 +165,13 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                   {isReadOnly ? (
                     <div className={baseStyles.readOnlyField}>
                       {/* SPECIES_DATA から日本語名を引いてくる */}
-                      {SPECIES_DATA[char.species as SpeciesKey]?.name || char.species}
+                      {SPECIES_DATA[species as SpeciesKey]?.name || species}
                     </div>
                   ) : (
                     <select
                       className={formStyles.select}
                       onChange={(e) => updateAbilities({ species: e.target.value as SpeciesKey })}
-                      value={char.species}
+                      value={species}
                     >
                       {Object.entries(SPECIES_DATA).map(([k, v]) => (
                         <option key={k} value={k}>
@@ -179,12 +186,12 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label htmlFor='experience'>経験点</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField}>{char.experience}</div>
+                    <div className={baseStyles.readOnlyField}>{experience}</div>
                   ) : (
                     <input
                       autoComplete='off'
                       className={formStyles.input}
-                      defaultValue={char.experience ?? ''}
+                      defaultValue={experience ?? ''}
                       inputMode='numeric'
                       name='experience'
                       onBlur={(e) => updateBaseField('experience', e.target.value)}

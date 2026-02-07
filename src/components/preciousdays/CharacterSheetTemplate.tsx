@@ -76,7 +76,6 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
     setSelectedFile,
     setChar,
     isSubmitting = false,
-    // 以下、EditActions から抽出（view時はundefinedの可能性がある）
     updateAbilities = () => {},
     updateAppearance = () => {},
     updateBaseField = () => {},
@@ -104,13 +103,6 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
     return charKey ? 'キャラクター編集画面' : 'キャラクター新規作成画面';
   };
 
-  const containerProps = isReadOnly
-    ? {}
-    : {
-        onSubmit: (e: React.SubmitEvent<HTMLFormElement>) => handleSubmit?.(e),
-        style: { minHeight: '100vh', paddingBottom: '4rem' },
-      };
-
   return (
     <div className={layoutStyles.container}>
       <header className={titleStyles.decoratedHeader}>
@@ -136,74 +128,96 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
       {isLoading || !char ? (
         <Loading />
       ) : (
-        <form className={layoutStyles.grid} {...containerProps}>
+        <form className={layoutStyles.grid} onSubmit={isReadOnly ? undefined : handleSubmit}>
           <div className={`${layoutStyles.span8} ${baseStyles.stack}`}>
             <ProfileSection
-              char={char}
+              characterName={char.characterName}
+              experience={char.experience}
               isReadOnly={isReadOnly}
+              masterName={char.masterName}
+              playerName={char.playerName}
               previewUrl={previewUrl}
-              setChar={setChar}
               setPreviewUrl={setPreviewUrl}
               setSelectedFile={setSelectedFile}
+              species={char.species}
               updateAbilities={updateAbilities}
               updateBaseField={updateBaseField}
             />
 
             <ResourceSection
-              char={char}
+              abilities={char.abilities}
+              element={char.element}
+              gl={char.gl}
               handleGLUpdate={handleGLUpdate}
               handleResourceUpdate={handleResourceUpdate}
+              hp={char.hp}
               isReadOnly={isReadOnly}
+              mp={char.mp}
+              style={char.style}
+              wp={char.wp}
             />
 
             <div className={layoutStyles.grid}>
               <div className={layoutStyles.span6}>
                 <AppearanceSection
-                  char={char}
+                  appearance={char.appearance}
                   isReadOnly={isReadOnly}
                   updateAppearance={updateAppearance}
                 />
               </div>
               <div className={layoutStyles.span6} style={{ minWidth: 0 }}>
                 <LifepathSection
-                  char={char}
+                  future={char.future}
                   isReadOnly={isReadOnly}
+                  origin={char.origin}
+                  secret={char.secret}
                   updateBaseField={updateBaseField}
                 />
               </div>
             </div>
 
             <AbilitySection
-              char={char}
+              abilities={char.abilities}
+              element={char.element}
               handleAbilitiesBonusChange={handleAbilitiesBonusChange}
               handleAbilitiesOtherModifierChange={handleAbilitiesOtherModifierChange}
               isReadOnly={isReadOnly}
+              species={char.species}
+              style={char.style}
               updateAbilities={updateAbilities}
             />
 
             <CombatSection
-              char={char}
+              abilities={char.abilities}
+              combatValues={char.combatValues}
+              equipment={char.equipment}
               handleCombatModifierChange={handleCombatModifierChange}
               isReadOnly={isReadOnly}
+              specialChecks={char.specialChecks}
+              style={char.style}
             />
 
             <ItemSection
-              char={char}
+              abilities={char.abilities}
+              equipment={char.equipment}
               handleItemsAdd={handleItemsAdd}
               handleItemsRemove={handleItemsRemove}
               handleItemsUpdate={handleItemsUpdate}
               isReadOnly={isReadOnly}
+              items={char.items}
+              species={char.species}
             />
           </div>
 
           <SidebarSection
-            char={char}
-            charKey={charKey}
             className={layoutStyles.span4}
             handleDelete={handleDelete}
+            id={char.id}
+            isCopyProhibited={char.isCopyProhibited}
             isReadOnly={isReadOnly}
             isSubmitting={isSubmitting}
             mode={mode}
+            password={char.password}
             setChar={setChar}
           />
 
@@ -212,16 +226,19 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             style={{ marginTop: '32px' }}
           >
             <EquipmentSection
-              char={char}
+              abilities={char.abilities}
+              equipment={char.equipment}
               handleEquipmentUpdate={handleEquipmentUpdate}
               isReadOnly={isReadOnly}
+              items={char.items}
+              species={char.species}
             />
             <SkillSection
-              char={char}
               handleSkillsAdd={handleSkillsAdd}
               handleSkillsRemove={handleSkillsRemove}
               handleSkillsUpdate={handleSkillsUpdate}
               isReadOnly={isReadOnly}
+              skills={char.skills}
             />
           </div>
         </form>

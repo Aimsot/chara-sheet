@@ -1,3 +1,4 @@
+/* src/app/preciousdays/edit/page.tsx */
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -7,22 +8,33 @@ import { getCharacterById } from '@/lib/preciousdays/data';
 import EditForm from './EditForm';
 
 type Props = {
-  params: Promise<{ id: string }>;
+  searchParams: Promise<{ key?: string; clone?: string }>;
 };
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
-  const character = await getCharacterById(id);
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { key, clone } = await searchParams;
+  const targetId = key || clone;
+
+  if (!targetId) {
+    return {
+      title: 'プレシャスデイズ | Hotch Potch.',
+      description: 'プレシャスデイズのキャラクターシート作成ページです。',
+    };
+  }
+
+  const character = await getCharacterById(targetId);
 
   if (!character) {
     return {
-      title: 'キャラクターが見つかりませんでした',
+      title: 'キャラクターが見つかりませんでした | Hotch Potch.',
     };
   }
+
   const displayTitle = character.characterName || 'プレシャスデイズ';
 
   return {
     title: `${displayTitle} | Hotch Potch.`,
-    description: `${character.characterName} のキャラクターシート詳細ページです。`,
+    description: `${displayTitle ?? 'プレシャスデイズ'} のキャラクターシート閲覧ページです。`,
     robots: {
       index: false,
       follow: false,
