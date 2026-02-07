@@ -3,17 +3,18 @@
 import { useState, Suspense } from 'react'; // Suspense を追加
 import { Tooltip } from 'react-tooltip';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { LoaderCircle } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { ActionButton } from '@/components/ui/ActionButton';
+import btnStyles from '@/styles/components/buttons.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
 import titleStyles from '@/styles/components/titles.module.scss';
 
 function SignInContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
 
@@ -94,7 +95,8 @@ function SignInContent() {
 
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <ActionButton
-            label={isLoading ? '確認中...' : '確認'}
+            icon={isLoading ? <LoaderCircle className={btnStyles.spinner} size={20} /> : null}
+            label={isLoading ? '' : '確認'}
             style={{ width: '100%' }}
             submit={true}
             variant='outline'

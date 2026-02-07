@@ -8,18 +8,18 @@ import { NextAuthProvider } from '@/components/NextAuthProvider';
 const lineSeedJP = localFont({
   src: [
     {
-      path: '../../public/fonts/LINESeedJP_OTF_Bd.woff2',
+      path: '../../public/fonts/LINESeedJP_A_OTF_Rg.woff2',
       weight: '400',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/LINESeedJP_OTF_Bd.woff2',
+      path: '../../public/fonts/LINESeedJP_A_OTF_Bd.woff2',
       weight: '700',
       style: 'normal',
     },
   ],
   variable: '--font-line-seed-jp',
-  display: 'swap',
+  display: 'block',
 });
 
 const zenOldMincho = Zen_Old_Mincho({

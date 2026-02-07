@@ -1,3 +1,6 @@
+'use client';
+import { useEffect, useState } from 'react';
+
 import Link from 'next/link';
 
 import { MainLayout } from '@/components/layouts/MainLayout';
@@ -5,9 +8,20 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import styles from './page.module.scss';
 
 export default function Home() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    document.fonts.ready.then(() => {
+      setIsLoaded(true);
+    });
+  }, []);
+
   return (
     <MainLayout>
-      <div className={styles.topWrapper}>
+      <div
+        className={styles.topWrapper}
+        style={{ opacity: isLoaded ? 1 : 0, transition: 'opacity 0.3s' }}
+      >
         <div className={styles.titleArea}>
           <h1>CHARACTER SHEET</h1>
           <p>ぽっち式キャラクターシート</p>
