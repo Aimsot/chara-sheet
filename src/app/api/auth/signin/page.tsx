@@ -36,8 +36,7 @@ function SignInContent() {
         setError('合言葉が違います。');
         setIsLoading(false);
       } else {
-        router.push(callbackUrl);
-        router.refresh();
+        window.location.href = callbackUrl;
       }
     } catch {
       setError('通信エラーが発生しました。');
