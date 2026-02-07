@@ -13,6 +13,7 @@ import btnStyles from '@/styles/components/buttons.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
 import titleStyles from '@/styles/components/titles.module.scss';
+import { notifyLoginIP } from '@/app/actions/auth';
 
 function SignInContent() {
   const searchParams = useSearchParams();
@@ -41,6 +42,7 @@ function SignInContent() {
         setError('合言葉が違います。');
         setIsLoading(false);
       } else {
+        notifyLoginIP();
         window.location.href = callbackUrl;
       }
     } catch {
