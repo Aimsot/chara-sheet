@@ -71,23 +71,48 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
     };
   }, [isDirty, isSubmitting]);
 
-  // Ctrl+S ショートカット & Enter送信防止
+  // スクロール位置の復元専用
+  useEffect(() => {
+    const savedScrollPos = sessionStorage.getItem('preciousDaysScrollPos');
+    if (!savedScrollPos) return;
+
+    let frameId: number;
+
+    const performScroll = () => {
+      frameId = requestAnimationFrame(() => {
+        window.scrollTo({
+          top: parseInt(savedScrollPos, 10),
+          behavior: 'smooth',
+        });
+        sessionStorage.removeItem('preciousDaysScrollPos');
+      });
+    };
+
+    const timer = setTimeout(performScroll, 200);
+
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(frameId);
+    };
+  }, []);
+
+  // Ctrl + S で保存
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Enter送信防止
       if (e.key === 'Enter') {
         const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT') {
-          e.preventDefault();
-        }
+        if (target.tagName === 'INPUT') e.preventDefault();
       }
 
+      // Ctrl+S 上書き
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
-        // type="submit" ボタンを探してクリックを発火させる
         const submitBtn = document.querySelector('button[type="submit"]') as HTMLButtonElement;
         if (submitBtn) submitBtn.click();
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
@@ -103,6 +128,7 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
         setChar={setChar}
         setPreviewUrl={setPreviewUrl}
         setSelectedFile={setSelectedFile}
+        isDirty={isDirty}
         {...actions}
       />
     </div>

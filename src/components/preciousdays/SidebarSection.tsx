@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import {
+  AlertCircle,
   ArrowBigLeftDash,
   Ban,
   Copy,
@@ -30,6 +31,7 @@ interface StatusSidebarProps {
   isSubmitting?: boolean;
   className?: string;
   isReadOnly?: boolean;
+  isDirty?: boolean;
   handleDelete?: () => Promise<void>;
 }
 
@@ -42,6 +44,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   isSubmitting,
   className,
   isReadOnly,
+  isDirty,
   handleDelete,
 }) => {
   const router = useRouter();
@@ -187,26 +190,48 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 </label>
               </div>
               <div>
-                <ActionButton
-                  className={layoutStyles.mt2}
-                  disabled={isSubmitting}
-                  icon={
-                    isSubmitting ? (
-                      <LoaderCircle className={btnStyles.spinner} size={16} />
-                    ) : (
-                      <Save size={16} />
-                    )
-                  }
-                  label={
-                    isSubmitting ? '' : id && !cloneKey ? '変更を保存する' : 'キャラクターを登録'
-                  }
-                  style={{ width: '100%' }}
-                  submit={true}
-                  variant='primary'
-                />
-                <div className={formStyles.notes} style={{ marginTop: 0 }}>
-                  <p>Ctrl + S でも保存ができます</p>
-                </div>
+                {isDirty ? (
+                  <>
+                    <ActionButton
+                      className={layoutStyles.mt2}
+                      disabled={isSubmitting}
+                      icon={
+                        isSubmitting ? (
+                          <LoaderCircle className={btnStyles.spinner} size={16} />
+                        ) : (
+                          <Save size={16} />
+                        )
+                      }
+                      label={
+                        isSubmitting
+                          ? ''
+                          : id && !cloneKey
+                          ? '変更を保存する'
+                          : 'キャラクターを登録'
+                      }
+                      style={{ width: '100%' }}
+                      submit={true}
+                      variant='primary'
+                    />
+                    <div className={formStyles.notes} style={{ marginTop: 0 }}>
+                      <p>Ctrl + S でも保存ができます</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <ActionButton
+                      disabled={true}
+                      className={layoutStyles.mt2}
+                      icon={<AlertCircle size={16} />}
+                      variant='disabled'
+                      style={{ width: '100%' }}
+                      label='変更はありません'
+                    />
+                    <div className={formStyles.notes} style={{ marginTop: 0 }}>
+                      <p>欄外をクリックすると入力が完了します</p>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* 閲覧ページに戻るボタン (編集モード かつ 既存キャラ複製の場合) */}

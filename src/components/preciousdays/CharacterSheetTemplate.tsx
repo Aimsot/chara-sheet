@@ -34,6 +34,7 @@ interface BaseTemplateProps {
   setPreviewUrl: React.Dispatch<React.SetStateAction<string | null>>;
   setSelectedFile: React.Dispatch<React.SetStateAction<File | null>>;
   isSubmitting?: boolean;
+  isDirty?: boolean;
 }
 
 interface EditActions {
@@ -74,6 +75,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
     setSelectedFile,
     setChar,
     isSubmitting = false,
+    isDirty,
     updateAbilities = () => {},
     updateAppearance = () => {},
     updateBaseField = () => {},
@@ -216,6 +218,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             isSubmitting={isSubmitting}
             mode={mode}
             password={char.password}
+            isDirty={isDirty}
             setChar={setChar}
           />
 

@@ -327,6 +327,7 @@ export const useCharacterActions = (
         const result = await saveCharacterAction(finalCharData);
 
         if (result.success) {
+          sessionStorage.setItem('preciousDaysScrollPos', window.scrollY.toString());
           window.location.href = `/preciousdays/edit?key=${result.id}`;
         }
       } catch (error) {

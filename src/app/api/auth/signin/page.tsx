@@ -27,6 +27,10 @@ function SignInContent() {
     setIsLoading(true);
     setError('');
 
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    await new Promise((resolve) => requestAnimationFrame(resolve));
     try {
       const result = await signIn('credentials', {
         password: password,
