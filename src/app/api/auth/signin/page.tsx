@@ -29,8 +29,9 @@ function SignInContent() {
     try {
       const result = await signIn('credentials', {
         password: password,
-        redirect: true,
+        redirect: false,
       });
+
       if (result?.error) {
         setError('合言葉が違います。');
         setIsLoading(false);

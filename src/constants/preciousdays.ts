@@ -1,4 +1,94 @@
-import { AbilityScore } from '@/types/preciousdays/character';
+import {
+  AbilityScore,
+  Character,
+  CombatValue,
+  EquipmentItem,
+} from '@/types/preciousdays/character';
+
+// --- ヘルパー定数 ---
+const EMPTY_COMBAT_VALUE: CombatValue = { modifier: 0 };
+
+const EMPTY_EQUIPMENT: EquipmentItem = {
+  name: '',
+  weight: 0,
+  hitMod: 0,
+  damage: '',
+  range: '',
+  dodgeMod: 0,
+  defenseMod: 0,
+  magicDefense: 0,
+  notes: '',
+};
+
+// --- 初期値 (新規作成用) ---
+export const INITIAL_CHARACTER: Character = {
+  system: 'preciousdays',
+  id: '',
+  playerName: '',
+  characterName: '',
+  masterName: '',
+  isCopyProhibited: false,
+
+  hp: { modifier: 0 },
+  mp: { modifier: 0 },
+  wp: { modifier: 0 },
+  gl: 0,
+
+  experience: 0,
+  species: 'human',
+  style: 'enchanter',
+  element: 'earth',
+
+  appearance: {
+    age: '',
+    gender: '',
+    height: '',
+    weight: '',
+    hairColor: '',
+    eyeColor: '',
+    skinColor: '',
+  },
+
+  // 能力値 (Baseなし)
+  abilities: {
+    physical: { bonus: 0, otherModifier: 0, total: 0 },
+    intellect: { bonus: 0, otherModifier: 0, total: 0 },
+    mystic: { bonus: 0, otherModifier: 0, total: 0 },
+    agility: { bonus: 0, otherModifier: 0, total: 0 },
+    passion: { bonus: 0, otherModifier: 0, total: 0 },
+    affection: { bonus: 0, otherModifier: 0, total: 0 },
+  },
+
+  origin: '',
+  secret: '',
+  future: '',
+
+  // 戦闘値
+  combatValues: {
+    magic: { ...EMPTY_COMBAT_VALUE },
+    dodge: { ...EMPTY_COMBAT_VALUE },
+    defense: { ...EMPTY_COMBAT_VALUE },
+    damage: { ...EMPTY_COMBAT_VALUE },
+  },
+
+  // 特殊な判定
+  specialChecks: {
+    enemyLore: { ...EMPTY_COMBAT_VALUE },
+    appraisal: { ...EMPTY_COMBAT_VALUE },
+  },
+
+  equipment: {
+    rHand: { ...EMPTY_EQUIPMENT },
+    lHand: { ...EMPTY_EQUIPMENT },
+    head: { ...EMPTY_EQUIPMENT },
+    body: { ...EMPTY_EQUIPMENT },
+    accessory: { ...EMPTY_EQUIPMENT },
+    guardian: { ...EMPTY_EQUIPMENT },
+  },
+  items: [{ id: 'i1', name: '', weight: 1, quantity: 1, notes: '' }],
+  skills: [{ id: 's1', name: 'マナインフロー', level: 0, effect: '魔術が使用可能になる' }],
+};
+
 export const ABILITY_KEYS = [
   'physical',
   'intellect',
