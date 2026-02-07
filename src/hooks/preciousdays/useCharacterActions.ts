@@ -327,7 +327,6 @@ export const useCharacterActions = (
         const result = await saveCharacterAction(finalCharData);
 
         if (result.success) {
-          setIsSubmitting(false);
           window.location.href = `/preciousdays/edit?key=${result.id}`;
         }
       } catch (error) {

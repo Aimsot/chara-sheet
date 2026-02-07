@@ -36,12 +36,10 @@ interface BaseTemplateProps {
   isSubmitting?: boolean;
 }
 
-// 編集・作成時のみ「必須」となるアクション群
 interface EditActions {
   updateAbilities: (updates: Partial<Character>) => void;
   updateAppearance: (field: string, value: string) => void;
   updateBaseField: (field: keyof Character, value: any) => void;
-  // React.FormEvent ではなく React.SubmitEvent を使用
   handleSubmit: (e: React.SubmitEvent<HTMLFormElement>) => void;
   handleDelete: () => Promise<void>;
   handleAbilitiesBonusChange: (key: string, val: number, setError: any) => void;
