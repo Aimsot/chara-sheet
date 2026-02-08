@@ -2,7 +2,6 @@
 
 import { useState, Suspense, useEffect, useMemo } from 'react';
 
-
 import CharacterSheetTemplate from '@/components/preciousdays/CharacterSheetTemplate';
 import Loading from '@/components/ui/Loading';
 import { INITIAL_CHARACTER } from '@/constants/preciousdays';
@@ -23,23 +22,24 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
 
   const [char, setChar] = useState<Character>(() => {
     if (initialData) {
-      if (isClone) {
+      if (isClone)
         return {
           ...initialData,
           id: '',
           password: '',
           characterName: `${initialData.characterName} (コピー)`,
         };
-      }
       return { ...initialData, id: characterKey || initialData.id };
     }
     return { ...INITIAL_CHARACTER, id: '' };
   });
+
   const isDirty = useMemo(() => {
     const baseData = initialData || INITIAL_CHARACTER;
     return JSON.stringify(char) !== JSON.stringify(baseData);
   }, [char, initialData]);
 
+  // アクションの呼び出し
   const actions = useCharacterActions(char, setChar, selectedFile, setIsSubmitting);
 
   useEffect(() => {
@@ -133,6 +133,10 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
   );
 }
 
+/**
+ * 外部から呼ばれるエントリポイント
+ * ここで Suspense を適用することでビルドエラーを確実に防ぐ
+ */
 export default function EditForm(props: EditFormProps) {
   return (
     <Suspense fallback={<Loading />}>

@@ -4,7 +4,6 @@ import { Metadata } from 'next';
 
 import Loading from '@/components/ui/Loading';
 import { getCharacterById } from '@/lib/preciousdays/data';
-import { Character } from '@/types/preciousdays/character';
 
 import CharacterViewClient from '../CharacterViewClient';
 
@@ -14,7 +13,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const character: Character = await getCharacterById(id);
+  const character = await getCharacterById(id);
 
   if (!character) {
     return {
