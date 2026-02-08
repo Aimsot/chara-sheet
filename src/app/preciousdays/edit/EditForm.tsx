@@ -2,7 +2,6 @@
 
 import { useState, Suspense, useEffect, useMemo } from 'react';
 
-import { useRouter } from 'next/navigation';
 
 import CharacterSheetTemplate from '@/components/preciousdays/CharacterSheetTemplate';
 import Loading from '@/components/ui/Loading';
@@ -17,7 +16,6 @@ interface EditFormProps {
 }
 
 function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) {
-  const router = useRouter();
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.image || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

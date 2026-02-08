@@ -24,6 +24,7 @@ export const BackToSystemSelect = memo(() => {
     </div>
   );
 });
+BackToSystemSelect.displayName = 'BackToSystemSelect';
 export default function CharacterListClient({
   initialCharacters,
   currentPage,

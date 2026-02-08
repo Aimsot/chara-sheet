@@ -81,7 +81,7 @@ function decrypt(data: Buffer): string {
     let decrypted = decipher.update(encryptedText);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString('utf-8');
-  } catch (e) {
+  } catch {
     throw new Error('復号に失敗しました。キーが正しくないか、データが破損しています。');
   }
 }
