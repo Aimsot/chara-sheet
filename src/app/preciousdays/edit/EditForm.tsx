@@ -42,7 +42,7 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
     return JSON.stringify(char) !== JSON.stringify(baseData);
   }, [char, initialData]);
 
-  const actions = useCharacterActions(char, setChar, selectedFile, setIsSubmitting, router);
+  const actions = useCharacterActions(char, setChar, selectedFile, setIsSubmitting);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {

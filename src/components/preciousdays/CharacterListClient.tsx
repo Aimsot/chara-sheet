@@ -1,21 +1,23 @@
 'use client';
-
-import { ArrowBigLeftDash, DiamondPlus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-
-import { CharacterRow } from '@/components/CharacterRow';
-import { ActionButton } from '@/components/ui/ActionButton';
-import layoutStyles from '@/styles/components/layout.module.scss';
-import { Character } from '@/types/preciousdays/character';
 import { memo } from 'react';
 
-const BackToSystemSelect = memo(({ router }: { router: any }) => {
+import { DiamondPlus, ChevronLeft, ChevronRight, ArrowBigLeftDash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+import layoutStyles from '@/styles/components/layout.module.scss';
+import { CharacterSummary } from '@/types/preciousdays/character';
+
+import { CharacterRow } from '../CharacterRow';
+import { ActionButton } from '../ui/ActionButton';
+
+export const BackToSystemSelect = memo(() => {
+  const router = useRouter();
   return (
     <div className={layoutStyles.flexleft}>
       <ActionButton
-        onClick={() => router.push('/')}
         icon={<ArrowBigLeftDash size={16} />}
         label='システム選択に戻る'
+        onClick={() => router.push('/')}
         style={{ width: '30%', marginBottom: '30px' }}
         variant='outline'
       />
@@ -24,11 +26,19 @@ const BackToSystemSelect = memo(({ router }: { router: any }) => {
 });
 export default function CharacterListClient({
   initialCharacters,
+  currentPage,
+  totalPages,
 }: {
-  initialCharacters: Character[];
+  initialCharacters: CharacterSummary[];
+  currentPage: number;
+  totalPages: number;
 }) {
   const router = useRouter();
   const characters = Array.isArray(initialCharacters) ? initialCharacters : [];
+
+  const handlePageChange = (newPage: number) => {
+    router.push(`/preciousdays?page=${newPage}#CharacterList`);
+  };
 
   return (
     <div className={layoutStyles.container}>
@@ -40,12 +50,36 @@ export default function CharacterListClient({
           variant='magic'
         />
       </div>
-      <BackToSystemSelect router={router} />
+      <BackToSystemSelect />
       {/* <DebugUploader /> */}
-      <main style={{ marginBottom: '50px' }}>
+      <main id='CharacterList' style={{ marginBottom: '30px' }}>
         <CharacterRow characters={characters} />
       </main>
-      <BackToSystemSelect router={router} />
+      {totalPages > 1 && (
+        <div className={layoutStyles.flexCenter} style={{ gap: '20px', marginBottom: '30px' }}>
+          <button
+            disabled={currentPage <= 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+            style={{ opacity: currentPage <= 1 ? 0.5 : 1, cursor: 'pointer' }}
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <span>
+            {currentPage} / {totalPages}
+          </span>
+
+          <button
+            disabled={currentPage >= totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+            style={{ opacity: currentPage >= totalPages ? 0.5 : 1, cursor: 'pointer' }}
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+      )}
+
+      <BackToSystemSelect />
     </div>
   );
 }

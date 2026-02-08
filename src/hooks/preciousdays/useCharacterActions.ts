@@ -2,9 +2,7 @@
 import { useCallback, useEffect, useRef } from 'react'; // useRef, useEffect を追加
 
 import imageCompression from 'browser-image-compression';
-import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-import { saveCharacterAction, deleteCharacterAction } from '@/app/preciousdays/actions';
 import {
   SPECIES_DATA,
   SpeciesKey,
@@ -15,6 +13,7 @@ import {
   ABILITY_KEYS,
   ABILITY_DATA,
 } from '@/constants/preciousdays';
+import { saveCharacterAction, deleteCharacterAction } from '@/lib/preciousdays/actions';
 import { Character, Item, Skill } from '@/types/preciousdays/character';
 import { generateUUID } from '@/utils/uuid';
 
@@ -22,8 +21,7 @@ export const useCharacterActions = (
   char: Character,
   setChar: React.Dispatch<React.SetStateAction<Character>>,
   selectedFile?: File | null,
-  setIsSubmitting?: React.Dispatch<React.SetStateAction<boolean>>,
-  router?: AppRouterInstance
+  setIsSubmitting?: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   // ▼ 1. 最新の char を常に参照できるようにする (Refテクニック)
   const charRef = useRef(char);
@@ -297,26 +295,21 @@ export const useCharacterActions = (
   const handleSubmit = useCallback(
     async (e: React.BaseSyntheticEvent) => {
       e.preventDefault();
-      const currentChar = charRef.current;
-
-      if (!currentChar.playerName) return alert('プレイヤー名を入力してください');
-      if (!setIsSubmitting || !router) return;
-
+      if (!setIsSubmitting) return;
       setIsSubmitting(true);
-      try {
-        const finalCharData = {
-          ...currentChar,
-          // 新規作成時はIDがない場合があるため生成、既存編集時はそのまま
-          id: currentChar.id || generateUUID(),
-          characterName: currentChar.characterName || '',
-        };
 
+      try {
+        const finalCharData = { ...charRef.current };
+
+        // 1. IDがない新規作成時はその場で生成
+        if (!finalCharData.id) {
+          finalCharData.id = generateUUID();
+        }
+
+        // 2. 画像圧縮
         if (selectedFile) {
-          const compressedFile = await imageCompression(selectedFile, {
-            maxSizeMB: 0.1,
-            maxWidthOrHeight: 380,
-            fileType: 'image/webp',
-          });
+          const options = { maxSizeMB: 0.2, maxWidthOrHeight: 800, useWebWorker: true };
+          const compressedFile = await imageCompression(selectedFile, options);
           finalCharData.image = await new Promise((res) => {
             const reader = new FileReader();
             reader.readAsDataURL(compressedFile);
@@ -324,11 +317,15 @@ export const useCharacterActions = (
           });
         }
 
+        // 3. サーバーへ保存（data.ts 側で index.json も更新されます）
         const result = await saveCharacterAction(finalCharData);
 
         if (result.success) {
-          sessionStorage.setItem('preciousDaysScrollPos', window.scrollY.toString());
+          // 仕様に合わせて window.location.href で遷移
           window.location.href = `/preciousdays/edit?key=${result.id}`;
+        } else {
+          alert(`保存に失敗しました: ${result.error}`);
+          setIsSubmitting(false); // 失敗時はボタンを戻す
         }
       } catch (error) {
         console.error(error);
@@ -336,22 +333,31 @@ export const useCharacterActions = (
         setIsSubmitting(false);
       }
     },
-    [selectedFile, setIsSubmitting, router]
+    [selectedFile, setIsSubmitting]
   );
 
   // 削除処理
   const handleDelete = useCallback(async () => {
     const currentChar = charRef.current;
     if (!currentChar.id || !window.confirm('本当に削除しますか？')) return;
-    if (!setIsSubmitting || !router) return;
+    if (!setIsSubmitting) return;
+
     setIsSubmitting(true);
     try {
       const result = await deleteCharacterAction(currentChar.id);
-      if (result.success) router.push('/preciousdays');
-    } finally {
+      if (result.success) {
+        // 削除後も確実に一覧へ戻すため href を使用
+        window.location.href = '/preciousdays';
+      } else {
+        alert(`削除に失敗しました: ${result.error}`);
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('削除エラーが発生しました');
       setIsSubmitting(false);
     }
-  }, [setIsSubmitting, router]);
+  }, [setIsSubmitting]);
 
   return {
     updateAbilities,
