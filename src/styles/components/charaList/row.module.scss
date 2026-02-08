@@ -63,15 +63,16 @@ $color-light: #ffd43b;
 
   /* アニメーションと影 */
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--accent-color); // 枠線をアクセントカラーに
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4); // 影を濃く
+      transform: translateY(-3px); // ふわっと浮く
 
-  &:hover {
-    border-color: var(--accent-color); // 枠線をアクセントカラーに
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4); // 影を濃く
-    transform: translateY(-3px); // ふわっと浮く
-
-    .nameLink {
-      color: #fff; // ホバー時に名前を白く光らせる
-      text-shadow: 0 0 8px var(--accent-color);
+      .nameLink {
+        color: #fff; // ホバー時に名前を白く光らせる
+        text-shadow: 0 0 8px var(--accent-color);
+      }
     }
   }
 }

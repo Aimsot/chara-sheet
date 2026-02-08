@@ -2,7 +2,6 @@ import { Suspense } from 'react'; // 追加
 
 import { Metadata } from 'next';
 
-
 import Header from '@/components/Header/Header';
 import { MainLayout } from '@/components/layouts/MainLayout';
 // 必要に応じてローディングUIをインポート

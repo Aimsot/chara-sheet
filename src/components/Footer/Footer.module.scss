@@ -44,10 +44,11 @@ $bg-footer: #0a0a0a; // ほぼ黒に近い色
   text-decoration: none;
   opacity: 0.9;
   transition: opacity 0.3s;
-
-  &:hover {
-    text-shadow: 0 0 10px rgba(197, 169, 102, 0.4);
-    opacity: 1;
+  @media (hover: hover) {
+    &:hover {
+      text-shadow: 0 0 10px rgba(197, 169, 102, 0.4);
+      opacity: 1;
+    }
   }
 }
 
@@ -62,9 +63,10 @@ $bg-footer: #0a0a0a; // ほぼ黒に近い色
     letter-spacing: 0.05em;
     text-decoration: none;
     transition: all 0.3s;
-
-    &:hover {
-      color: var(--accent-color);
+    @media (hover: hover) {
+      &:hover {
+        color: var(--accent-color);
+      }
     }
   }
 }

@@ -30,9 +30,10 @@
   user-select: none;
   background-color: #000;
   transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #111;
+  @media (hover: hover) {
+    &:hover {
+      background-color: #111;
+    }
   }
 
   /* タイトル文字 */

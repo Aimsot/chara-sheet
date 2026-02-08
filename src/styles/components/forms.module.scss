@@ -88,11 +88,12 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     transition: all 0.2s;
-
-    &:hover {
-      color: #000;
-      background: var(--accent-color);
-      border-color: var(--accent-color);
+    @media (hover: hover) {
+      &:hover {
+        color: #000;
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+      }
     }
     &:active {
       transform: scale(0.95);

@@ -17,9 +17,11 @@
   border: none;
   border-radius: 4px;
   transition: all 0.3s ease;
-  &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
   }
   &:active {
     transform: translateY(1px);
@@ -41,13 +43,14 @@
   color: #fff;
   background-color: var(--accent-dark);
   border: 1px solid transparent;
-
-  &:hover {
-    background-color: #7a7253;
-    border-color: rgba(255, 255, 255, 0.1);
-    :global(.theme-silver) & {
-      background-color: var(--accent-dark);
-      filter: brightness(0.8);
+  @media (hover: hover) {
+    &:hover {
+      background-color: #7a7253;
+      border-color: rgba(255, 255, 255, 0.1);
+      :global(.theme-silver) & {
+        background-color: var(--accent-dark);
+        filter: brightness(0.8);
+      }
     }
   }
 }
@@ -58,11 +61,12 @@
   color: var(--accent-color);
   background: transparent;
   border: 1px solid var(--accent-color);
-
-  &:hover {
-    color: #fff;
-    background-color: var(--accent-layer);
-    border-color: var(--text-secondary);
+  @media (hover: hover) {
+    &:hover {
+      color: #fff;
+      background-color: var(--accent-layer);
+      border-color: var(--text-secondary);
+    }
   }
 }
 
@@ -100,14 +104,15 @@
     opacity: 1;
     transition: all 0.5s;
   }
+  @media (hover: hover) {
+    &:hover {
+      color: #000;
+      box-shadow: 0 6px 20px rgba(171, 161, 125, 0.4);
+      transform: translateY(-2px);
 
-  &:hover {
-    color: #000;
-    box-shadow: 0 6px 20px rgba(171, 161, 125, 0.4);
-    transform: translateY(-2px);
-
-    &::after {
-      opacity: 0; // 上の層が消えて、下の「輝く色」が露出する
+      &::after {
+        opacity: 0; // 上の層が消えて、下の「輝く色」が露出する
+      }
     }
   }
   :global(.theme-silver) & {
@@ -117,9 +122,10 @@
     &::after {
       background-image: linear-gradient(90deg, #7a848a 0%, #a3aeb5 100%); // 通常の鋼色
     }
-
-    &:hover {
-      box-shadow: 0 6px 20px rgba(148, 163, 184, 0.4);
+    @media (hover: hover) {
+      &:hover {
+        box-shadow: 0 6px 20px rgba(148, 163, 184, 0.4);
+      }
     }
   }
 }
@@ -135,18 +141,19 @@
   border: 1px solid var(--accent-color);
   border-radius: 50px;
   box-shadow: 0 0 8px rgba(171, 161, 125, 0.1);
-
-  &:hover {
-    color: #fff;
-    text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
-    background: rgba(171, 161, 125, 0.15);
-    border-color: #ffd700;
-    box-shadow: 0 0 20px rgba(171, 161, 125, 0.4), inset 0 0 10px rgba(171, 161, 125, 0.1);
-    :global(.theme-silver) & {
-      text-shadow: 0 0 8px rgba(200, 220, 255, 0.6); /* 青白い光 */
-      background: var(--accent-layer);
-      border-color: #a3aeb5;
-      box-shadow: 0 0 20px rgba(148, 163, 184, 0.4), inset 0 0 10px rgba(148, 163, 184, 0.1);
+  @media (hover: hover) {
+    &:hover {
+      color: #fff;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+      background: rgba(171, 161, 125, 0.15);
+      border-color: #ffd700;
+      box-shadow: 0 0 20px rgba(171, 161, 125, 0.4), inset 0 0 10px rgba(171, 161, 125, 0.1);
+      :global(.theme-silver) & {
+        text-shadow: 0 0 8px rgba(200, 220, 255, 0.6); /* 青白い光 */
+        background: var(--accent-layer);
+        border-color: #a3aeb5;
+        box-shadow: 0 0 20px rgba(148, 163, 184, 0.4), inset 0 0 10px rgba(148, 163, 184, 0.1);
+      }
     }
   }
 }
@@ -157,12 +164,13 @@
   color: #ff6b6b;
   background: rgba(60, 20, 20, 0.4);
   border: 1px solid rgba(255, 107, 107, 0.3);
-
-  &:hover {
-    color: #fff;
-    background: rgba(220, 53, 69, 0.9);
-    border-color: rgba(220, 53, 69, 1);
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  @media (hover: hover) {
+    &:hover {
+      color: #fff;
+      background: rgba(220, 53, 69, 0.9);
+      border-color: rgba(220, 53, 69, 1);
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    }
   }
 }
 
@@ -172,12 +180,13 @@
   padding: 8px 16px; /* 少し小さめに */
   color: var(--text-secondary);
   background: transparent;
-
-  &:hover {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: none;
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: none;
+      transform: translateY(-1px);
+    }
   }
 }
 
@@ -189,11 +198,12 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   backdrop-filter: blur(4px);
-
-  &:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+  @media (hover: hover) {
+    &:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
   }
 }
 
@@ -204,12 +214,13 @@
   background: #0f0f0f;
   border: 1px solid #333;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-
-  &:hover {
-    color: #fff;
-    background: #000;
-    border-color: var(--accent-color);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.8);
+  @media (hover: hover) {
+    &:hover {
+      color: #fff;
+      background: #000;
+      border-color: var(--accent-color);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.8);
+    }
   }
 }
 
@@ -221,12 +232,13 @@
   background-color: var(--accent-color); /* メインの真鍮・ゴールド */
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-
-  &:hover {
-    background-color: var(--accent-color);
-    box-shadow: 0 4px 12px rgba(171, 161, 125, 0.3);
-    filter: brightness(1.1); /* わずかに明度を上げて「押せる」感を出す */
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--accent-color);
+      box-shadow: 0 4px 12px rgba(171, 161, 125, 0.3);
+      filter: brightness(1.1); /* わずかに明度を上げて「押せる」感を出す */
+      transform: translateY(-1px);
+    }
   }
 
   &:active {
@@ -237,9 +249,10 @@
   :global(.theme-silver) & {
     color: #1a1c1e;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-
-    &:hover {
-      box-shadow: 0 4px 12px rgba(163, 174, 181, 0.3);
+    @media (hover: hover) {
+      &:hover {
+        box-shadow: 0 4px 12px rgba(163, 174, 181, 0.3);
+      }
     }
   }
 }
@@ -260,11 +273,12 @@
     opacity: 0.5;
     filter: grayscale(1);
   }
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.2);
-    filter: none !important;
-    transform: none !important;
+  @media (hover: hover) {
+    &:hover {
+      background: rgba(0, 0, 0, 0.2);
+      filter: none !important;
+      transform: none !important;
+    }
   }
 
   /* シルバーテーマ（編集画面）での見え方 */

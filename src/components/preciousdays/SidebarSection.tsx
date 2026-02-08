@@ -33,6 +33,7 @@ interface StatusSidebarProps {
   isReadOnly?: boolean;
   isDirty?: boolean;
   handleDelete?: () => Promise<void>;
+  signinRef?: (node: HTMLDivElement | null) => void;
 }
 
 export const SidebarSection: React.FC<StatusSidebarProps> = ({
@@ -46,6 +47,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   isReadOnly,
   isDirty,
   handleDelete,
+  signinRef,
 }) => {
   const router = useRouter();
   const search = useSearchParams();
@@ -95,7 +97,11 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   };
 
   return (
-    <aside className={`${layoutStyles.span4} ${className || ''}`}>
+    <aside
+      className={`${layoutStyles.span4} ${className || ''}`}
+      id='signin-section'
+      ref={signinRef}
+    >
       <div className={sidebarStyles.container}>
         {/* PASSWORD エリア */}
         <div className={`${baseStyles.stack} ${formStyles.panel}`}>
@@ -284,9 +290,9 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
           {/* 一覧に戻るボタン (共通) */}
           <ActionButton
             className={layoutStyles.mt2}
-            href='/preciousdays'
             icon={<ArrowBigLeftDash size={16} />}
             label='一覧に戻る'
+            onClick={() => router.push('/preciousdays')}
             style={{ width: '100%' }}
             variant='outline'
           />

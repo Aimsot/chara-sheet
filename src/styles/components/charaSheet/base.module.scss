@@ -25,6 +25,30 @@
   gap: 16px;
 }
 
+.mobileFixedActions {
+  display: none; /* デフォルト（PC）は非表示 */
+  margin-bottom: 24px;
+  @media (max-width: 980px) {
+    position: sticky;
+    top: 0;
+    z-index: 9000;
+    display: flex;
+    gap: 8px;
+    width: fit-content;
+    margin-right: 6px;
+    margin-left: auto;
+    pointer-events: auto;
+  }
+}
+
+.compactBtn {
+  min-width: 80px;
+  height: 40px;
+  padding: 8px 12px !important;
+  font-size: 0.7rem !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
 @media (max-width: 980px) {
   .mobileFlexContainer {
     display: flex !important;

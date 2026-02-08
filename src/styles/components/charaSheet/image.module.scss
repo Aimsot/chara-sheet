@@ -13,17 +13,19 @@
   border: 3px dashed var(--card-border);
   border-radius: 8px;
   transition: border-color 0.2s;
-
-  &:hover {
-    border-color: var(--accent-color);
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--accent-color);
+    }
   }
 
   &.isReadOnly {
     cursor: default;
     border: 1px solid var(--card-border);
-
-    &:hover {
-      border-color: var(--card-border);
+    @media (hover: hover) {
+      &:hover {
+        border-color: var(--card-border);
+      }
     }
   }
   /* スマホでは幅いっぱいに */

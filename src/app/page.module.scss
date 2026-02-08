@@ -54,15 +54,16 @@
   border: 1px solid var(--card-border);
   border-radius: 12px;
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--accent-color);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transform: translateY(-5px);
 
-  &:hover {
-    border-color: var(--accent-color);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    transform: translateY(-5px);
-
-    .cardTitle {
-      color: var(--accent-color);
-      text-shadow: 0 0 10px rgba(171, 161, 125, 0.6);
+      .cardTitle {
+        color: var(--accent-color);
+        text-shadow: 0 0 10px rgba(171, 161, 125, 0.6);
+      }
     }
   }
 }

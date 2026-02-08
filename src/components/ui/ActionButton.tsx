@@ -24,8 +24,8 @@ interface ActionButtonProps {
   className?: string;
   style?: React.CSSProperties;
   submit?: boolean;
-  // ★追加: ボタンを無効化できるようにする
   disabled?: boolean;
+  form?: string;
 }
 
 export const ActionButton: React.FC<ActionButtonProps> = ({
@@ -38,6 +38,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   style,
   submit = false,
   disabled = false,
+  form,
 }) => {
   // バリエーションごとのスタイル決定
   let baseClass = btnStyles.outline; // デフォルト
@@ -60,7 +61,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
     </>
   );
 
-  // Linkの場合（disabledならクリックできないようにdivにする等の制御も可能ですが、今回はシンプルに）
+  // Linkの場合
   if (href && !disabled) {
     return (
       <Link
@@ -77,7 +78,8 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   return (
     <button
       className={combinedClass}
-      disabled={disabled} // ★追加
+      disabled={disabled}
+      form={form}
       onClick={onClick}
       style={style}
       type={submit ? 'submit' : 'button'}

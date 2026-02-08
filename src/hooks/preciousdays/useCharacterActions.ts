@@ -296,6 +296,10 @@ export const useCharacterActions = (
     async (e: React.BaseSyntheticEvent) => {
       e.preventDefault();
       if (!setIsSubmitting) return;
+      if (!charRef.current.playerName) {
+        alert('プレイヤー名を入力してください');
+        return;
+      }
       setIsSubmitting(true);
 
       try {

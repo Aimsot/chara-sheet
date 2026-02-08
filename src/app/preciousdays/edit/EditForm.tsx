@@ -36,36 +36,73 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
 
   const isDirty = useMemo(() => {
     const baseData = initialData || INITIAL_CHARACTER;
-    return JSON.stringify(char) !== JSON.stringify(baseData);
-  }, [char, initialData]);
+    const isDataChanged = JSON.stringify(char) !== JSON.stringify(baseData);
+    const isImageChanged = selectedFile !== null;
+
+    return isDataChanged || isImageChanged;
+  }, [char, initialData, selectedFile]);
 
   // アクションの呼び出し
   const actions = useCharacterActions(char, setChar, selectedFile, setIsSubmitting);
 
   useEffect(() => {
+    // --- 1. 離脱警告 (ブラウザを閉じようとした時) ---
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // 保存中、または変更がない場合は警告しない
       if (isSubmitting || !isDirty) return;
+
       e.preventDefault();
     };
 
+    // --- 2. ブラウザの「戻る」ボタン対策 (popstate) ---
     const handlePopState = () => {
       if (isSubmitting || !isDirty) return;
 
       if (!window.confirm('編集中ですが、保存せずに移動してもよろしいですか？')) {
+        // キャンセルされたら、現在のURLを履歴に再注入して留まる
         window.history.pushState(null, '', window.location.href);
       }
     };
 
+    // --- 3. キーボード操作のガード (keydown) ---
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 保存中はすべての操作（Ctrl+S, Enter等）を無効化
+      if (isSubmitting) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') e.preventDefault();
+        if (e.key === 'Enter') e.preventDefault();
+        return;
+      }
+
+      // Enterによる意図しない送信防止
+      if (e.key === 'Enter') {
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'INPUT') e.preventDefault();
+      }
+
+      // Ctrl+S で保存実行
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        // 変更がある場合のみ保存ボタンをクリック（お好みで !isDirty チェックを入れてもOK）
+        const submitBtn = document.querySelector('button[type="submit"]') as HTMLButtonElement;
+        if (submitBtn) submitBtn.click();
+      }
+    };
+
+    // 変更がある時に履歴を一つ追加（戻るボタンを検知可能にするため）
     if (isDirty && !isSubmitting) {
       window.history.pushState(null, '', window.location.href);
     }
 
+    // イベントリスナーの登録
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('popstate', handlePopState);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
+      // クリーンアップ（登録解除）
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isDirty, isSubmitting]);
 
@@ -116,7 +153,22 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
   }, []);
 
   return (
-    <div className='theme-silver'>
+    <div className='theme-silver' style={{ position: 'relative' }}>
+      {isSubmitting && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+            zIndex: 9999,
+            cursor: 'wait',
+            pointerEvents: 'all',
+          }}
+        />
+      )}
       <CharacterSheetTemplate
         char={char}
         isDirty={isDirty}

@@ -153,8 +153,10 @@
     cursor: pointer;
     background: transparent;
     border: none;
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
+    @media (hover: hover) {
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
     }
   }
 
