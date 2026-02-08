@@ -7,13 +7,13 @@ import { LoaderCircle } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 
+import { notifyLoginIP } from '@/app/actions/auth';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { ActionButton } from '@/components/ui/ActionButton';
 import btnStyles from '@/styles/components/buttons.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
 import titleStyles from '@/styles/components/titles.module.scss';
-import { notifyLoginIP } from '@/app/actions/auth';
 
 function SignInContent() {
   const searchParams = useSearchParams();

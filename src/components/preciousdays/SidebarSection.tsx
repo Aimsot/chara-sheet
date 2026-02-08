@@ -220,12 +220,12 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 ) : (
                   <>
                     <ActionButton
-                      disabled={true}
                       className={layoutStyles.mt2}
+                      disabled={true}
                       icon={<AlertCircle size={16} />}
-                      variant='disabled'
-                      style={{ width: '100%' }}
                       label='変更はありません'
+                      style={{ width: '100%' }}
+                      variant='disabled'
                     />
                     <div className={formStyles.notes} style={{ marginTop: 0 }}>
                       <p>欄外をクリックすると入力が完了します</p>

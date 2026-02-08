@@ -121,6 +121,7 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
     <div className='theme-silver'>
       <CharacterSheetTemplate
         char={char}
+        isDirty={isDirty}
         isLoading={false}
         isSubmitting={isSubmitting}
         mode={isEditMode ? 'edit' : 'create'}
@@ -128,7 +129,6 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
         setChar={setChar}
         setPreviewUrl={setPreviewUrl}
         setSelectedFile={setSelectedFile}
-        isDirty={isDirty}
         {...actions}
       />
     </div>
