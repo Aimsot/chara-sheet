@@ -38,6 +38,7 @@ export const AppearanceSection: React.FC<AppearanceProps> = memo(
                   <input
                     className={formStyles.input}
                     defaultValue={appearance?.[item.k] ?? ''}
+                    inputMode='text'
                     onBlur={(e) => updateAppearance(item.k, e.target.value)}
                     type='text'
                   />

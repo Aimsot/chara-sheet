@@ -114,8 +114,12 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 : 'パスワードを設定する（任意）'}
             </label>
             <input
+              autoCapitalize='none'
               autoComplete='current-password'
+              autoCorrect='off'
               className={formStyles.input}
+              inputMode='email'
+              lang='en'
               name='password'
               onChange={(e) => {
                 const val = e.target.value;
@@ -132,6 +136,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                   handleAuthSubmit();
                 }
               }}
+              pattern='[A-Za-z0-9]*'
               placeholder={
                 mode === 'view'
                   ? '認証パスワードを入力'
@@ -139,6 +144,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                   ? '変更する場合のみ入力（空欄なら維持）'
                   : '4〜12文字の半角英数'
               }
+              spellCheck='false'
               type='password'
               value={isReadOnly ? authPassword : editPassword}
             />

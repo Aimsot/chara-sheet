@@ -130,6 +130,7 @@ const EquipmentRow = memo(
           ) : (
             <input
               className={formStyles.input}
+              inputMode='text'
               onBlur={handleNameBlur}
               onChange={(e) => setLocalName(e.target.value)}
               placeholder={`${label}なし`}
@@ -271,6 +272,7 @@ const EquipmentRow = memo(
           ) : (
             <textarea
               className={formStyles.textareaTable}
+              inputMode='text'
               onBlur={handleNotesBlur}
               onChange={(e) => setLocalNotes(e.target.value)}
               placeholder='備考'

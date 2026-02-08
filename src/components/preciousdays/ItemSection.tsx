@@ -89,6 +89,7 @@ const ItemRow = memo(
           ) : (
             <input
               className={formStyles.input}
+              inputMode='text'
               onBlur={handleNameBlur}
               onChange={handleNameChange}
               placeholder='アイテム名'
@@ -139,6 +140,7 @@ const ItemRow = memo(
           ) : (
             <input
               className={formStyles.input}
+              inputMode='text'
               onBlur={handleNotesBlur}
               onChange={handleNotesChange}
               placeholder='備考'

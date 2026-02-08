@@ -49,6 +49,7 @@ export const LifepathSection: React.FC<LifepathProps> = memo(
                     <input
                       className={formStyles.input}
                       defaultValue={currentValue}
+                      inputMode='text'
                       onBlur={(e) => updateBaseField(field.k as keyof Character, e.target.value)}
                       type='text'
                     />

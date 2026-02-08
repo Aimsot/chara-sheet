@@ -63,6 +63,7 @@ const SkillRow = memo(
             <input
               className={formStyles.input}
               defaultValue={skill.name}
+              inputMode='text'
               onBlur={handleNameChange}
               placeholder='スキル名'
               type='text'
@@ -95,6 +96,7 @@ const SkillRow = memo(
             <input
               className={formStyles.input}
               defaultValue={skill.effect}
+              inputMode='text'
               onBlur={handleEffectChange}
               placeholder='効果'
               type='text'

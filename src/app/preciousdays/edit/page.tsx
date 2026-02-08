@@ -1,9 +1,14 @@
 /* src/app/preciousdays/edit/page.tsx */
+import { ArrowBigLeftDash } from 'lucide-react';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+
+import { ActionButton } from '@/components/ui/ActionButton';
 import { getCharacterById } from '@/lib/preciousdays/data';
+import baseStyles from '@/styles/components/charaSheet/base.module.scss'; // 2カラム配置用
+import layoutStyles from '@/styles/components/layout.module.scss';
 
 import EditForm from './EditForm';
 
@@ -56,7 +61,23 @@ export default async function EditPage({
     initialData = await getCharacterById(targetId);
 
     if (!initialData) {
-      redirect('/preciousdays');
+      return (
+        <div>
+          キャラクターが見つかりませんでした
+          <div className={`${layoutStyles.grid} ${layoutStyles.mb4}`}>
+            <div className={`${layoutStyles.span4} ${baseStyles.stack}`}>
+              <ActionButton
+                className={layoutStyles.mt2}
+                href='/preciousdays'
+                icon={<ArrowBigLeftDash size={16} />}
+                label='一覧に戻る'
+                style={{ width: '100%', marginBottom: '30px' }}
+                variant='outline'
+              />
+            </div>
+          </div>
+        </div>
+      );
     }
 
     if (key) {

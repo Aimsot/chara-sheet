@@ -123,6 +123,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                     <input
                       className={formStyles.input}
                       defaultValue={characterName ?? ''}
+                      inputMode='text'
                       onBlur={(e) => updateBaseField('characterName', e.target.value)} // onBlur
                       type='text'
                     />
@@ -135,6 +136,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                   {!isReadOnly ? (
                     <input
                       className={formStyles.input}
+                      inputMode='text'
                       onChange={(e) => updateBaseField('playerName', e.target.value)} // onBlur
                       type='text'
                       value={playerName}
@@ -151,6 +153,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                     <input
                       className={formStyles.input}
                       defaultValue={masterName ?? ''}
+                      inputMode='text'
                       onBlur={(e) => updateBaseField('masterName', e.target.value)} // onBlur
                       type='text'
                     />
