@@ -137,7 +137,14 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             className={layoutStyles.mt2}
             icon={<ArrowBigLeftDash size={16} />}
             label='一覧に戻る'
-            onClick={() => router.push('/preciousdays')}
+            onClick={() => {
+              if (isSubmitting) return;
+              if (isDirty) {
+                const ok = window.confirm('編集中ですが、保存せずに一覧に戻ってもよろしいですか？');
+                if (!ok) return;
+              }
+              router.push('/preciousdays');
+            }}
             style={{ width: '100%', marginBottom: '30px' }}
             variant='outline'
           />
@@ -152,7 +159,16 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             disabled={isSubmitting}
             icon={<Eye size={12} />}
             label='閲覧'
-            onClick={() => router.push(`/preciousdays/view/${char.id}`)}
+            onClick={() => {
+              if (isSubmitting) return;
+              if (isDirty) {
+                const ok = window.confirm(
+                  '編集中ですが、保存せずに閲覧ページに戻ってもよろしいですか？'
+                );
+                if (!ok) return;
+              }
+              router.push(`/preciousdays/view/${char.id}`);
+            }}
             style={{ width: '100%' }}
             variant='midnight'
           />

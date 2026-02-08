@@ -259,7 +259,16 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                     variant='danger'
                   />
                   <ActionButton
-                    href={`/preciousdays/view/${id}`}
+                    onClick={() => {
+                      if (isSubmitting) return;
+                      if (isDirty) {
+                        const ok = window.confirm(
+                          '編集中ですが、保存せずに閲覧ページに戻ってもよろしいですか？'
+                        );
+                        if (!ok) return;
+                      }
+                      router.push('/preciousdays/view/${id}');
+                    }}
                     icon={<Eye size={16} />}
                     label='閲覧画面に戻る'
                     style={{ width: '100%', marginTop: '8px' }}
@@ -298,7 +307,14 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
             className={layoutStyles.mt2}
             icon={<ArrowBigLeftDash size={16} />}
             label='一覧に戻る'
-            onClick={() => router.push('/preciousdays')}
+            onClick={() => {
+              if (isSubmitting) return;
+              if (isDirty) {
+                const ok = window.confirm('編集中ですが、保存せずに一覧に戻ってもよろしいですか？');
+                if (!ok) return;
+              }
+              router.push('/preciousdays');
+            }}
             style={{ width: '100%' }}
             variant='outline'
           />
