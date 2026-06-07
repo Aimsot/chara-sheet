@@ -306,6 +306,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
           </div>
 
           <SidebarSection
+            char={char}
             className={`${layoutStyles.span4} ${baseStyles.mobileOrderLast}`}
             handleDelete={handleDelete}
             id={char.id}

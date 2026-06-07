@@ -152,6 +152,12 @@ export const useCharacterActions = (
       id: generateUUID(),
       name: '',
       level: 1,
+      timing: '',
+      critical: '',
+      check: '',
+      target: '',
+      range: '',
+      cost: '',
       effect: '',
     };
     setChar((prev) => ({

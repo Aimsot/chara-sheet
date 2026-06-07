@@ -7,7 +7,16 @@ import formStyles from '@/styles/components/forms.module.scss';
 import tableStyles from '@/styles/components/tables.module.scss';
 import { Character, Skill } from '@/types/preciousdays/character';
 
-// ▼ 1. SkillRow に style プロパティを追加
+const TEXT_COLUMNS: { field: keyof Skill; label: string; placeholder?: string }[] = [
+  { field: 'timing', label: 'タイミング' },
+  { field: 'critical', label: 'クリティカル' },
+  { field: 'check', label: '判定' },
+  { field: 'target', label: '対象' },
+  { field: 'range', label: '射程' },
+  { field: 'cost', label: 'コスト' },
+  { field: 'effect', label: '効果' },
+];
+
 const SkillRow = memo(
   ({
     skill,
@@ -15,7 +24,7 @@ const SkillRow = memo(
     isReadOnly,
     onUpdate,
     onRemove,
-    style, // グリッドスタイルを受け取る
+    style,
   }: {
     skill: Skill;
     index: number;
@@ -24,47 +33,33 @@ const SkillRow = memo(
     onRemove: (index: number) => void;
     style: React.CSSProperties;
   }) => {
-    // ハンドラーの固定化
-    const handleNameChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        onUpdate(index, 'name', e.target.value);
-      },
-      [index, onUpdate]
-    );
-
     const handleLevelChange = useCallback(
-      (val: number) => {
-        onUpdate(index, 'level', val);
-      },
+      (val: number) => onUpdate(index, 'level', val),
       [index, onUpdate]
     );
 
-    const handleEffectChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        onUpdate(index, 'effect', e.target.value);
-      },
-      [index, onUpdate]
-    );
-
-    const handleRemove = useCallback(() => {
-      onRemove(index);
-    }, [index, onRemove]);
+    const handleRemove = useCallback(() => onRemove(index), [index, onRemove]);
 
     const isFixedSkill = skill.id === 's1';
 
     return (
-      // ▼ ここで style (gridTemplateColumns等) を適用する
       <div className={tableStyles.row} style={{ ...style, alignItems: 'center' }}>
         {/* スキル名 */}
-        <div className={tableStyles.cell}>
+        <div
+          className={tableStyles.cell}
+          style={{
+            justifyContent: 'flex-start',
+            paddingLeft: '6px',
+            borderRight: '1px solid var(--card-border)',
+          }}
+        >
           {isReadOnly ? (
-            <div className={formStyles.readOnlyField}>{skill.name}</div>
+            <span>{skill.name}</span>
           ) : (
             <input
               className={formStyles.input}
               defaultValue={skill.name}
-              inputMode='text'
-              onBlur={handleNameChange}
+              onBlur={(e) => onUpdate(index, 'name', e.target.value)}
               placeholder='スキル名'
               type='text'
             />
@@ -74,9 +69,9 @@ const SkillRow = memo(
         {/* レベル */}
         <div className={tableStyles.cell}>
           {isReadOnly ? (
-            <div className={formStyles.readOnlyField}>{skill.level}</div>
+            <span>{skill.level}</span>
           ) : (
-            <div className={formStyles.stepper}>
+            <div className={formStyles.stepperSmall}>
               <button onClick={() => handleLevelChange((skill.level || 0) - 1)} type='button'>
                 -
               </button>
@@ -88,21 +83,22 @@ const SkillRow = memo(
           )}
         </div>
 
-        {/* 効果 */}
-        <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            <div className={formStyles.readOnlyField}>{skill.effect}</div>
-          ) : (
-            <input
-              className={formStyles.input}
-              defaultValue={skill.effect}
-              inputMode='text'
-              onBlur={handleEffectChange}
-              placeholder='効果'
-              type='text'
-            />
-          )}
-        </div>
+        {/* タイミング〜効果 */}
+        {TEXT_COLUMNS.map(({ field, label }) => (
+          <div className={tableStyles.cell} key={field} style={{ justifyContent: 'flex-start', paddingLeft: '4px' }}>
+            {isReadOnly ? (
+              <span>{(skill as any)[field] ?? ''}</span>
+            ) : (
+              <input
+                className={formStyles.input}
+                defaultValue={(skill as any)[field] ?? ''}
+                onBlur={(e) => onUpdate(index, field, e.target.value)}
+                placeholder={label}
+                type='text'
+              />
+            )}
+          </div>
+        ))}
 
         {/* 削除ボタン */}
         {!isReadOnly && (
@@ -141,11 +137,14 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
   ({ skills, isReadOnly, handleSkillsAdd, handleSkillsRemove, handleSkillsUpdate }) => {
     const [isOpen, setIsOpen] = useState(true);
 
-    const skillGridStyle = {
+    // スキル名 + Lv + 7テキスト列 + 削除
+    const skillGridStyle: React.CSSProperties = {
       display: 'grid',
-      gridTemplateColumns: isReadOnly ? '1fr 100px 2.5fr' : '1.5fr 100px 2.5fr 50px',
-      gap: '12px',
-      minWidth: '600px',
+      gridTemplateColumns: isReadOnly
+        ? '1.5fr 60px 1fr 1fr 1fr 1fr 1fr 1fr 2fr'
+        : '1.5fr 80px 1fr 1fr 1fr 1fr 1fr 1fr 2fr 40px',
+      gap: '8px',
+      minWidth: '900px',
     };
 
     return (
@@ -157,16 +156,19 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
           <div className={tableStyles.scrollContainer}>
-            <div className={tableStyles.gridTable}>
+            <div className={`${tableStyles.gridTable} ${tableStyles.denseTable}`}>
               {/* ヘッダー行 */}
               <div className={tableStyles.headerRow} style={skillGridStyle}>
                 <div className={tableStyles.labelCell}>スキル名</div>
                 <div className={tableStyles.cell}>レベル</div>
-                <div className={tableStyles.cell}>効果</div>
+                {TEXT_COLUMNS.map(({ field, label }) => (
+                  <div className={tableStyles.cell} key={field}>
+                    {label}
+                  </div>
+                ))}
                 {!isReadOnly && <div className={tableStyles.cell}>削除</div>}
               </div>
 
-              {/* リスト表示部分 */}
               {skills.length === 0 ? (
                 <div
                   className={tableStyles.row}
@@ -176,7 +178,6 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
                 </div>
               ) : (
                 skills.map((skill, index) => (
-                  // ▼ 修正箇所: 余計な div で囲まず、style を直接 SkillRow に渡す
                   <SkillRow
                     index={index}
                     isReadOnly={isReadOnly}
@@ -184,7 +185,7 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
                     onRemove={handleSkillsRemove}
                     onUpdate={handleSkillsUpdate}
                     skill={skill}
-                    style={skillGridStyle} // スタイルを渡す
+                    style={skillGridStyle}
                   />
                 ))
               )}
@@ -192,13 +193,7 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
           </div>
 
           {!isReadOnly && (
-            <div
-              style={{
-                padding: '16px',
-                display: 'flex',
-                justifyContent: 'center',
-              }}
-            >
+            <div style={{ padding: '16px', display: 'flex', justifyContent: 'center' }}>
               <button
                 className={btnStyles.outline}
                 onClick={handleSkillsAdd}

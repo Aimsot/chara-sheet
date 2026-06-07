@@ -4,6 +4,7 @@ import {
   AlertCircle,
   ArrowBigLeftDash,
   Ban,
+  ClipboardCopy,
   Copy,
   Eye,
   LoaderCircle,
@@ -19,6 +20,7 @@ import sidebarStyles from '@/styles/components/charaSheet/sidebar.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
 import { Character } from '@/types/preciousdays/character';
+import { buildCcfoliaCharacter } from '@/utils/preciousdays/buildCcfoliaCharacter';
 
 import { ActionButton } from '../ui/ActionButton';
 
@@ -26,6 +28,7 @@ interface StatusSidebarProps {
   id: string | undefined;
   password: string | undefined;
   isCopyProhibited: boolean | undefined;
+  char: Character;
   setChar: React.Dispatch<React.SetStateAction<Character>>;
   mode: 'create' | 'edit' | 'view';
   isSubmitting?: boolean;
@@ -40,6 +43,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   id,
   password,
   isCopyProhibited,
+  char,
   setChar,
   mode,
   isSubmitting,
@@ -56,6 +60,18 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   const [authPassword, setAuthPassword] = useState('');
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [editPassword, setEditPassword] = useState('');
+  const [ccfoliaCopied, setCcfoliaCopied] = useState(false);
+
+  const handleCopyCcfolia = async () => {
+    try {
+      const json = buildCcfoliaCharacter(char);
+      await navigator.clipboard.writeText(json);
+      setCcfoliaCopied(true);
+      setTimeout(() => setCcfoliaCopied(false), 2000);
+    } catch {
+      alert('クリップボードへのコピーに失敗しました');
+    }
+  };
   // --- 複製処理 ---
   const handleDuplicate = async (targetChar: string) => {
     router.push(`/preciousdays/edit?clone=${targetChar}`);
@@ -267,7 +283,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                         );
                         if (!ok) return;
                       }
-                      router.push('/preciousdays/view/${id}');
+                      router.push(`/preciousdays/view/${id}`);
                     }}
                     icon={<Eye size={16} />}
                     label='閲覧画面に戻る'
@@ -288,6 +304,14 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 gap: '10px',
               }}
             >
+              {/* ココフォリアコマ出力ボタン */}
+              <ActionButton
+                icon={<ClipboardCopy size={16} />}
+                label={ccfoliaCopied ? 'コピーしました！' : 'ココフォリアコマとしてコピー'}
+                onClick={handleCopyCcfolia}
+                style={{ width: '100%' }}
+                variant={ccfoliaCopied ? 'solid' : 'outline'}
+              />
               {/* 複製ボタン */}
               {!isCopyProhibited && id ? (
                 <ActionButton
@@ -301,6 +325,17 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 <ActionButton icon={<Ban size={16} />} label='複製できません' variant='disabled' />
               )}
             </div>
+          )}
+          {/* 編集モード専用: ココフォリアコマ出力ボタン */}
+          {mode !== 'view' && id && (
+            <ActionButton
+              className={layoutStyles.mt2}
+              icon={<ClipboardCopy size={16} />}
+              label={ccfoliaCopied ? 'コピーしました！' : 'ココフォリアコマとしてコピー'}
+              onClick={handleCopyCcfolia}
+              style={{ width: '100%' }}
+              variant={ccfoliaCopied ? 'solid' : 'outline'}
+            />
           )}
           {/* 一覧に戻るボタン (共通) */}
           <ActionButton

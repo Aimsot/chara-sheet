@@ -100,6 +100,12 @@ export interface Skill {
   id: string;
   name: string;
   level: number;
+  timing?: string; // タイミング
+  critical?: string; // クリティカル
+  check?: string; // 判定
+  target?: string; // 対象
+  range?: string; // 射程
+  cost?: string; // コスト
   effect: string;
 }
 
