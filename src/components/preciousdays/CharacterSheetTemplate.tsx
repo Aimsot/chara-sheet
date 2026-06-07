@@ -46,6 +46,7 @@ interface EditActions {
   handleDelete: () => Promise<void>;
   handleAbilitiesBonusChange: (key: string, val: number, setError: any) => void;
   handleAbilitiesOtherModifierChange: (key: string, val: number) => void;
+  handleAbilitiesGrowthChange: (key: string, val: number, setError: any) => void;
   handleSkillsAdd: () => void;
   handleSkillsRemove: (index: number) => void;
   handleSkillsUpdate: (index: number, field: keyof Skill, value: any) => void;
@@ -84,6 +85,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
     handleDelete = async () => {},
     handleAbilitiesBonusChange = () => {},
     handleAbilitiesOtherModifierChange = () => {},
+    handleAbilitiesGrowthChange = () => {},
     handleSkillsAdd = () => {},
     handleSkillsRemove = () => {},
     handleSkillsUpdate = () => {},
@@ -275,7 +277,9 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             <AbilitySection
               abilities={char.abilities}
               element={char.element}
+              gl={char.gl}
               handleAbilitiesBonusChange={handleAbilitiesBonusChange}
+              handleAbilitiesGrowthChange={handleAbilitiesGrowthChange}
               handleAbilitiesOtherModifierChange={handleAbilitiesOtherModifierChange}
               isReadOnly={isReadOnly}
               species={char.species}

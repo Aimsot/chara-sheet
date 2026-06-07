@@ -123,7 +123,7 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
     isReadOnly,
     handleCombatModifierChange,
   }) => {
-    const [isOpen, setIsOpen] = useState(isReadOnly);
+    const [isOpen, setIsOpen] = useState(true);
 
     // グリッド設定
     const combatGridStyle: React.CSSProperties = {

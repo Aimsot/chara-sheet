@@ -13,9 +13,10 @@ export function buildCcfoliaCharacter(char: Character): string {
   const pa = char.abilities.passion.total || 0;
   const af = char.abilities.affection.total || 0;
 
-  // HP/MP/WP
-  const hpBase = styleData?.hp.base ?? 0;
-  const mpBase = styleData?.mp.base ?? 0;
+  // HP/MP/WP（GLによる成長を含む）
+  const glLevel = char.gl || 0;
+  const hpBase = (styleData?.hp.base ?? 0) + (styleData?.hp.growth ?? 0) * glLevel;
+  const mpBase = (styleData?.mp.base ?? 0) + (styleData?.mp.growth ?? 0) * glLevel;
   const wpBase = pa + af;
   const hpTotal = hpBase + (char.hp.modifier || 0);
   const mpTotal = mpBase + (char.mp.modifier || 0);

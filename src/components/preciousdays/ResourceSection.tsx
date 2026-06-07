@@ -132,6 +132,13 @@ const ResourceSection = ({
   handleResourceUpdate,
   handleGLUpdate,
 }: ResourceSectionProps) => {
+  const styleData = STYLE_DATA[style as StyleKey];
+  const glLevel = gl || 0;
+
+  // HP/MP 基本値（スタイル基本値 + 成長率×GL）
+  const hpBase = (styleData?.hp.base || 0) + (styleData?.hp.growth || 0) * glLevel;
+  const mpBase = (styleData?.mp.base || 0) + (styleData?.mp.growth || 0) * glLevel;
+
   // WPの基本値計算
   const wpBase = (abilities.passion?.total || 0) + (abilities.affection?.total || 0);
 
@@ -155,22 +162,22 @@ const ResourceSection = ({
       <div className={statusStyles.resourceGrid}>
         {/* HP */}
         <ResourceCard
-          base={style ? STYLE_DATA[style as StyleKey]?.hp.base || 0 : 0}
+          base={hpBase}
           isReadOnly={isReadOnly}
           label='HP'
           modifier={hp.modifier || 0}
           onChange={onHpChange}
-          total={(style ? STYLE_DATA[style as StyleKey]?.hp.base || 0 : 0) + (hp.modifier || 0)}
+          total={hpBase + (hp.modifier || 0)}
         />
 
         {/* MP */}
         <ResourceCard
-          base={style ? STYLE_DATA[style as StyleKey]?.mp.base || 0 : 0}
+          base={mpBase}
           isReadOnly={isReadOnly}
           label='MP'
           modifier={mp.modifier || 0}
           onChange={onMpChange}
-          total={(style ? STYLE_DATA[style as StyleKey]?.mp.base || 0 : 0) + (mp.modifier || 0)}
+          total={mpBase + (mp.modifier || 0)}
         />
 
         {/* WP */}

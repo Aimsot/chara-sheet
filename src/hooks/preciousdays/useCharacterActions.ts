@@ -69,14 +69,16 @@ export const useCharacterActions = (
         ABILITY_KEYS.forEach((key) => {
           const base = baseMap[key];
           const bonus = nextChar.abilities[key].bonus || 0;
+          const growth = nextChar.abilities[key].growth || 0;
           const other = nextChar.abilities[key].otherModifier || 0;
 
           newAbilities[key] = {
             ...newAbilities[key],
             bonus,
+            growth,
             otherModifier: other,
             total:
-              Math.floor((base + bonus) / 3) +
+              Math.floor((base + bonus + growth) / 3) +
               ((styleBonusMap as any)[key] || 0) +
               ((elementBonusMap as any)[key] || 0) +
               other,
@@ -133,9 +135,7 @@ export const useCharacterActions = (
   // 能力値その他修正変更
   const handleAbilitiesOtherModifierChange = useCallback(
     (key: string, val: number) => {
-      // Refから取得
       const { abilities } = charRef.current;
-
       const abilityKey = key as keyof typeof abilities;
       const updatedAbilities = {
         ...abilities,
@@ -143,7 +143,38 @@ export const useCharacterActions = (
       };
       updateAbilities({ abilities: updatedAbilities });
     },
-    [updateAbilities] // ★ abilities への依存を排除！
+    [updateAbilities]
+  );
+
+  // 能力値成長変更（GL×3点を上限に配分）
+  const handleAbilitiesGrowthChange = useCallback(
+    (
+      key: string,
+      val: number,
+      setErrorInfo: (info: { key: string; message: string } | null) => void
+    ) => {
+      const { abilities, gl } = charRef.current;
+      const abilityKey = key as keyof typeof abilities;
+      const safeVal = Math.max(0, Number.isNaN(val) ? 0 : val);
+      const maxGrowth = (gl || 0) * 3;
+
+      const otherGrowthTotal = Object.entries(abilities).reduce((acc, [k, v]) => {
+        return k === abilityKey ? acc : acc + ((v as any).growth || 0);
+      }, 0);
+
+      if (otherGrowthTotal + safeVal > maxGrowth) {
+        setErrorInfo({ key, message: `成長の合計はGL×3（${maxGrowth}点）までです` });
+      } else {
+        setErrorInfo(null);
+      }
+
+      const updatedAbilities = {
+        ...abilities,
+        [abilityKey]: { ...abilities[abilityKey], growth: safeVal },
+      };
+      updateAbilities({ abilities: updatedAbilities });
+    },
+    [updateAbilities]
   );
 
   // --- スキル追加 ---
@@ -377,6 +408,7 @@ export const useCharacterActions = (
     handleDelete,
     handleAbilitiesBonusChange,
     handleAbilitiesOtherModifierChange,
+    handleAbilitiesGrowthChange,
     handleSkillsAdd,
     handleSkillsRemove,
     handleSkillsUpdate,

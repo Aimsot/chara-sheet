@@ -192,7 +192,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
     handleItemsRemove,
     handleItemsUpdate,
   }) => {
-    const [isOpen, setIsOpen] = useState(isReadOnly);
+    const [isOpen, setIsOpen] = useState(true);
 
     // 合計重量の計算
     const totalItemWeight = useMemo(() => {

@@ -85,7 +85,8 @@ export interface Character {
 
 // 能力値の内訳
 export interface AbilityScore {
-  bonus: number; // 成長やボーナス
+  bonus: number; // ボーナス
+  growth: number; // 成長（GLで獲得）
   otherModifier: number; // その他修正
   total: number; // 合計値
 }

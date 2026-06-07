@@ -288,7 +288,7 @@ EquipmentRow.displayName = 'EquipmentRow';
 
 export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
   ({ equipment, items, abilities, species, handleEquipmentUpdate, isReadOnly }) => {
-    const [isOpen, setIsOpen] = useState(isReadOnly);
+    const [isOpen, setIsOpen] = useState(true);
 
     const totals = useMemo(() => {
       const initialEquip = {

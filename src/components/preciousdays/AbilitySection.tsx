@@ -25,10 +25,12 @@ interface AbilityTableProps {
   species: string;
   style: string;
   element: string;
+  gl: number;
   updateAbilities: (updates: Partial<Character>) => void;
   isReadOnly?: boolean;
   handleAbilitiesBonusChange: (key: string, val: number, setError: any) => void;
   handleAbilitiesOtherModifierChange: (key: string, val: number) => void;
+  handleAbilitiesGrowthChange: (key: string, val: number, setError: any) => void;
 }
 
 // ▼ 1. ボーナス入力セルを独立コンポーネント化 (memo化)
@@ -137,19 +139,70 @@ const OtherModCell = memo(
 );
 OtherModCell.displayName = 'OtherModCell';
 
+// ▼ 3. 成長セルを独立コンポーネント化
+const GrowthCell = memo(
+  ({
+    abilityKey,
+    value,
+    isReadOnly,
+    onUpdate,
+    setErrorInfo,
+  }: {
+    abilityKey: string;
+    value: number;
+    isReadOnly?: boolean;
+    onUpdate: (key: string, val: number, setError: any) => void;
+    setErrorInfo: React.Dispatch<React.SetStateAction<{ key: string; message: string } | null>>;
+  }) => {
+    const handleChange = useCallback(
+      (val: number) => onUpdate(abilityKey, val, setErrorInfo),
+      [onUpdate, abilityKey, setErrorInfo]
+    );
+
+    return (
+      <div
+        className={tableStyles.cell}
+        data-tooltip-id='growth-error-tooltip'
+        id={`growth-${abilityKey}`}
+      >
+        {isReadOnly ? (
+          value
+        ) : (
+          <div className={formStyles.stepper}>
+            <button onClick={() => handleChange((value || 0) - 1)} type='button'>
+              -
+            </button>
+            <NumberInput onChange={handleChange} value={value} />
+            <button onClick={() => handleChange((value || 0) + 1)} type='button'>
+              +
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+);
+GrowthCell.displayName = 'GrowthCell';
+
 export const AbilitySection: React.FC<AbilityTableProps> = memo(
   ({
     abilities,
     species,
     style,
     element,
+    gl,
     updateAbilities,
     isReadOnly,
     handleAbilitiesBonusChange,
     handleAbilitiesOtherModifierChange,
+    handleAbilitiesGrowthChange,
   }) => {
     const [isOpen, setIsOpen] = useState(true);
     const [errorInfo, setErrorInfo] = useState<{
+      key: string;
+      message: string;
+    } | null>(null);
+    const [growthErrorInfo, setGrowthErrorInfo] = useState<{
       key: string;
       message: string;
     } | null>(null);
@@ -163,6 +216,13 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
       () => ABILITY_KEYS.reduce((sum, key) => sum + (abilities[key].bonus || 0), 0),
       [abilities]
     );
+
+    const totalGrowth = useMemo(
+      () => ABILITY_KEYS.reduce((sum, key) => sum + (abilities[key].growth || 0), 0),
+      [abilities]
+    );
+
+    const maxGrowth = (gl || 0) * 3;
 
     return (
       <section className={cardStyles.base}>
@@ -227,23 +287,68 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                   variant='error'
                 />
 
-                {/* 4. 基本値÷3 (計算) */}
+                {/* 4. 成長 */}
+                <div
+                  className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}
+                  style={gridStyle}
+                >
+                  <div className={tableStyles.labelCell}>
+                    成長({totalGrowth}/{maxGrowth})
+                  </div>
+                  {ABILITY_KEYS.map((key) => (
+                    <GrowthCell
+                      abilityKey={key}
+                      isReadOnly={isReadOnly}
+                      key={key}
+                      onUpdate={handleAbilitiesGrowthChange}
+                      setErrorInfo={setGrowthErrorInfo}
+                      value={abilities[key].growth || 0}
+                    />
+                  ))}
+                </div>
+
+                <Tooltip
+                  anchorSelect={`#growth-${growthErrorInfo?.key}`}
+                  content={growthErrorInfo?.message}
+                  id='growth-error-tooltip'
+                  isOpen={!!growthErrorInfo}
+                  place='bottom'
+                  variant='error'
+                />
+
+                {/* 5. 能力基本値合計 (計算) */}
+                <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
+                  <div className={tableStyles.labelCell}>能力基本値合計</div>
+                  {ABILITY_KEYS.map((key) => {
+                    const speciesKey = species as SpeciesKey;
+                    const baseValue = speciesKey ? SPECIES_DATA[speciesKey].abilities[key] : 0;
+                    const bonusValue = abilities[key].bonus || 0;
+                    const growthValue = abilities[key].growth || 0;
+                    return (
+                      <div className={tableStyles.cell} key={key}>
+                        {baseValue + bonusValue + growthValue}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* 6. 基本値÷3 (計算) */}
                 <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
                   <div className={tableStyles.labelCell}>能力基本値÷3</div>
                   {ABILITY_KEYS.map((key) => {
                     const speciesKey = species as SpeciesKey;
                     const baseValue = speciesKey ? SPECIES_DATA[speciesKey].abilities[key] : 0;
                     const bonusValue = abilities[key].bonus || 0;
-                    const dividedValue = Math.floor((baseValue + bonusValue) / 3);
+                    const growthValue = abilities[key].growth || 0;
                     return (
                       <div className={tableStyles.cell} key={key}>
-                        {dividedValue}
+                        {Math.floor((baseValue + bonusValue + growthValue) / 3)}
                       </div>
                     );
                   })}
                 </div>
 
-                {/* 5. スタイル修正 */}
+                {/* 6. スタイル修正 */}
                 <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
                   <div className={tableStyles.labelCell}>
                     <div className={layoutStyles.flexColumn}>
@@ -277,7 +382,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                   ))}
                 </div>
 
-                {/* 6. 属性修正 */}
+                {/* 7. 属性修正 */}
                 <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
                   <div className={tableStyles.labelCell}>
                     <div className={layoutStyles.flexColumn}>
@@ -315,7 +420,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                   ))}
                 </div>
 
-                {/* 7. その他修正 (最適化済み) */}
+                {/* 8. その他修正 (最適化済み) */}
                 <div
                   className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}
                   style={gridStyle}
@@ -382,8 +487,12 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                 が上限です。
               </p>
               <p>
+                <strong>成長</strong>はGLが1上がるごとに<strong>3点</strong>
+                まで割り振ることができます（合計GL×3点）。
+              </p>
+              <p>
                 <strong>能力値合計</strong> ＝ (種族基本値 ＋ ボーナス) ÷ 3 ＋ スタイル修正 ＋
-                属性修正 ＋ その他修正
+                属性修正 ＋ 成長 ＋ その他修正
               </p>
             </div>
           </div>

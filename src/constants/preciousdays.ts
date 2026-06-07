@@ -51,12 +51,12 @@ export const INITIAL_CHARACTER: Character = {
 
   // 能力値 (Baseなし)
   abilities: {
-    physical: { bonus: 0, otherModifier: 0, total: 0 },
-    intellect: { bonus: 0, otherModifier: 0, total: 0 },
-    mystic: { bonus: 0, otherModifier: 0, total: 0 },
-    agility: { bonus: 0, otherModifier: 0, total: 0 },
-    passion: { bonus: 0, otherModifier: 0, total: 0 },
-    affection: { bonus: 0, otherModifier: 0, total: 0 },
+    physical: { bonus: 0, growth: 0, otherModifier: 0, total: 0 },
+    intellect: { bonus: 0, growth: 0, otherModifier: 0, total: 0 },
+    mystic: { bonus: 0, growth: 0, otherModifier: 0, total: 0 },
+    agility: { bonus: 0, growth: 0, otherModifier: 0, total: 0 },
+    passion: { bonus: 0, growth: 0, otherModifier: 0, total: 0 },
+    affection: { bonus: 0, growth: 0, otherModifier: 0, total: 0 },
   },
 
   origin: '',
