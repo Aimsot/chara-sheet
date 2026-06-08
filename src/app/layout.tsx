@@ -29,7 +29,6 @@ const zenOldMincho = Zen_Old_Mincho({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'),
   title: 'キャラクターシート置き場 | Hotch Potch.',
   description: 'キャラクターシートを作ると便利かなって思って作ったページ。',
   robots: {

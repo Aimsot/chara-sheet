@@ -50,7 +50,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       type: 'profile',
       images: character.image
-        ? [{ url: `/api/preciousdays/character/${id}/image`, alt: charName }]
+        ? [
+            {
+              url: `${
+                process.env.NEXT_PUBLIC_BASE_URL ?? 'https://chara-sheet.aimsot.net'
+              }/api/preciousdays/character/${id}/image`,
+              alt: charName,
+            },
+          ]
         : [],
     },
     robots: {
