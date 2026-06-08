@@ -470,12 +470,12 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
           <h2 className={cardStyles.title}>スキル</h2>
           {isReadOnly ? (
             <button
-              className={btnStyles.ghost}
+              className={btnStyles.solid}
               onClick={() => setForceExpand(!forceExpand)}
-              style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', padding: '2px 8px' }}
+              style={{ fontSize: '0.75rem', padding: '4px 12px' }}
               type='button'
             >
-              {forceExpand ? '折りたたむ' : '全展開'}
+              {forceExpand ? '折りたたむ' : '効果を全展開'}
             </button>
           ) : (
             <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
