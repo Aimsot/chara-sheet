@@ -1,20 +1,7 @@
-import crypto from 'crypto';
-
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { cookies } from 'next/headers'; // ★追加
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-// --- 設定 ---
-const R2 = new S3Client({
-  region: 'auto',
-  endpoint: process.env.R2_ENDPOINT || '',
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
-  },
-});
-
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '';
+import { getCharacterById } from '@/lib/preciousdays/data';
 
 // --- メイン処理 (POST) ---
 export async function POST(req: NextRequest) {
@@ -25,42 +12,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'IDが必要です' }, { status: 400 });
     }
 
-    // 1. R2からデータを取得
-    const command = new GetObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME,
-      Key: `${id}.bin`,
-    });
-
-    let response;
-    try {
-      response = await R2.send(command);
-    } catch (e) {
-      console.error('R2 Get Error:', e);
+    // 1. キャラクターデータを取得
+    const charData = await getCharacterById(id);
+    if (!charData) {
       return NextResponse.json(
         { success: false, message: 'キャラクターが見つかりません' },
         { status: 404 }
       );
     }
 
-    if (!response.Body) {
-      return NextResponse.json(
-        { success: false, message: 'データの読み込みに失敗しました' },
-        { status: 500 }
-      );
-    }
-
-    // 2. データの復号化
-    const encryptedData = Buffer.from(await response.Body.transformToByteArray());
-    const iv = encryptedData.subarray(0, 16);
-    const encryptedText = encryptedData.subarray(16);
-
-    const key = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
-    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-
-    const charData = JSON.parse(decrypted.toString());
     const storedPassword = charData.password;
 
     let isAuthorized = false;
