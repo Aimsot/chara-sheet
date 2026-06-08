@@ -142,19 +142,20 @@ export async function getCharacterById(id: string): Promise<Character | null> {
 export async function saveCharacter(character: Character) {
   const now = new Date().toISOString();
   const dataToSave = { ...character, updatedAt: now };
-
-  // 1. 本体の保存
   const encrypted = encrypt(JSON.stringify(dataToSave));
-  await saveToR2(`${FOLDER_PREFIX}${character.id}.json`, encrypted, 'application/octet-stream');
 
-  // 2. インデックスの更新
-  const index = await getAllCharacters();
+  // 本体保存とインデックス取得を並列実行
+  const [, index] = await Promise.all([
+    saveToR2(`${FOLDER_PREFIX}${character.id}.json`, encrypted, 'application/octet-stream'),
+    getAllCharacters(),
+  ]);
+
+  // インデックス更新して保存
   const summary = createCharacterSummary(dataToSave);
   const existingIdx = index.findIndex((item) => item.id === summary.id);
   if (existingIdx > -1) index[existingIdx] = summary;
   else index.push(summary);
-  const sortedIndex = sortCharacterIndex(index);
-  await saveToR2(INDEX_FILE_PATH, JSON.stringify(sortedIndex));
+  await saveToR2(INDEX_FILE_PATH, JSON.stringify(sortCharacterIndex(index)));
 }
 
 /**

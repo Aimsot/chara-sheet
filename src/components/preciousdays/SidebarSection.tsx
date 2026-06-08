@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import {
   AlertCircle,
@@ -23,6 +23,7 @@ import { Character } from '@/types/preciousdays/character';
 import { buildCcfoliaCharacter } from '@/utils/preciousdays/buildCcfoliaCharacter';
 
 import { ActionButton } from '../ui/ActionButton';
+import { ColorPicker } from '../ui/ColorPicker';
 
 interface StatusSidebarProps {
   id: string | undefined;
@@ -61,6 +62,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [editPassword, setEditPassword] = useState('');
   const [ccfoliaCopied, setCcfoliaCopied] = useState(false);
+  const initialPasswordRef = useRef(char.password);
 
   const handleCopyCcfolia = async () => {
     try {
@@ -143,6 +145,10 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                   setAuthPassword(val);
                 } else {
                   setEditPassword(val);
+                  setChar((prev: Character) => ({
+                    ...prev,
+                    password: val || initialPasswordRef.current || '',
+                  }));
                 }
               }}
               onKeyDown={(e) => {
@@ -193,6 +199,20 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
           </div>
         </div>
 
+        {/* ココフォリア設定 */}
+        {!isReadOnly && (
+          <div className={`${baseStyles.stack} ${formStyles.panel}`}>
+            <label className={formStyles.label}>ココフォリアコマカラー</label>
+            <ColorPicker
+              onChange={(color) => setChar((prev: Character) => ({ ...prev, ccfoliaColor: color }))}
+              value={char.ccfoliaColor || '#4a90d9'}
+            />
+            <div className={formStyles.notes} style={{ marginTop: 0 }}>
+              <p>コマの出力は閲覧画面で行なえます</p>
+            </div>
+          </div>
+        )}
+
         {/* アクションボタンエリア */}
         <div className={baseStyles.stack}>
           {/* 保存ボタン (編集モード時のみ) */}
@@ -209,6 +229,23 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                         setChar((prev: Character) => ({
                           ...prev,
                           isCopyProhibited: e.target.checked,
+                        }));
+                      }}
+                      type='checkbox'
+                    />
+                    <span className={formStyles.slider}></span>
+                  </div>
+                </label>
+                <label className={formStyles.toggleLabel}>
+                  <span>テキストエリアを自動サイズ調整</span>
+                  <div className={formStyles.toggleSwitch}>
+                    <input
+                      checked={char.autoResizeTextarea || false}
+                      name='autoResizeTextarea'
+                      onChange={(e) => {
+                        setChar((prev: Character) => ({
+                          ...prev,
+                          autoResizeTextarea: e.target.checked,
                         }));
                       }}
                       type='checkbox'
@@ -255,9 +292,6 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                       style={{ width: '100%' }}
                       variant='disabled'
                     />
-                    <div className={formStyles.notes} style={{ marginTop: 0 }}>
-                      <p>欄外をクリックすると入力が完了します</p>
-                    </div>
                   </>
                 )}
               </div>
@@ -275,6 +309,8 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                     variant='danger'
                   />
                   <ActionButton
+                    icon={<Eye size={16} />}
+                    label='閲覧画面に戻る'
                     onClick={() => {
                       if (isSubmitting) return;
                       if (isDirty) {
@@ -285,8 +321,6 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                       }
                       router.push(`/preciousdays/view/${id}`);
                     }}
-                    icon={<Eye size={16} />}
-                    label='閲覧画面に戻る'
                     style={{ width: '100%', marginTop: '8px' }}
                     variant='outline'
                   />
@@ -296,46 +330,44 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
           )}
           {/* 閲覧モード専用: 複製ボタン */}
           {mode === 'view' && (
-            <div
-              style={{
-                marginTop: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-              }}
-            >
-              {/* ココフォリアコマ出力ボタン */}
+            <>
               <ActionButton
                 icon={<ClipboardCopy size={16} />}
-                label={ccfoliaCopied ? 'コピーしました！' : 'ココフォリアコマとしてコピー'}
+                label={ccfoliaCopied ? 'コピーしました！' : 'ココフォリアコマ出力'}
                 onClick={handleCopyCcfolia}
                 style={{ width: '100%' }}
                 variant={ccfoliaCopied ? 'solid' : 'outline'}
               />
-              {/* 複製ボタン */}
-              {!isCopyProhibited && id ? (
-                <ActionButton
-                  icon={<Copy size={16} />}
-                  label='このキャラを複製する'
-                  onClick={() => handleDuplicate(id)}
-                  style={{ width: '100%' }}
-                  variant='midnight'
-                />
-              ) : (
-                <ActionButton icon={<Ban size={16} />} label='複製できません' variant='disabled' />
-              )}
-            </div>
-          )}
-          {/* 編集モード専用: ココフォリアコマ出力ボタン */}
-          {mode !== 'view' && id && (
-            <ActionButton
-              className={layoutStyles.mt2}
-              icon={<ClipboardCopy size={16} />}
-              label={ccfoliaCopied ? 'コピーしました！' : 'ココフォリアコマとしてコピー'}
-              onClick={handleCopyCcfolia}
-              style={{ width: '100%' }}
-              variant={ccfoliaCopied ? 'solid' : 'outline'}
-            />
+              <div className={formStyles.notes} style={{ marginTop: 0 }}>
+                <p>画像は出力できません</p>
+              </div>
+
+              <div
+                style={{
+                  marginTop: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
+                }}
+              >
+                {/* 複製ボタン */}
+                {!isCopyProhibited && id ? (
+                  <ActionButton
+                    icon={<Copy size={16} />}
+                    label='このキャラを複製する'
+                    onClick={() => handleDuplicate(id)}
+                    style={{ width: '100%' }}
+                    variant='midnight'
+                  />
+                ) : (
+                  <ActionButton
+                    icon={<Ban size={16} />}
+                    label='複製できません'
+                    variant='disabled'
+                  />
+                )}
+              </div>
+            </>
           )}
           {/* 一覧に戻るボタン (共通) */}
           <ActionButton

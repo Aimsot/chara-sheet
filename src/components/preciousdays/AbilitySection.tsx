@@ -9,7 +9,6 @@ import {
   SPECIES_DATA,
   SpeciesKey,
   STYLE_DATA,
-  StyleKey,
 } from '@/constants/preciousdays';
 import cardStyles from '@/styles/components/cards.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
@@ -33,7 +32,21 @@ interface AbilityTableProps {
   handleAbilitiesGrowthChange: (key: string, val: number, setError: any) => void;
 }
 
-// ▼ 1. ボーナス入力セルを独立コンポーネント化 (memo化)
+const EDITABLE_ROW_STYLE: React.CSSProperties = {
+  backgroundColor: 'color-mix(in srgb, var(--accent-color), transparent 92%)',
+};
+
+const SECTION_DIVIDER_STYLE: React.CSSProperties = {
+  padding: '3px 8px',
+  fontSize: '0.75rem',
+  fontWeight: 'bold',
+  letterSpacing: '0.08em',
+  color: 'var(--text-secondary)',
+  backgroundColor: 'rgba(0,0,0,0.35)',
+  borderTop: '2px solid var(--card-border)',
+  borderBottom: '1px solid var(--card-border)',
+};
+
 const BonusCell = memo(
   ({
     abilityKey,
@@ -48,14 +61,10 @@ const BonusCell = memo(
     onUpdate: (key: string, val: number, setError: any) => void;
     setErrorInfo: React.Dispatch<React.SetStateAction<{ key: string; message: string } | null>>;
   }) => {
-    // ハンドラを固定化
     const handleChange = useCallback(
-      (val: number) => {
-        onUpdate(abilityKey, val, setErrorInfo);
-      },
+      (val: number) => onUpdate(abilityKey, val, setErrorInfo),
       [onUpdate, abilityKey, setErrorInfo]
     );
-
     return (
       <div
         className={tableStyles.cell}
@@ -89,7 +98,6 @@ const BonusCell = memo(
 );
 BonusCell.displayName = 'BonusCell';
 
-// ▼ 2. その他修正セルを独立コンポーネント化 (memo化)
 const OtherModCell = memo(
   ({
     abilityKey,
@@ -102,14 +110,10 @@ const OtherModCell = memo(
     isReadOnly?: boolean;
     onUpdate: (key: string, val: number) => void;
   }) => {
-    // ハンドラを固定化
     const handleChange = useCallback(
-      (val: number) => {
-        onUpdate(abilityKey, val);
-      },
+      (val: number) => onUpdate(abilityKey, val),
       [onUpdate, abilityKey]
     );
-
     return (
       <div className={tableStyles.cell}>
         {isReadOnly ? (
@@ -139,7 +143,6 @@ const OtherModCell = memo(
 );
 OtherModCell.displayName = 'OtherModCell';
 
-// ▼ 3. 成長セルを独立コンポーネント化
 const GrowthCell = memo(
   ({
     abilityKey,
@@ -158,7 +161,6 @@ const GrowthCell = memo(
       (val: number) => onUpdate(abilityKey, val, setErrorInfo),
       [onUpdate, abilityKey, setErrorInfo]
     );
-
     return (
       <div
         className={tableStyles.cell}
@@ -191,21 +193,16 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
     style,
     element,
     gl,
-    updateAbilities,
     isReadOnly,
     handleAbilitiesBonusChange,
     handleAbilitiesOtherModifierChange,
     handleAbilitiesGrowthChange,
   }) => {
     const [isOpen, setIsOpen] = useState(true);
-    const [errorInfo, setErrorInfo] = useState<{
-      key: string;
-      message: string;
-    } | null>(null);
-    const [growthErrorInfo, setGrowthErrorInfo] = useState<{
-      key: string;
-      message: string;
-    } | null>(null);
+    const [errorInfo, setErrorInfo] = useState<{ key: string; message: string } | null>(null);
+    const [growthErrorInfo, setGrowthErrorInfo] = useState<{ key: string; message: string } | null>(
+      null
+    );
 
     const gridStyle = {
       '--table-cols': 6,
@@ -226,19 +223,27 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
 
     return (
       <section className={cardStyles.base}>
-        <div className={cardStyles.accordionHeader} onClick={() => setIsOpen(!isOpen)}>
+        <div
+          className={cardStyles.accordionHeader}
+          onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
+          style={isReadOnly ? { cursor: 'default' } : undefined}
+        >
           <h2 className={cardStyles.title}>能力値</h2>
-          <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          {!isReadOnly && (
+            <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          )}
         </div>
         {!abilities && !species ? (
           <Loading />
         ) : (
           <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
             <div className={tableStyles.scrollContainer}>
-              <div className={tableStyles.gridTable}>
-                {/* 1. ヘッダー */}
+              <div
+                className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
+              >
+                {/* ヘッダー */}
                 <div className={tableStyles.headerRow} style={gridStyle}>
-                  <div className={tableStyles.labelCell}>能力値(基本値)</div>
+                  <div className={tableStyles.labelCell}>能力値</div>
                   {ABILITY_KEYS.map((key) => (
                     <div className={tableStyles.cell} key={key}>
                       {ABILITY_DATA[key].name}
@@ -246,12 +251,16 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                   ))}
                 </div>
 
-                {/* 2. 種族基本値 */}
+                {/* ③ セクション区切り: 基本値 */}
+                <div style={SECTION_DIVIDER_STYLE}>基本値</div>
+
+                {/* 種族基本値 */}
                 <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
                   <div className={tableStyles.labelCell}>種族基本値</div>
                   {ABILITY_KEYS.map((key) => {
-                    const speciesKey = species as SpeciesKey;
-                    const baseValue = speciesKey ? SPECIES_DATA[speciesKey].abilities[key] : 0;
+                    const baseValue = (species as SpeciesKey)
+                      ? SPECIES_DATA[species as SpeciesKey].abilities[key]
+                      : 0;
                     return (
                       <div className={tableStyles.cell} key={key}>
                         {baseValue}
@@ -260,7 +269,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                   })}
                 </div>
 
-                {/* 3. ボーナス入力 (最適化済み) */}
+                {/* ① ボーナス（編集行） */}
                 <div
                   className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}
                   style={gridStyle}
@@ -277,7 +286,6 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                     />
                   ))}
                 </div>
-
                 <Tooltip
                   anchorSelect={`#bonus-${errorInfo?.key}`}
                   content={errorInfo?.message}
@@ -287,7 +295,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                   variant='error'
                 />
 
-                {/* 4. 成長 */}
+                {/* ① 成長（編集行） */}
                 <div
                   className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}
                   style={gridStyle}
@@ -306,7 +314,6 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                     />
                   ))}
                 </div>
-
                 <Tooltip
                   anchorSelect={`#growth-${growthErrorInfo?.key}`}
                   content={growthErrorInfo?.message}
@@ -316,65 +323,44 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                   variant='error'
                 />
 
-                {/* 5. 能力基本値合計 (計算) */}
+                {/* 能力基本値合計（計算行） */}
                 <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
-                  <div className={tableStyles.labelCell}>能力基本値合計</div>
+                  <div className={tableStyles.labelCell}>基本値合計</div>
                   {ABILITY_KEYS.map((key) => {
-                    const speciesKey = species as SpeciesKey;
-                    const baseValue = speciesKey ? SPECIES_DATA[speciesKey].abilities[key] : 0;
-                    const bonusValue = abilities[key].bonus || 0;
-                    const growthValue = abilities[key].growth || 0;
+                    const base = (species as SpeciesKey)
+                      ? SPECIES_DATA[species as SpeciesKey].abilities[key]
+                      : 0;
                     return (
                       <div className={tableStyles.cell} key={key}>
-                        {baseValue + bonusValue + growthValue}
+                        {base + (abilities[key].bonus || 0) + (abilities[key].growth || 0)}
                       </div>
                     );
                   })}
                 </div>
 
-                {/* 6. 基本値÷3 (計算) */}
+                {/* 能力基本値÷3（計算行） */}
                 <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
-                  <div className={tableStyles.labelCell}>能力基本値÷3</div>
+                  <div className={tableStyles.labelCell}>基本値÷3</div>
                   {ABILITY_KEYS.map((key) => {
-                    const speciesKey = species as SpeciesKey;
-                    const baseValue = speciesKey ? SPECIES_DATA[speciesKey].abilities[key] : 0;
-                    const bonusValue = abilities[key].bonus || 0;
-                    const growthValue = abilities[key].growth || 0;
+                    const base = (species as SpeciesKey)
+                      ? SPECIES_DATA[species as SpeciesKey].abilities[key]
+                      : 0;
                     return (
                       <div className={tableStyles.cell} key={key}>
-                        {Math.floor((baseValue + bonusValue + growthValue) / 3)}
+                        {Math.floor(
+                          (base + (abilities[key].bonus || 0) + (abilities[key].growth || 0)) / 3
+                        )}
                       </div>
                     );
                   })}
                 </div>
 
-                {/* 6. スタイル修正 */}
+                {/* ③ セクション区切り: 修正値 */}
+                <div style={SECTION_DIVIDER_STYLE}>修正値</div>
+
+                {/* スタイル修正（計算行） */}
                 <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
-                  <div className={tableStyles.labelCell}>
-                    <div className={layoutStyles.flexColumn}>
-                      <span>スタイル</span>
-                      {isReadOnly ? (
-                        <span>{STYLE_DATA[style as StyleKey]?.name || style}</span>
-                      ) : (
-                        <select
-                          className={formStyles.select}
-                          onChange={(e) => updateAbilities({ style: e.target.value as StyleKey })}
-                          style={{
-                            fontSize: '0.8rem',
-                            height: '28px',
-                            padding: '0 4px',
-                          }}
-                          value={style}
-                        >
-                          {Object.entries(STYLE_DATA).map(([k, v]) => (
-                            <option key={k} value={k}>
-                              {v.name}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
-                  </div>
+                  <div className={tableStyles.labelCell}>スタイル修正</div>
                   {ABILITY_KEYS.map((key) => (
                     <div className={tableStyles.cell} key={key}>
                       +{(STYLE_DATA[style as keyof typeof STYLE_DATA]?.bonuses as any)?.[key] || 0}
@@ -382,37 +368,9 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                   ))}
                 </div>
 
-                {/* 7. 属性修正 */}
+                {/* 属性修正（計算行） */}
                 <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
-                  <div className={tableStyles.labelCell}>
-                    <div className={layoutStyles.flexColumn}>
-                      <span>属性</span>
-                      {isReadOnly ? (
-                        <span>{ELEMENT_DATA[element as ElementKey]?.name || element}</span>
-                      ) : (
-                        <select
-                          className={formStyles.select}
-                          onChange={(e) =>
-                            updateAbilities({
-                              element: e.target.value as ElementKey,
-                            })
-                          }
-                          style={{
-                            fontSize: '0.8rem',
-                            height: '28px',
-                            padding: '0 4px',
-                          }}
-                          value={element}
-                        >
-                          {Object.entries(ELEMENT_DATA).map(([k, v]) => (
-                            <option key={k} value={k}>
-                              {v.name}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
-                  </div>
+                  <div className={tableStyles.labelCell}>属性修正</div>
                   {ABILITY_KEYS.map((key) => (
                     <div className={tableStyles.cell} key={key}>
                       +{(ELEMENT_DATA[element as ElementKey]?.bonuses as any)?.[key] || 0}
@@ -420,10 +378,10 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                   ))}
                 </div>
 
-                {/* 8. その他修正 (最適化済み) */}
+                {/* ① その他修正（編集行・色付き） */}
                 <div
                   className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}
-                  style={gridStyle}
+                  style={{ ...gridStyle, ...(isReadOnly ? {} : EDITABLE_ROW_STYLE) }}
                 >
                   <div className={tableStyles.labelCell}>その他修正</div>
                   {ABILITY_KEYS.map((key) => (
@@ -441,7 +399,9 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
 
             {/* 合計値表示 */}
             <div className={`${tableStyles.scrollContainer} ${layoutStyles.mt2}`}>
-              <div className={tableStyles.gridTable}>
+              <div
+                className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
+              >
                 <div className={tableStyles.headerRow} style={gridStyle}>
                   <div className={tableStyles.labelCell}>能力値</div>
                   {ABILITY_KEYS.map((key) => (
@@ -465,9 +425,8 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                     <div
                       className={tableStyles.cell}
                       key={key}
-                      style={{ fontSize: '1.2rem', color: '#fff' }}
+                      style={{ fontSize: '0.75rem', color: '#fff' }}
                     >
-                      {/* 合計値は親コンポーネント(EditForm)で計算されたものを表示 */}
                       {abilities[key].total}
                     </div>
                   ))}
@@ -476,25 +435,26 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
             </div>
 
             {/* 注釈 */}
-            <div className={`${formStyles.notes} ${layoutStyles.mt3}`}>
-              <p>
-                <strong>ボーナス点</strong>は合計で<strong>5点</strong>
-                まで割り振ることができます。
-              </p>
-              <p>
-                各項目の<strong>種族基本値 ＋ ボーナス</strong>の合計は
-                <strong>12</strong>
-                が上限です。
-              </p>
-              <p>
-                <strong>成長</strong>はGLが1上がるごとに<strong>3点</strong>
-                まで割り振ることができます（合計GL×3点）。
-              </p>
-              <p>
-                <strong>能力値合計</strong> ＝ (種族基本値 ＋ ボーナス) ÷ 3 ＋ スタイル修正 ＋
-                属性修正 ＋ 成長 ＋ その他修正
-              </p>
-            </div>
+            {!isReadOnly && (
+              <div className={`${formStyles.notes} ${layoutStyles.mt3}`}>
+                <p>
+                  <strong>ボーナス点</strong>は合計で<strong>5点</strong>
+                  まで割り振ることができます。
+                </p>
+                <p>
+                  各項目の<strong>種族基本値 ＋ ボーナス</strong>の合計は<strong>12</strong>
+                  が上限です。
+                </p>
+                <p>
+                  <strong>成長</strong>はGLが1上がるごとに<strong>3点</strong>
+                  まで割り振ることができます（合計GL×3点）。
+                </p>
+                <p>
+                  <strong>能力値合計</strong> ＝ (種族基本値 ＋ ボーナス ＋ 成長) ÷ 3 ＋
+                  スタイル修正 ＋ 属性修正 ＋ その他修正
+                </p>
+              </div>
+            )}
           </div>
         )}
       </section>

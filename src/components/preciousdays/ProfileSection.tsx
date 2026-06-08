@@ -2,7 +2,15 @@ import { memo, useState } from 'react';
 
 import Image from 'next/image';
 
-import { SPECIES_DATA, SpeciesKey } from '@/constants/preciousdays';
+import {
+  ELEMENT_COLORS,
+  ELEMENT_DATA,
+  ElementKey,
+  SPECIES_DATA,
+  SpeciesKey,
+  STYLE_DATA,
+  StyleKey,
+} from '@/constants/preciousdays';
 import cardStyles from '@/styles/components/cards.module.scss';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss'; // 2カラム配置用
 import imageStyles from '@/styles/components/charaSheet/image.module.scss'; // 画像アップロード用
@@ -15,6 +23,8 @@ interface ProfileProps {
   playerName: string | undefined;
   masterName: string | undefined;
   species: string;
+  characterStyle: string;
+  element: string;
   experience: number | undefined;
   updateAbilities: (updates: Partial<Character>) => void;
   updateBaseField: (field: keyof Character, value: any) => void;
@@ -30,6 +40,8 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
     playerName,
     masterName,
     species,
+    characterStyle,
+    element,
     experience,
     updateAbilities,
     updateBaseField,
@@ -55,12 +67,13 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
         {/* アコーディオンヘッダー */}
         <div
           className={cardStyles.accordionHeader}
-          onClick={() => {
-            setIsOpen(!isOpen);
-          }}
+          onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
+          style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>基本プロフィール</h2>
-          <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          {!isReadOnly && (
+            <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          )}
         </div>
 
         {/* コンテンツエリア */}
@@ -118,14 +131,16 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span12} ${formStyles.fieldGroup}`}>
                   <label>キャラクター名</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField}>{characterName}</div>
+                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                      {characterName}
+                    </div>
                   ) : (
                     <input
                       className={formStyles.input}
-                      defaultValue={characterName ?? ''}
                       inputMode='text'
-                      onBlur={(e) => updateBaseField('characterName', e.target.value)} // onBlur
+                      onChange={(e) => updateBaseField('characterName', e.target.value)}
                       type='text'
+                      value={characterName ?? ''}
                     />
                   )}
                 </div>
@@ -133,41 +148,44 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 {/* プレイヤー名 */}
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label>プレイヤー名（必須）</label>
-                  {!isReadOnly ? (
+                  {isReadOnly ? (
+                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                      {playerName}
+                    </div>
+                  ) : (
                     <input
                       className={formStyles.input}
                       inputMode='text'
-                      onChange={(e) => updateBaseField('playerName', e.target.value)} // onBlur
+                      onChange={(e) => updateBaseField('playerName', e.target.value)}
                       type='text'
-                      value={playerName}
+                      value={playerName ?? ''}
                     />
-                  ) : (
-                    <div className={baseStyles.readOnlyField}>{playerName}</div>
                   )}
                 </div>
 
-                {/*　師匠 */}
+                {/* 師匠名 */}
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label>師匠名</label>
-                  {!isReadOnly ? (
+                  {isReadOnly ? (
+                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                      {masterName}
+                    </div>
+                  ) : (
                     <input
                       className={formStyles.input}
-                      defaultValue={masterName ?? ''}
                       inputMode='text'
-                      onBlur={(e) => updateBaseField('masterName', e.target.value)} // onBlur
+                      onChange={(e) => updateBaseField('masterName', e.target.value)}
                       type='text'
+                      value={masterName ?? ''}
                     />
-                  ) : (
-                    <div className={baseStyles.readOnlyField}>{masterName}</div>
                   )}
                 </div>
 
-                {/* 種族 (セレクトボックスは即時性が大事なので onChange のまま) */}
+                {/* 種族 */}
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label>種族</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField}>
-                      {/* SPECIES_DATA から日本語名を引いてくる */}
+                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
                       {SPECIES_DATA[species as SpeciesKey]?.name || species}
                     </div>
                   ) : (
@@ -185,22 +203,79 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                   )}
                 </div>
 
+                {/* スタイル */}
+                <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
+                  <label>スタイル</label>
+                  {isReadOnly ? (
+                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                      {STYLE_DATA[characterStyle as StyleKey]?.name || characterStyle}
+                    </div>
+                  ) : (
+                    <select
+                      className={formStyles.select}
+                      onChange={(e) => updateAbilities({ style: e.target.value as StyleKey })}
+                      value={characterStyle}
+                    >
+                      {Object.entries(STYLE_DATA).map(([k, v]) => (
+                        <option key={k} value={k}>
+                          {v.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                {/* 属性 */}
+                <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
+                  <label>属性</label>
+                  {isReadOnly ? (
+                    <div
+                      className={baseStyles.readOnlyField}
+                      style={{
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        color: ELEMENT_COLORS[element] || 'var(--text-primary)',
+                        textShadow: ELEMENT_COLORS[element]
+                          ? `0 0 8px ${ELEMENT_COLORS[element]}88`
+                          : 'none',
+                      }}
+                    >
+                      {ELEMENT_DATA[element as ElementKey]?.name || element}
+                    </div>
+                  ) : (
+                    <select
+                      className={formStyles.select}
+                      onChange={(e) => updateAbilities({ element: e.target.value as ElementKey })}
+                      style={{ color: ELEMENT_COLORS[element] || 'inherit' }}
+                      value={element}
+                    >
+                      {Object.entries(ELEMENT_DATA).map(([k, v]) => (
+                        <option key={k} style={{ color: ELEMENT_COLORS[k] || 'inherit' }} value={k}>
+                          {v.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
                 {/* 経験点 */}
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label htmlFor='experience'>経験点</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField}>{experience}</div>
+                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                      {experience}
+                    </div>
                   ) : (
                     <input
                       autoComplete='off'
                       className={formStyles.input}
-                      defaultValue={experience ?? ''}
                       inputMode='numeric'
                       name='experience'
-                      onBlur={(e) => updateBaseField('experience', e.target.value)}
+                      onChange={(e) => updateBaseField('experience', e.target.value)}
                       pattern='[0-9]*'
                       placeholder='0'
                       type='text'
+                      value={experience ?? ''}
                     />
                   )}
                 </div>

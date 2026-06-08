@@ -87,7 +87,7 @@ const CombatRow: React.FC<CombatRowProps> = memo(
           {diceText && (
             <span
               className={tableStyles.subText}
-              style={{ marginLeft: '4px', fontSize: '0.8rem', opacity: 0.7 }}
+              style={{ marginLeft: '4px', fontSize: '0.75rem', opacity: 0.7 }}
             >
               ({diceText})
             </span>
@@ -196,15 +196,23 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
 
     return (
       <section className={cardStyles.base}>
-        <div className={cardStyles.accordionHeader} onClick={() => setIsOpen(!isOpen)}>
+        <div
+          className={cardStyles.accordionHeader}
+          onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
+          style={isReadOnly ? { cursor: 'default' } : undefined}
+        >
           <h2 className={cardStyles.title}>戦闘値・判定</h2>
-          <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          {!isReadOnly && (
+            <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          )}
         </div>
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
           {/* 戦闘値 */}
           <div className={tableStyles.scrollContainer}>
-            <div className={tableStyles.gridTable}>
+            <div
+              className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
+            >
               <div className={tableStyles.headerRow} style={combatGridStyle}>
                 <div className={tableStyles.labelCell}>戦闘値</div>
                 <div className={tableStyles.cell}>判定</div>
@@ -251,10 +259,13 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
 
           {/* ダメージ行  */}
           <div
-            className={`${tableStyles.scrollContainer} ${layoutStyles.mt4}`}
-            style={{ margin: '12px 0' }}
+            className={tableStyles.scrollContainer}
+            style={{ marginTop: '12px', marginBottom: '12px' }}
           >
-            <div className={tableStyles.gridTable} style={damageGridStyle}>
+            <div
+              className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
+              style={damageGridStyle}
+            >
               <div
                 className={tableStyles.labelCell}
                 style={{
@@ -265,10 +276,7 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
               >
                 ダメージ
               </div>
-              <div
-                className={tableStyles.cell}
-                style={{ fontSize: '1.25rem', fontWeight: 'bold', paddingLeft: '16px' }}
-              >
+              <div className={tableStyles.cell} style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
                 2D + {damageTotal}
               </div>
             </div>
@@ -276,7 +284,9 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
 
           {/* 特殊判定 */}
           <div className={`${tableStyles.scrollContainer} ${layoutStyles.mt4}`}>
-            <div className={tableStyles.gridTable}>
+            <div
+              className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
+            >
               <div className={tableStyles.headerRow} style={specialGridStyle}>
                 <div className={tableStyles.labelCell}>特殊な判定</div>
                 <div className={tableStyles.cell}>判定</div>
@@ -309,16 +319,18 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
             </div>
           </div>
 
-          <div className={formStyles.notes}>
-            <p>
-              魔術値の装備修正は<strong>付与術式専用</strong>です。その他の術式では
-              <strong>加算されません</strong>
-            </p>
-            <p>
-              ダメージの装備修正は<strong>付与術式専用</strong>です。その他の術式では
-              <strong>加算されません</strong>
-            </p>
-          </div>
+          {!isReadOnly && (
+            <div className={formStyles.notes}>
+              <p>
+                魔術値の装備修正は<strong>付与術式専用</strong>です。その他の術式では
+                <strong>加算されません</strong>
+              </p>
+              <p>
+                ダメージの装備修正は<strong>付与術式専用</strong>です。その他の術式では
+                <strong>加算されません</strong>
+              </p>
+            </div>
+          )}
         </div>
       </section>
     );

@@ -4,6 +4,7 @@ export interface Character {
   password?: string; // 保存用パスワード
   image?: string; // 画像データ(Base64)
   isCopyProhibited?: boolean; // 複製禁止フラグ
+  autoResizeTextarea?: boolean; // テキストエリア自動サイズ調整
 
   // --- 基本情報 ---
   playerName?: string; // プレイヤー名
@@ -75,6 +76,16 @@ export interface Character {
   // ---  携帯品 ---
   items: Item[];
 
+  // --- メモ ---
+  note?: string;
+  secretNote?: string;
+
+  // --- ococofolia 設定 ---
+  ccfoliaColor?: string;
+
+  // --- メモリー ---
+  memories: Memory[];
+
   // 総重量（計算用）
   totalWeight?: number;
 }
@@ -100,14 +111,16 @@ export interface CombatValue {
 export interface Skill {
   id: string;
   name: string;
+  category?: string; // 分類
   level: number;
   timing?: string; // タイミング
   critical?: string; // クリティカル
-  check?: string; // 判定
+  judge?: string; // 判定
   target?: string; // 対象
   range?: string; // 射程
   cost?: string; // コスト
   effect: string;
+  page?: string; // ページ数
 }
 
 // 装備品の1アイテム（武器・防具兼用）
@@ -121,6 +134,16 @@ export interface EquipmentItem {
   defenseMod: number; // 防御修正
   magicDefense: number; // もし魔防があれば
   notes: string; // 備考
+  page?: string; // ページ数
+}
+
+// メモリー
+export interface Memory {
+  id: string;
+  date: string; // 日付
+  content: string; // メモリー内容
+  sublimated: boolean; // 昇華チェック
+  prize: string; // プライズ
 }
 
 // 携帯品
@@ -130,6 +153,7 @@ export interface Item {
   weight: number;
   quantity: number; // 個数
   notes: string;
+  page?: string; // ページ数
   isEquipped?: boolean; // チェックボックス用（もし必要なら）
 }
 

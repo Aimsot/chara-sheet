@@ -29,9 +29,15 @@ export const LifepathSection: React.FC<LifepathProps> = memo(
     return (
       <section className={`${cardStyles.base} ${layoutStyles.span12}`}>
         {/* ヘッダー */}
-        <div className={cardStyles.accordionHeader} onClick={() => setIsOpen(!isOpen)}>
+        <div
+          className={cardStyles.accordionHeader}
+          onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
+          style={isReadOnly ? { cursor: 'default' } : undefined}
+        >
           <h2 className={cardStyles.title}>ライフパス</h2>
-          <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          {!isReadOnly && (
+            <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          )}
         </div>
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
@@ -44,14 +50,19 @@ export const LifepathSection: React.FC<LifepathProps> = memo(
                   <label>{field.l}</label>
 
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField}>{currentValue}</div>
+                    <div
+                      className={baseStyles.readOnlyField}
+                      style={{ whiteSpace: 'nowrap', overflowX: 'auto', fontSize: '0.9rem' }}
+                    >
+                      {currentValue}
+                    </div>
                   ) : (
                     <input
                       className={formStyles.input}
-                      defaultValue={currentValue}
                       inputMode='text'
-                      onBlur={(e) => updateBaseField(field.k as keyof Character, e.target.value)}
+                      onChange={(e) => updateBaseField(field.k as keyof Character, e.target.value)}
                       type='text'
+                      value={currentValue}
                     />
                   )}
                 </div>

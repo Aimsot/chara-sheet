@@ -5,6 +5,7 @@ import { Metadata } from 'next';
 
 import { ActionButton } from '@/components/ui/ActionButton';
 import Loading from '@/components/ui/Loading';
+import { ELEMENT_DATA, SPECIES_DATA, STYLE_DATA } from '@/constants/preciousdays';
 import { getCharacterById } from '@/lib/preciousdays/data';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss'; // 2カラム配置用
 import layoutStyles from '@/styles/components/layout.module.scss';
@@ -20,16 +21,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!character) {
     return {
-      title: 'キャラクターが見つかりませんでした',
+      title: 'キャラクターが見つかりませんでした | プレシャスデイズ | Hotch Potch.',
     };
   }
-  const displayTitle = character.characterName || 'プレシャスデイズ';
+
+  const charName = character.characterName || '名無し';
+  const playerName = character.playerName || '';
+
+  const speciesName = (SPECIES_DATA as any)[character.species]?.name ?? character.species;
+  const styleName = (STYLE_DATA as any)[character.style]?.name ?? character.style;
+  const elementName = (ELEMENT_DATA as any)[character.element]?.name ?? character.element;
+
+  const description = [
+    speciesName ? `種族：${speciesName}` : '',
+    styleName ? `スタイル：${styleName}` : '',
+    elementName ? `属性：${elementName}` : '',
+    character.gl ? `GL${character.gl}` : '',
+    playerName ? `PL：${playerName}` : '',
+  ]
+    .filter(Boolean)
+    .join('　');
 
   return {
-    title: `${displayTitle}  | Hotch Potch.`,
-    description: `${
-      character.characterName ?? 'プレシャスデイズ'
-    } のキャラクターシート閲覧ページです。`,
+    title: `${charName} | プレシャスデイズ | Hotch Potch.`,
+    description,
+    openGraph: {
+      title: `${charName} | プレシャスデイズ | Hotch Potch.`,
+      description,
+      type: 'profile',
+      images: character.image
+        ? [{ url: `/api/preciousdays/character/${id}/image`, alt: charName }]
+        : [],
+    },
     robots: {
       index: false,
       follow: false,

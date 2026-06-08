@@ -86,7 +86,28 @@ export const INITIAL_CHARACTER: Character = {
     guardian: { ...EMPTY_EQUIPMENT },
   },
   items: [{ id: 'i1', name: '', weight: 1, quantity: 1, notes: '' }],
-  skills: [{ id: 's1', name: 'マナインフロー', level: 0, effect: '魔術が使用可能になる' }],
+  skills: [
+    {
+      id: 's1',
+      name: 'マナインフロー',
+      level: 0,
+      timing: 'パッシブ／メジャー',
+      critical: 'なし',
+      judge: '魔術判定',
+      target: '自分',
+      range: '―',
+      category: '魔術',
+      cost: '0MP',
+      effect: '魔術が使用可能になる',
+      page: '',
+    },
+  ],
+  note: '',
+  memories: [
+    { id: 'm1', date: '', content: '', sublimated: false, prize: '' },
+    { id: 'm2', date: '', content: '', sublimated: false, prize: '' },
+    { id: 'm3', date: '', content: '', sublimated: false, prize: '' },
+  ],
 };
 
 export const ABILITY_KEYS = [
@@ -117,7 +138,6 @@ export const SPECIES_DATA = {
       passion: 10,
       affection: 10,
     },
-    description: '平均的でバランスの取れた種族。',
   },
   elf: {
     name: '仙族（エルフ）',
@@ -129,7 +149,6 @@ export const SPECIES_DATA = {
       passion: 8,
       affection: 8,
     },
-    description: '知力と神秘に優れ、魔法適性が高い。',
   },
   angel: {
     name: '天使（エンジェル）',
@@ -141,7 +160,6 @@ export const SPECIES_DATA = {
       passion: 7,
       affection: 7,
     },
-    description: '頑強な肉体と情熱的な魂を持つ。',
   },
   therian: {
     name: '獣族（セリアン）',
@@ -153,7 +171,6 @@ export const SPECIES_DATA = {
       passion: 7,
       affection: 8,
     },
-    description: '俊敏な動きと野生の直感を持つ。',
   },
 } as const;
 
@@ -228,6 +245,15 @@ export const ELEMENT_DATA = {
   light: { name: '光', bonuses: { affection: 1 } },
   dark: { name: '闇', bonuses: { passion: 1 } },
 } as const;
+
+export const ELEMENT_COLORS: Record<string, string> = {
+  earth: '#ff922b',
+  fire: '#ff6b6b',
+  water: '#4dabf7',
+  wind: '#69db7c',
+  dark: '#b197fc',
+  light: '#ffd43b',
+};
 
 export const APPEARANCE_DATA = [
   { k: 'age', l: '年齢' },

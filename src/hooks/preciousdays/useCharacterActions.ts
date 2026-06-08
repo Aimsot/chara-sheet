@@ -14,14 +14,15 @@ import {
   ABILITY_DATA,
 } from '@/constants/preciousdays';
 import { saveCharacterAction, deleteCharacterAction } from '@/lib/preciousdays/actions';
-import { Character, Item, Skill } from '@/types/preciousdays/character';
+import { Character, Item, Memory, Skill } from '@/types/preciousdays/character';
 import { generateUUID } from '@/utils/uuid';
 
 export const useCharacterActions = (
   char: Character,
   setChar: React.Dispatch<React.SetStateAction<Character>>,
   selectedFile?: File | null,
-  setIsSubmitting?: React.Dispatch<React.SetStateAction<boolean>>
+  setIsSubmitting?: React.Dispatch<React.SetStateAction<boolean>>,
+  onSaveSuccess?: (savedChar: Character) => void
 ) => {
   // ▼ 1. 最新の char を常に参照できるようにする (Refテクニック)
   const charRef = useRef(char);
@@ -182,10 +183,11 @@ export const useCharacterActions = (
     const newSkill: Skill = {
       id: generateUUID(),
       name: '',
+      category: '',
       level: 1,
       timing: '',
       critical: '',
-      check: '',
+      judge: '',
       target: '',
       range: '',
       cost: '',
@@ -277,6 +279,44 @@ export const useCharacterActions = (
     [setChar]
   );
 
+  // --- メモリー追加 ---
+  const handleMemoriesAdd = useCallback(() => {
+    const newMemory: Memory = {
+      id: generateUUID(),
+      date: '',
+      content: '',
+      sublimated: false,
+      prize: '',
+    };
+    setChar((prev) => ({ ...prev, memories: [...(prev.memories || []), newMemory] }));
+  }, [setChar]);
+
+  // --- メモリー削除（最低1件は残す） ---
+  const handleMemoriesRemove = useCallback(
+    (index: number) => {
+      setChar((prev) => {
+        const current = prev.memories || [];
+        if (current.length <= 1) return prev;
+        const newMemories = [...current];
+        newMemories.splice(index, 1);
+        return { ...prev, memories: newMemories };
+      });
+    },
+    [setChar]
+  );
+
+  // --- メモリー更新 ---
+  const handleMemoriesUpdate = useCallback(
+    (index: number, field: keyof Memory, value: any) => {
+      setChar((prev) => {
+        const newMemories = [...(prev.memories || [])];
+        newMemories[index] = { ...newMemories[index], [field]: value };
+        return { ...prev, memories: newMemories };
+      });
+    },
+    [setChar]
+  );
+
   // --- 戦闘値・判定系の更新 ---
   const handleCombatModifierChange = useCallback(
     (target: 'combatValues' | 'specialChecks', key: string, newValue: number) => {
@@ -362,8 +402,11 @@ export const useCharacterActions = (
         const result = await saveCharacterAction(finalCharData);
 
         if (result.success) {
-          // 仕様に合わせて window.location.href で遷移
-          window.location.href = `/preciousdays/edit?key=${result.id}`;
+          if (onSaveSuccess) {
+            onSaveSuccess({ ...finalCharData, id: result.id ?? finalCharData.id });
+          } else {
+            window.location.href = `/preciousdays/edit?key=${result.id}`;
+          }
         } else {
           alert(`保存に失敗しました: ${result.error}`);
           setIsSubmitting(false); // 失敗時はボタンを戻す
@@ -374,7 +417,7 @@ export const useCharacterActions = (
         setIsSubmitting(false);
       }
     },
-    [selectedFile, setIsSubmitting]
+    [selectedFile, setIsSubmitting, onSaveSuccess]
   );
 
   // 削除処理
@@ -419,5 +462,8 @@ export const useCharacterActions = (
     handleEquipmentUpdate,
     handleResourceUpdate,
     handleGLUpdate,
+    handleMemoriesAdd,
+    handleMemoriesRemove,
+    handleMemoriesUpdate,
   };
 };

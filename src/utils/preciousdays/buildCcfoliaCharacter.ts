@@ -100,7 +100,7 @@ export function buildCcfoliaCharacter(char: Character): string {
           ...char.skills
             .filter((s) => s.name)
             .map((s) => {
-              const meta = [s.timing, s.critical, s.check, s.target, s.range, s.cost]
+              const meta = [s.timing, s.critical, s.judge, s.target, s.range, s.cost]
                 .filter(Boolean)
                 .join('/');
               return meta ? `【${s.name}】 ${meta}｜${s.effect}` : `【${s.name}】 ${s.effect}`;
@@ -133,6 +133,7 @@ export function buildCcfoliaCharacter(char: Character): string {
       ],
       commands,
       iconUrl: null,
+      ...(char.ccfoliaColor ? { color: char.ccfoliaColor } : {}),
     },
   };
 

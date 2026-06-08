@@ -29,9 +29,11 @@ const ItemRow = memo(
     // --- テキスト入力の高速化 (State Mirroringパターン) ---
     const [prevName, setPrevName] = useState(item.name);
     const [prevNotes, setPrevNotes] = useState(item.notes);
+    const [prevPage, setPrevPage] = useState(item.page || '');
 
     const [localName, setLocalName] = useState(item.name);
     const [localNotes, setLocalNotes] = useState(item.notes);
+    const [localPage, setLocalPage] = useState(item.page || '');
 
     // propsが変わった場合、レンダリング中にローカルstateを同期する
     if (item.name !== prevName) {
@@ -42,23 +44,24 @@ const ItemRow = memo(
       setPrevNotes(item.notes);
       setLocalNotes(item.notes);
     }
+    if ((item.page || '') !== prevPage) {
+      setPrevPage(item.page || '');
+      setLocalPage(item.page || '');
+    }
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setLocalName(e.target.value);
-    };
-    const handleNameBlur = () => {
-      if (localName !== item.name) {
-        onUpdate(index, 'name', localName);
-      }
+      onUpdate(index, 'name', e.target.value);
     };
 
     const handleNotesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setLocalNotes(e.target.value);
+      onUpdate(index, 'notes', e.target.value);
     };
-    const handleNotesBlur = () => {
-      if (localNotes !== item.notes) {
-        onUpdate(index, 'notes', localNotes);
-      }
+
+    const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setLocalPage(e.target.value);
+      onUpdate(index, 'page', e.target.value);
     };
 
     // --- 数値入力のハンドラ (固定化) ---
@@ -80,19 +83,33 @@ const ItemRow = memo(
       onRemove(index);
     }, [index, onRemove]);
 
-    return (
-      <div className={tableStyles.row} style={{ ...style, alignItems: 'center' }}>
+    const [hovered, setHovered] = useState(false);
+
+    const mainRow = (
+      <div
+        className={tableStyles.row}
+        style={{
+          ...style,
+          alignItems: 'center',
+          paddingTop: '8px',
+          paddingBottom: '8px',
+          backgroundColor:
+            hovered && isReadOnly
+              ? 'color-mix(in srgb, var(--accent-color), transparent 88%)'
+              : undefined,
+        }}
+      >
         {/* アイテム名 */}
-        <div className={tableStyles.cell}>
+        <div className={tableStyles.cell} style={{ paddingLeft: '6px', paddingRight: '6px' }}>
           {isReadOnly ? (
-            <div className={formStyles.readOnlyField}>{item.name}</div>
+            item.name
           ) : (
             <input
               className={formStyles.input}
               inputMode='text'
-              onBlur={handleNameBlur}
               onChange={handleNameChange}
               placeholder='アイテム名'
+              style={{ padding: '0 10px' }}
               type='text'
               value={localName}
             />
@@ -104,7 +121,7 @@ const ItemRow = memo(
           {isReadOnly ? (
             item.weight
           ) : (
-            <div className={formStyles.stepper}>
+            <div className={formStyles.stepperSmall}>
               <button onClick={() => handleWeightChange((item.weight || 0) - 1)} type='button'>
                 -
               </button>
@@ -121,7 +138,7 @@ const ItemRow = memo(
           {isReadOnly ? (
             item.quantity
           ) : (
-            <div className={formStyles.stepper}>
+            <div className={formStyles.stepperSmall}>
               <button onClick={() => handleQuantityChange((item.quantity || 0) - 1)} type='button'>
                 -
               </button>
@@ -133,22 +150,35 @@ const ItemRow = memo(
           )}
         </div>
 
-        {/* 備考 */}
-        <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            <div className={formStyles.readOnlyField}>{item.notes}</div>
-          ) : (
+        {/* 備考: 編集時のみ列表示 */}
+        {!isReadOnly && (
+          <div className={tableStyles.cell}>
             <input
               className={formStyles.input}
               inputMode='text'
-              onBlur={handleNotesBlur}
               onChange={handleNotesChange}
               placeholder='備考'
               type='text'
               value={localNotes}
             />
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* ページ */}
+        {isReadOnly ? (
+          <div className={tableStyles.cell}>{item.page || ''}</div>
+        ) : (
+          <div className={tableStyles.cell}>
+            <input
+              className={formStyles.input}
+              inputMode='text'
+              onChange={handlePageChange}
+              placeholder='p.'
+              type='text'
+              value={localPage}
+            />
+          </div>
+        )}
 
         {/* 削除ボタン */}
         {!isReadOnly && (
@@ -162,6 +192,44 @@ const ItemRow = memo(
             >
               ×
             </button>
+          </div>
+        )}
+      </div>
+    );
+
+    if (!isReadOnly) return mainRow;
+
+    return (
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{ borderBottom: '1px solid var(--card-border)' }}
+      >
+        {mainRow}
+        {hovered && item.notes && (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 200px) 1fr',
+              columnGap: '12px',
+              padding: '3px 0 5px',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+              backgroundColor: 'color-mix(in srgb, var(--accent-color), transparent 88%)',
+            }}
+          >
+            <div />
+            <div
+              style={{
+                fontSize: '0.75rem',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                lineHeight: 1.5,
+                color: '#fff',
+                padding: '2px 0',
+              }}
+            >
+              {item.notes}
+            </div>
           </div>
         )}
       </div>
@@ -202,17 +270,24 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
     // ▼ スタイル定義 (元のまま維持)
     const itemGridStyle = {
       display: 'grid',
-      gridTemplateColumns: isReadOnly ? '1.5fr 80px 80px 2fr' : '1.5fr 80px 80px 2fr 50px',
+      gridTemplateColumns: isReadOnly
+        ? 'minmax(0, 200px) 80px 80px 60px'
+        : 'minmax(0, 200px) 80px 80px 2fr 60px 50px',
       gap: '12px',
-      minWidth: '600px',
+      minWidth: isReadOnly ? '420px' : '660px',
     };
 
     return (
       <section className={cardStyles.base}>
-        <div className={cardStyles.accordionHeader} onClick={() => setIsOpen(!isOpen)}>
+        <div
+          className={cardStyles.accordionHeader}
+          onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
+          style={isReadOnly ? { cursor: 'default' } : undefined}
+        >
           <h2 className={cardStyles.title}>所持品</h2>
-
-          <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          {!isReadOnly && (
+            <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          )}
         </div>
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
@@ -223,13 +298,16 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
               items={items}
               species={species}
             />
-            <div className={tableStyles.gridTable}>
+            <div
+              className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
+            >
               {/* ヘッダー */}
               <div className={tableStyles.headerRow} style={itemGridStyle}>
                 <div className={tableStyles.labelCell}>アイテム名</div>
                 <div className={tableStyles.cell}>重量</div>
                 <div className={tableStyles.cell}>個数</div>
-                <div className={tableStyles.cell}>備考</div>
+                {!isReadOnly && <div className={tableStyles.cell}>備考</div>}
+                <div className={tableStyles.cell}>ページ</div>
                 {!isReadOnly && <div className={tableStyles.cell}>削除</div>}
               </div>
 
@@ -275,11 +353,10 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                 >
                   合計
                 </div>
-                <div className={tableStyles.cell} style={{ fontSize: '1.2rem' }}>
-                  {totalItemWeight}
-                </div>
+                <div className={tableStyles.cell}>{totalItemWeight}</div>
                 <div className={tableStyles.cell}></div>
                 <div className={tableStyles.cell}></div>
+                {!isReadOnly && <div className={tableStyles.cell}></div>}
                 {!isReadOnly && <div className={tableStyles.cell}></div>}
               </div>
             </div>
@@ -288,7 +365,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
           {!isReadOnly && (
             <div
               style={{
-                padding: '16px',
+                padding: '24px 8px 8px',
                 display: 'flex',
                 justifyContent: 'center',
               }}
@@ -296,7 +373,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
               <button
                 className={btnStyles.outline}
                 onClick={handleItemsAdd}
-                style={{ minWidth: '240px' }}
+                style={{ fontSize: '0.85rem', padding: '6px 24px' }}
                 type='button'
               >
                 ＋ アイテムを追加する

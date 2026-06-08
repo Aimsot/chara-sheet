@@ -11,7 +11,7 @@
 .table {
   width: 100%;
   font-family: var(--font-zen-old-mincho), serif;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   border-collapse: collapse;
 
   /* ヘッダー行 (黒背景) */
@@ -67,7 +67,7 @@
   max-width: 60px;
   padding: 0;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: bold;
   text-align: center;
   background: transparent;
@@ -82,7 +82,7 @@
 
 /* 合計値の表示 (大きく強調) */
 .totalValue {
-  font-size: 1.1rem;
+  font-size: 0.75rem;
   font-weight: 900;
 }
 
@@ -107,7 +107,7 @@
   .label {
     padding: 2px 8px;
     margin-right: 12px;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     color: #fff;
     background-color: #000;
   }
@@ -116,6 +116,6 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    font-size: 1.2rem;
+    font-size: 0.75rem;
   }
 }

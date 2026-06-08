@@ -26,6 +26,7 @@ interface ActionButtonProps {
   submit?: boolean;
   disabled?: boolean;
   form?: string;
+  'data-tooltip-id'?: string;
 }
 
 export const ActionButton: React.FC<ActionButtonProps> = ({
@@ -39,6 +40,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   submit = false,
   disabled = false,
   form,
+  'data-tooltip-id': dataTooltipId,
 }) => {
   // バリエーションごとのスタイル決定
   let baseClass = btnStyles.outline; // デフォルト
@@ -78,6 +80,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   return (
     <button
       className={combinedClass}
+      data-tooltip-id={dataTooltipId}
       disabled={disabled}
       form={form}
       onClick={onClick}

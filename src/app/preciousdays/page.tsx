@@ -1,8 +1,15 @@
 import { Suspense } from 'react';
 
+import { Metadata } from 'next';
+
 import PreciousDaysCharacterList from '@/components/preciousdays/CharacterListClient';
 import Loading from '@/components/ui/Loading';
 import { getAllCharacters } from '@/lib/preciousdays/data';
+
+export const metadata: Metadata = {
+  title: 'キャラクター一覧 | プレシャスデイズ | Hotch Potch.',
+  description: 'プレシャスデイズのキャラクターシート一覧。',
+};
 
 export default async function PreciousDaysPage({
   searchParams,

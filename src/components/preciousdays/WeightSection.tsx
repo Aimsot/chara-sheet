@@ -53,7 +53,7 @@ const WeightSection = ({ items, equipment, species, abilities }: WeightProps) =>
         style={{
           justifyContent: 'flex-start',
           paddingLeft: '1.5rem',
-          fontSize: '1.1rem',
+          fontSize: '0.75rem',
           fontWeight: 'bold',
         }}
       >
@@ -61,7 +61,7 @@ const WeightSection = ({ items, equipment, species, abilities }: WeightProps) =>
         {isOverWeight && (
           <span
             style={{
-              fontSize: '0.8rem',
+              fontSize: '0.75rem',
               marginLeft: '12px',
               fontWeight: 'normal',
               color: isOverWeight ? '#ff4d4f' : 'inherit',

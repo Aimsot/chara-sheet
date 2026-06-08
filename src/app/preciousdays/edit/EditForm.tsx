@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, Suspense, useEffect, useMemo } from 'react';
+import { useState, Suspense, useEffect, useMemo, useCallback } from 'react';
+
+import { useRouter } from 'next/navigation';
 
 import CharacterSheetTemplate from '@/components/preciousdays/CharacterSheetTemplate';
 import Loading from '@/components/ui/Loading';
@@ -15,9 +17,11 @@ interface EditFormProps {
 }
 
 function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) {
+  const router = useRouter();
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.image || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [savedData, setSavedData] = useState<Character | null>(initialData ?? null);
   const isEditMode = !!characterKey && !isClone;
 
   const [char, setChar] = useState<Character>(() => {
@@ -35,15 +39,35 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
   });
 
   const isDirty = useMemo(() => {
-    const baseData = initialData || INITIAL_CHARACTER;
+    const baseData = savedData || INITIAL_CHARACTER;
     const isDataChanged = JSON.stringify(char) !== JSON.stringify(baseData);
     const isImageChanged = selectedFile !== null;
 
     return isDataChanged || isImageChanged;
-  }, [char, initialData, selectedFile]);
+  }, [char, savedData, selectedFile]);
+
+  const handleSaveSuccess = useCallback(
+    (savedChar: Character) => {
+      setChar(savedChar);
+      setSavedData(savedChar);
+      setSelectedFile(null);
+      setIsSubmitting(false);
+      // 新規作成・複製の初回保存時のみURLを更新
+      if (!characterKey || isClone) {
+        router.replace(`/preciousdays/edit?key=${savedChar.id}`, { scroll: false });
+      }
+    },
+    [characterKey, isClone, router]
+  );
 
   // アクションの呼び出し
-  const actions = useCharacterActions(char, setChar, selectedFile, setIsSubmitting);
+  const actions = useCharacterActions(
+    char,
+    setChar,
+    selectedFile,
+    setIsSubmitting,
+    handleSaveSuccess
+  );
 
   useEffect(() => {
     // --- 1. 離脱警告 (ブラウザを閉じようとした時) ---

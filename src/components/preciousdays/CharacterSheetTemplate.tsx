@@ -1,7 +1,8 @@
 /* src/components/preciousdays/CharacterSheetTemplate.tsx */
 import React, { useRef, useState } from 'react';
+import { Tooltip } from 'react-tooltip';
 
-import { ArrowBigLeftDash, Eye, LoaderCircle, Lock, Pen, Save } from 'lucide-react';
+import { ArrowBigLeftDash, ClipboardCopy, Eye, LoaderCircle, Lock, Pen, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { AbilitySection } from '@/components/preciousdays/AbilitySection';
@@ -10,6 +11,8 @@ import { CombatSection } from '@/components/preciousdays/CombatSection';
 import EquipmentSection from '@/components/preciousdays/EquipmentSection';
 import { ItemSection } from '@/components/preciousdays/ItemSection';
 import { LifepathSection } from '@/components/preciousdays/LifepathSection';
+import { MemorySection } from '@/components/preciousdays/MemorySection';
+import { NoteSection } from '@/components/preciousdays/NoteSection';
 import { ProfileSection } from '@/components/preciousdays/ProfileSection';
 import { SidebarSection } from '@/components/preciousdays/SidebarSection';
 import { SkillSection } from '@/components/preciousdays/SkillSection';
@@ -17,7 +20,8 @@ import Loading from '@/components/ui/Loading';
 import btnStyles from '@/styles/components/buttons.module.scss';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
-import { Character, Item, Skill } from '@/types/preciousdays/character';
+import { Character, Item, Memory, Skill } from '@/types/preciousdays/character';
+import { buildCcfoliaCharacter } from '@/utils/preciousdays/buildCcfoliaCharacter';
 
 import { ActionButton } from '../ui/ActionButton';
 
@@ -53,6 +57,9 @@ interface EditActions {
   handleItemsAdd: () => void;
   handleItemsRemove: (index: number) => void;
   handleItemsUpdate: (index: number, field: keyof Item, value: any) => void;
+  handleMemoriesAdd: () => void;
+  handleMemoriesRemove: (index: number) => void;
+  handleMemoriesUpdate: (index: number, field: keyof Memory, value: any) => void;
   handleCombatModifierChange: (
     target: 'combatValues' | 'specialChecks',
     key: string,
@@ -92,6 +99,9 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
     handleItemsAdd = () => {},
     handleItemsRemove = () => {},
     handleItemsUpdate = () => {},
+    handleMemoriesAdd = () => {},
+    handleMemoriesRemove = () => {},
+    handleMemoriesUpdate = () => {},
     handleCombatModifierChange = () => {},
     handleEquipmentUpdate = () => {},
     handleResourceUpdate = () => {},
@@ -101,6 +111,18 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
   const isReadOnly = mode === 'view';
   const router = useRouter();
   const [isAuthVisible, setIsAuthVisible] = useState(false);
+  const [ccfoliaCopied, setCcfoliaCopied] = useState(false);
+
+  const handleCopyCcfolia = async () => {
+    try {
+      const json = buildCcfoliaCharacter(char);
+      await navigator.clipboard.writeText(json);
+      setCcfoliaCopied(true);
+      setTimeout(() => setCcfoliaCopied(false), 2000);
+    } catch {
+      alert('クリップボードへのコピーに失敗しました');
+    }
+  };
   const observerRef = useRef<IntersectionObserver | null>(null);
   const scrollToAuth = () => {
     const el = document.getElementById('signin-section');
@@ -189,6 +211,21 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             variant='midnight'
           />
         )}
+        {/* 出力ボタン（閲覧モード） */}
+        {mode === 'view' && (
+          <>
+            <ActionButton
+              className={`${layoutStyles.mt2} ${baseStyles.compactBtn}`}
+              data-tooltip-id='ccfolia-tooltip'
+              icon={<ClipboardCopy size={12} />}
+              label={ccfoliaCopied ? 'コピー済' : '出力'}
+              onClick={handleCopyCcfolia}
+              style={{ width: '100%' }}
+              variant={ccfoliaCopied ? 'solid' : 'midnight'}
+            />
+            <Tooltip content='ココフォリア用にコマをコピー' id='ccfolia-tooltip' place='bottom' />
+          </>
+        )}
         {mode === 'view' && char.password && !isAuthVisible && (
           <ActionButton
             className={`${layoutStyles.mt2} ${baseStyles.compactBtn}`}
@@ -200,10 +237,10 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
           />
         )}
         {/* 保存ボタン */}
-        {isDirty && char.playerName && (
+        {mode !== 'view' && (
           <ActionButton
             className={`${layoutStyles.mt2} ${baseStyles.compactBtn}`}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isDirty}
             form='char-form'
             icon={
               isSubmitting ? (
@@ -215,7 +252,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             label={isSubmitting ? '' : mode !== 'create' ? '保存' : '登録'}
             style={{ width: '100%' }}
             submit={true}
-            variant='primary'
+            variant={isDirty ? 'primary' : 'disabled'}
           />
         )}
       </div>
@@ -230,6 +267,8 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
           <div className={`${layoutStyles.span8} ${baseStyles.stack}`}>
             <ProfileSection
               characterName={char.characterName}
+              characterStyle={char.style}
+              element={char.element}
               experience={char.experience}
               isReadOnly={isReadOnly}
               masterName={char.masterName}
@@ -330,6 +369,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
           >
             <EquipmentSection
               abilities={char.abilities}
+              autoResize={char.autoResizeTextarea ?? false}
               equipment={char.equipment}
               handleEquipmentUpdate={handleEquipmentUpdate}
               isReadOnly={isReadOnly}
@@ -337,16 +377,55 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               species={char.species}
             />
             <SkillSection
+              autoResize={char.autoResizeTextarea ?? false}
               handleSkillsAdd={handleSkillsAdd}
               handleSkillsRemove={handleSkillsRemove}
               handleSkillsUpdate={handleSkillsUpdate}
               isReadOnly={isReadOnly}
               skills={char.skills}
             />
+            <NoteSection
+              autoResize={char.autoResizeTextarea ?? false}
+              isReadOnly={isReadOnly}
+              note={char.note ?? ''}
+              secretNote={char.secretNote ?? ''}
+              updateNote={(val) => updateBaseField('note', val)}
+              updateSecretNote={(val) => updateBaseField('secretNote', val)}
+            />
+            <MemorySection
+              autoResize={char.autoResizeTextarea ?? false}
+              handleMemoriesAdd={handleMemoriesAdd}
+              handleMemoriesRemove={handleMemoriesRemove}
+              handleMemoriesUpdate={handleMemoriesUpdate}
+              isReadOnly={isReadOnly}
+              memories={char.memories}
+            />
           </div>
         </form>
       )}
-      {/* 戻るボタン下部省略 */}
+      {/* ページ下部：一覧に戻るボタン */}
+      {!isLoading && char && (
+        <div className={`${layoutStyles.grid} ${layoutStyles.mb4}`} style={{ marginTop: '16px' }}>
+          <div className={`${layoutStyles.span4} ${baseStyles.stack}`}>
+            <ActionButton
+              icon={<ArrowBigLeftDash size={16} />}
+              label='一覧に戻る'
+              onClick={() => {
+                if (isSubmitting) return;
+                if (isDirty) {
+                  const ok = window.confirm(
+                    '編集中ですが、保存せずに一覧に戻ってもよろしいですか？'
+                  );
+                  if (!ok) return;
+                }
+                router.push('/preciousdays');
+              }}
+              style={{ width: '100%' }}
+              variant='outline'
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

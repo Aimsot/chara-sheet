@@ -21,9 +21,15 @@ export const AppearanceSection: React.FC<AppearanceProps> = memo(
 
     return (
       <section className={cardStyles.base}>
-        <div className={cardStyles.accordionHeader} onClick={() => setIsOpen(!isOpen)}>
+        <div
+          className={cardStyles.accordionHeader}
+          onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
+          style={isReadOnly ? { cursor: 'default' } : undefined}
+        >
           <h2 className={cardStyles.title}>キャラクターの外見</h2>
-          <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          {!isReadOnly && (
+            <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          )}
         </div>
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
@@ -33,14 +39,19 @@ export const AppearanceSection: React.FC<AppearanceProps> = memo(
                 <label htmlFor={item.k}>{item.l}</label>
 
                 {isReadOnly ? (
-                  <div className={baseStyles.readOnlyField}>{appearance?.[item.k] || ''}</div>
+                  <div
+                    className={baseStyles.readOnlyField}
+                    style={{ whiteSpace: 'nowrap', overflowX: 'auto', fontSize: '0.9rem' }}
+                  >
+                    {appearance?.[item.k] || ''}
+                  </div>
                 ) : (
                   <input
                     className={formStyles.input}
-                    defaultValue={appearance?.[item.k] ?? ''}
                     inputMode='text'
-                    onBlur={(e) => updateAppearance(item.k, e.target.value)}
+                    onChange={(e) => updateAppearance(item.k, e.target.value)}
                     type='text'
+                    value={appearance?.[item.k] ?? ''}
                   />
                 )}
               </div>

@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
+import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
+import { ComboBox } from '@/components/ui/ComboBox';
 import { NumberInput } from '@/components/ui/NumberInput';
 import { SPECIES_DATA, SpeciesKey } from '@/constants/preciousdays';
 import cardStyles from '@/styles/components/cards.module.scss';
@@ -15,6 +17,7 @@ interface EquipmentSectionProps {
   abilities: Character['abilities'];
   species: string;
   isReadOnly?: boolean;
+  autoResize?: boolean;
   handleEquipmentUpdate: (slotKey: string, field: string, value: any) => void;
 }
 
@@ -27,59 +30,62 @@ const SLOTS: { key: keyof Character['equipment']; label: string }[] = [
   { key: 'guardian', label: '守護魔術' },
 ];
 
-// 9列の装備用グリッド設定
-const equipGridStyle = {
+const equipGridStyle: React.CSSProperties = {
   display: 'grid',
-  gridTemplateColumns: '80px 1.5fr 110px 110px 70px 100px 110px 110px 2fr',
+  gridTemplateColumns: '80px minmax(0, 200px) 110px 110px 70px 100px 110px 110px 1fr',
   columnGap: '12px',
-  minWidth: '1200px',
+  minWidth: '1000px',
 };
 
-const EquipmentHeader = ({ isFooter }: { isFooter?: boolean }) => {
-  return (
-    <div className={tableStyles.headerRow} style={equipGridStyle}>
-      <div className={tableStyles.labelCell}>{!isFooter ? '部位' : ''}</div>
-      <div className={tableStyles.cell}>{!isFooter ? '名称' : ''}</div>
-      <div className={tableStyles.cell}>重量</div>
-      <div className={tableStyles.cell}>命中</div>
-      <div className={tableStyles.cell}>ダメージ</div>
-      <div className={tableStyles.cell}>射程</div>
-      <div className={tableStyles.cell}>回避</div>
-      <div className={tableStyles.cell}>防御</div>
-      <div className={tableStyles.cell}>備考</div>
-    </div>
-  );
+const EquipmentHeader = () => (
+  <div className={tableStyles.headerRow} style={equipGridStyle}>
+    <div className={tableStyles.labelCell}>部位</div>
+    <div className={tableStyles.cell}>名称</div>
+    <div className={tableStyles.cell}>重量</div>
+    <div className={tableStyles.cell}>命中修正</div>
+    <div className={tableStyles.cell}>ダメージ</div>
+    <div className={tableStyles.cell}>射程</div>
+    <div className={tableStyles.cell}>回避値</div>
+    <div className={tableStyles.cell}>防御値</div>
+    <div></div>
+  </div>
+);
+
+// 7列（部位を除く）のメインコンテンツグリッド
+const equipInnerGridStyle: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'minmax(0, 200px) 110px 110px 70px 100px 110px 110px 1fr',
+  columnGap: '12px',
+  alignItems: 'center',
+  minHeight: '36px',
+  padding: '4px 0',
 };
 
-// ▼ 1. 装備1行分を独立コンポーネント化 (memo化)
 const EquipmentRow = memo(
   ({
     slotKey,
     label,
     item,
     isReadOnly,
+    autoResize,
     onUpdate,
-    style,
   }: {
     slotKey: string;
     label: string;
     item: any;
     isReadOnly?: boolean;
+    autoResize?: boolean;
     onUpdate: (slotKey: string, field: string, value: any) => void;
-    style: React.CSSProperties;
   }) => {
-    // --- テキスト入力の高速化 (State Mirroringパターン) ---
-    // Propsの値を追跡するためのstate
     const [prevName, setPrevName] = useState(item.name || '');
     const [prevDamage, setPrevDamage] = useState(item.damage || '');
     const [prevNotes, setPrevNotes] = useState(item.notes || '');
-
-    // 表示用のローカルstate
+    const [prevPage, setPrevPage] = useState(item.page || '');
     const [localName, setLocalName] = useState(item.name || '');
     const [localDamage, setLocalDamage] = useState(item.damage || '');
     const [localNotes, setLocalNotes] = useState(item.notes || '');
+    const [localPage, setLocalPage] = useState(item.page || '');
 
-    // レンダリング中にPropsの変更を検知して同期する (useEffectを使わない最適解)
     if ((item.name || '') !== prevName) {
       setPrevName(item.name || '');
       setLocalName(item.name || '');
@@ -92,194 +98,269 @@ const EquipmentRow = memo(
       setPrevNotes(item.notes || '');
       setLocalNotes(item.notes || '');
     }
+    if ((item.page || '') !== prevPage) {
+      setPrevPage(item.page || '');
+      setLocalPage(item.page || '');
+    }
 
-    // ハンドラー: フォーカスが外れた時のみ更新
-    const handleNameBlur = () => {
-      if (localName !== (item.name || '')) onUpdate(slotKey, 'name', localName);
-    };
-    const handleDamageBlur = () => {
-      if (localDamage !== (item.damage || '')) onUpdate(slotKey, 'damage', localDamage);
-    };
-    const handleNotesBlur = () => {
-      if (localNotes !== (item.notes || '')) onUpdate(slotKey, 'notes', localNotes);
-    };
-
-    // --- 数値・選択肢のハンドラ (固定化) ---
     const updateNum = useCallback(
-      (field: string, val: number) => {
-        onUpdate(slotKey, field, val);
-      },
+      (field: string, val: number) => onUpdate(slotKey, field, val),
+      [slotKey, onUpdate]
+    );
+    const updateField = useCallback(
+      (field: string, val: any) => onUpdate(slotKey, field, val),
       [slotKey, onUpdate]
     );
 
-    const updateField = useCallback(
-      (field: string, val: any) => {
-        onUpdate(slotKey, field, val);
-      },
-      [slotKey, onUpdate]
-    );
+    const showNotesRow = !isReadOnly || !!item.notes;
 
     return (
-      <div className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`} style={style}>
-        <div className={tableStyles.labelCell}>{label}</div>
-
-        {/* 名称 */}
-        <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            item.name || ''
-          ) : (
-            <input
-              className={formStyles.input}
-              inputMode='text'
-              onBlur={handleNameBlur}
-              onChange={(e) => setLocalName(e.target.value)}
-              placeholder={`${label}なし`}
-              type='text'
-              value={localName}
-            />
-          )}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '80px 1fr',
+          columnGap: '12px',
+          borderBottom: '1px solid var(--card-border)',
+          minWidth: equipGridStyle.minWidth,
+        }}
+      >
+        {/* 部位: 備考行がある場合は2行にまたがる */}
+        <div
+          className={tableStyles.labelCell}
+          style={{
+            gridColumn: '1',
+            gridRow: showNotesRow ? '1 / 3' : '1',
+            alignSelf: 'stretch',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRight: '1px solid var(--card-border)',
+          }}
+        >
+          {label}
         </div>
 
-        {/* 重量 */}
-        <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            item.weight
-          ) : (
-            <div className={formStyles.stepperSmall}>
-              <button
-                onClick={() => updateNum('weight', (Number(item.weight) || 0) - 1)}
-                type='button'
+        {/* メイン行（7列） */}
+        <div style={{ gridColumn: '2', gridRow: '1', ...equipInnerGridStyle }}>
+          <div className={tableStyles.cell}>
+            {isReadOnly ? (
+              item.name || ''
+            ) : (
+              <input
+                className={formStyles.input}
+                inputMode='text'
+                onChange={(e) => {
+                  setLocalName(e.target.value);
+                  onUpdate(slotKey, 'name', e.target.value);
+                }}
+                placeholder={`${label}なし`}
+                type='text'
+                value={localName}
+              />
+            )}
+          </div>
+          <div className={tableStyles.cell}>
+            {isReadOnly ? (
+              item.weight
+            ) : (
+              <div className={formStyles.stepperSmall}>
+                <button
+                  onClick={() => updateNum('weight', (Number(item.weight) || 0) - 1)}
+                  type='button'
+                >
+                  -
+                </button>
+                <NumberInput onChange={(v) => updateNum('weight', v)} value={item.weight} />
+                <button
+                  onClick={() => updateNum('weight', (Number(item.weight) || 0) + 1)}
+                  type='button'
+                >
+                  +
+                </button>
+              </div>
+            )}
+          </div>
+          <div className={tableStyles.cell}>
+            {isReadOnly ? (
+              item.hitMod
+            ) : (
+              <div className={formStyles.stepperSmall}>
+                <button
+                  onClick={() => updateNum('hitMod', (Number(item.hitMod) || 0) - 1)}
+                  type='button'
+                >
+                  -
+                </button>
+                <NumberInput onChange={(v) => updateNum('hitMod', v)} value={item.hitMod} />
+                <button
+                  onClick={() => updateNum('hitMod', (Number(item.hitMod) || 0) + 1)}
+                  type='button'
+                >
+                  +
+                </button>
+              </div>
+            )}
+          </div>
+          <div className={tableStyles.cell}>
+            {isReadOnly ? (
+              item.damage
+            ) : (
+              <input
+                className={formStyles.input}
+                onChange={(e) => {
+                  setLocalDamage(e.target.value);
+                  onUpdate(slotKey, 'damage', e.target.value);
+                }}
+                type='text'
+                value={localDamage}
+              />
+            )}
+          </div>
+          <div className={tableStyles.cell}>
+            {isReadOnly ? (
+              item.range || ''
+            ) : (
+              <ComboBox
+                className={formStyles.input}
+                defaultValue={item.range ?? ''}
+                onCommit={(val) => updateField('range', val)}
+                options={['―', '至近', '近', '中', '遠']}
+                placeholder='射程'
+              />
+            )}
+          </div>
+          <div className={tableStyles.cell}>
+            {isReadOnly ? (
+              item.dodgeMod
+            ) : (
+              <div className={formStyles.stepperSmall}>
+                <button
+                  onClick={() => updateNum('dodgeMod', (Number(item.dodgeMod) || 0) - 1)}
+                  type='button'
+                >
+                  -
+                </button>
+                <NumberInput onChange={(v) => updateNum('dodgeMod', v)} value={item.dodgeMod} />
+                <button
+                  onClick={() => updateNum('dodgeMod', (Number(item.dodgeMod) || 0) + 1)}
+                  type='button'
+                >
+                  +
+                </button>
+              </div>
+            )}
+          </div>
+          <div className={tableStyles.cell}>
+            {isReadOnly ? (
+              item.defenseMod
+            ) : (
+              <div className={formStyles.stepperSmall}>
+                <button
+                  onClick={() => updateNum('defenseMod', (Number(item.defenseMod) || 0) - 1)}
+                  type='button'
+                >
+                  -
+                </button>
+                <NumberInput onChange={(v) => updateNum('defenseMod', v)} value={item.defenseMod} />
+                <button
+                  onClick={() => updateNum('defenseMod', (Number(item.defenseMod) || 0) + 1)}
+                  type='button'
+                >
+                  +
+                </button>
+              </div>
+            )}
+          </div>
+          <div></div>
+        </div>
+
+        {/* 備考+ページ 2行目（編集時は常時、閲覧時は内容あるときのみ） */}
+        {showNotesRow && (
+          <div
+            style={{
+              gridColumn: '2',
+              gridRow: '2',
+              display: 'grid',
+              gridTemplateColumns: '1fr 120px',
+              columnGap: '12px',
+              padding: '3px 2px 5px',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+            }}
+          >
+            {/* 備考 */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1,
+                  paddingTop: '6px',
+                  flexShrink: 0,
+                }}
               >
-                -{' '}
-              </button>
-              <NumberInput onChange={(v) => updateNum('weight', v)} value={item.weight} />
-              <button
-                onClick={() => updateNum('weight', (Number(item.weight) || 0) + 1)}
-                type='button'
-              >
-                +{' '}
-              </button>
+                備考
+              </span>
+              {isReadOnly ? (
+                <div
+                  style={{
+                    fontSize: '0.75rem',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    lineHeight: 1.5,
+                    color: '#fff',
+                    padding: '2px 0',
+                  }}
+                >
+                  {item.notes}
+                </div>
+              ) : (
+                <AutoResizeTextarea
+                  autoResize={autoResize}
+                  className={formStyles.textareaTable}
+                  inputMode='text'
+                  onChange={(e) => {
+                    setLocalNotes(e.target.value);
+                    onUpdate(slotKey, 'notes', e.target.value);
+                  }}
+                  placeholder='備考'
+                  rows={1}
+                  style={{ flex: 1 }}
+                  value={localNotes}
+                />
+              )}
             </div>
-          )}
-        </div>
-
-        {/* 命中 */}
-        <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            item.hitMod
-          ) : (
-            <div className={formStyles.stepperSmall}>
-              <button
-                onClick={() => updateNum('hitMod', (Number(item.hitMod) || 0) - 1)}
-                type='button'
+            {/* ページ */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1,
+                  paddingTop: '6px',
+                  flexShrink: 0,
+                }}
               >
-                -
-              </button>
-              <NumberInput onChange={(v) => updateNum('hitMod', v)} value={item.hitMod} />
-              <button
-                onClick={() => updateNum('hitMod', (Number(item.hitMod) || 0) + 1)}
-                type='button'
-              >
-                +
-              </button>
+                ページ
+              </span>
+              {isReadOnly ? (
+                <span style={{ fontSize: '0.75rem' }}>{item.page || ''}</span>
+              ) : (
+                <input
+                  className={formStyles.input}
+                  inputMode='text'
+                  onChange={(e) => {
+                    setLocalPage(e.target.value);
+                    onUpdate(slotKey, 'page', e.target.value);
+                  }}
+                  placeholder='p.'
+                  style={{ flex: 1, paddingRight: '8px' }}
+                  type='text'
+                  value={localPage}
+                />
+              )}
             </div>
-          )}
-        </div>
-
-        {/* ダメージ (テキスト入力扱い) */}
-        <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            item.damage
-          ) : (
-            <input
-              className={formStyles.input}
-              onBlur={handleDamageBlur}
-              onChange={(e) => setLocalDamage(e.target.value)}
-              type='text'
-              value={localDamage}
-            />
-          )}
-        </div>
-
-        {/* 射程 */}
-        <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            item.range || ''
-          ) : (
-            <select
-              className={formStyles.select}
-              onChange={(e) => updateField('range', e.target.value)}
-              value={item.range}
-            >
-              <option value=''>ー</option>
-              <option value='至近'>至近</option>
-              <option value='近'>近</option>
-              <option value='中'>中</option>
-            </select>
-          )}
-        </div>
-
-        {/* 回避 */}
-        <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            item.dodgeMod
-          ) : (
-            <div className={formStyles.stepperSmall}>
-              <button
-                onClick={() => updateNum('dodgeMod', (Number(item.dodgeMod) || 0) - 1)}
-                type='button'
-              >
-                -{' '}
-              </button>
-              <NumberInput onChange={(v) => updateNum('dodgeMod', v)} value={item.dodgeMod} />
-              <button
-                onClick={() => updateNum('dodgeMod', (Number(item.dodgeMod) || 0) + 1)}
-                type='button'
-              >
-                +{' '}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* 防御 */}
-        <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            item.defenseMod
-          ) : (
-            <div className={formStyles.stepperSmall}>
-              <button
-                onClick={() => updateNum('defenseMod', (Number(item.defenseMod) || 0) - 1)}
-                type='button'
-              >
-                -{' '}
-              </button>
-              <NumberInput onChange={(v) => updateNum('defenseMod', v)} value={item.defenseMod} />
-              <button
-                onClick={() => updateNum('defenseMod', (Number(item.defenseMod) || 0) + 1)}
-                type='button'
-              >
-                +{' '}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* 備考 (テキストエリア) */}
-        <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            item.notes || ''
-          ) : (
-            <textarea
-              className={formStyles.textareaTable}
-              inputMode='text'
-              onBlur={handleNotesBlur}
-              onChange={(e) => setLocalNotes(e.target.value)}
-              placeholder='備考'
-              value={localNotes}
-            />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -287,18 +368,11 @@ const EquipmentRow = memo(
 EquipmentRow.displayName = 'EquipmentRow';
 
 export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
-  ({ equipment, items, abilities, species, handleEquipmentUpdate, isReadOnly }) => {
+  ({ equipment, items, abilities, species, handleEquipmentUpdate, isReadOnly, autoResize }) => {
     const [isOpen, setIsOpen] = useState(true);
 
     const totals = useMemo(() => {
-      const initialEquip = {
-        weight: 0,
-        hitMod: 0,
-        dodgeMod: 0,
-        defenseMod: 0,
-        magicDefense: 0,
-      };
-
+      const init = { weight: 0, hitMod: 0, dodgeMod: 0, defenseMod: 0, magicDefense: 0 };
       const equipStats = Object.values(equipment || {}).reduce(
         (acc, item) => ({
           weight: acc.weight + (Number(item.weight) || 0),
@@ -307,33 +381,31 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
           defenseMod: acc.defenseMod + (Number(item.defenseMod) || 0),
           magicDefense: acc.magicDefense + (Number(item.magicDefense) || 0),
         }),
-        initialEquip
+        init
       );
-
       const itemsWeight =
-        items?.reduce((acc, item) => {
-          return acc + (Number(item.weight) || 0) * (Number(item.quantity) || 0);
-        }, 0) || 0;
-
+        items?.reduce(
+          (acc, item) => acc + (Number(item.weight) || 0) * (Number(item.quantity) || 0),
+          0
+        ) || 0;
       const totalWeight = equipStats.weight + itemsWeight;
-
       const speciesBase = SPECIES_DATA[species as SpeciesKey]?.abilities.physical || 0;
       const bonus = abilities.physical.bonus || 0;
       const weightLimit = speciesBase + bonus;
-
-      return {
-        ...equipStats,
-        totalWeight,
-        weightLimit,
-        isOver: totalWeight > weightLimit,
-      };
+      return { ...equipStats, totalWeight, weightLimit, isOver: totalWeight > weightLimit };
     }, [equipment, items, species, abilities.physical]);
 
     return (
       <section className={cardStyles.base}>
-        <div className={cardStyles.accordionHeader} onClick={() => setIsOpen(!isOpen)}>
+        <div
+          className={cardStyles.accordionHeader}
+          onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
+          style={isReadOnly ? { cursor: 'default' } : undefined}
+        >
           <h2 className={cardStyles.title}>装備品</h2>
-          <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          {!isReadOnly && (
+            <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
+          )}
         </div>
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
@@ -345,22 +417,20 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
               species={species}
             />
             <div
-              className={`${tableStyles.gridTable} ${tableStyles.denseTable}`}
+              className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
               style={{ minWidth: equipGridStyle.minWidth }}
             >
-              {/* ヘッダー行 */}
               <EquipmentHeader />
 
-              {/* 各装備行 (EquipmentRowを使用) */}
               {SLOTS.map(({ key, label }) => (
                 <EquipmentRow
+                  autoResize={autoResize}
                   isReadOnly={isReadOnly}
                   item={equipment[key]}
                   key={key}
                   label={label}
                   onUpdate={handleEquipmentUpdate}
                   slotKey={key}
-                  style={equipGridStyle}
                 />
               ))}
 
@@ -384,10 +454,8 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
                 <div className={tableStyles.cell}></div>
                 <div className={tableStyles.cell}>{totals.dodgeMod}</div>
                 <div className={tableStyles.cell}>{totals.defenseMod}</div>
-                <div className={tableStyles.cell}></div>
+                <div></div>
               </div>
-              {/* ヘッダー行 (フッター) */}
-              <EquipmentHeader isFooter={true} />
             </div>
           </div>
         </div>

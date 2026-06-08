@@ -4,8 +4,8 @@ import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-
 import { ActionButton } from '@/components/ui/ActionButton';
+import { ELEMENT_DATA, SPECIES_DATA, STYLE_DATA } from '@/constants/preciousdays';
 import { getCharacterById } from '@/lib/preciousdays/data';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss'; // 2カラム配置用
 import layoutStyles from '@/styles/components/layout.module.scss';
@@ -22,8 +22,9 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
   if (!targetId) {
     return {
-      title: 'プレシャスデイズ | Hotch Potch.',
-      description: 'プレシャスデイズのキャラクターシート作成ページです。',
+      title: '新規作成 | プレシャスデイズ | Hotch Potch.',
+      description: 'プレシャスデイズのキャラクターシート新規作成ページ。',
+      robots: { index: false, follow: false },
     };
   }
 
@@ -31,19 +32,34 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
   if (!character) {
     return {
-      title: 'キャラクターが見つかりませんでした | Hotch Potch.',
+      title: 'キャラクターが見つかりませんでした | プレシャスデイズ | Hotch Potch.',
+      robots: { index: false, follow: false },
     };
   }
 
-  const displayTitle = character.characterName || 'プレシャスデイズ';
+  const charName = character.characterName || '名無し';
+  const playerName = character.playerName || '';
+
+  const speciesName = (SPECIES_DATA as any)[character.species]?.name ?? character.species;
+  const styleName = (STYLE_DATA as any)[character.style]?.name ?? character.style;
+  const elementName = (ELEMENT_DATA as any)[character.element]?.name ?? character.element;
+
+  const description = [
+    speciesName ? `種族：${speciesName}` : '',
+    styleName ? `スタイル：${styleName}` : '',
+    elementName ? `属性：${elementName}` : '',
+    character.gl ? `GL${character.gl}` : '',
+    playerName ? `PL：${playerName}` : '',
+  ]
+    .filter(Boolean)
+    .join('　');
+
+  const label = clone ? 'コピー作成' : '編集';
 
   return {
-    title: `${displayTitle} | Hotch Potch.`,
-    description: `${displayTitle ?? 'プレシャスデイズ'} のキャラクターシート閲覧ページです。`,
-    robots: {
-      index: false,
-      follow: false,
-    },
+    title: `${charName}（${label}） | プレシャスデイズ | Hotch Potch.`,
+    description,
+    robots: { index: false, follow: false },
   };
 }
 

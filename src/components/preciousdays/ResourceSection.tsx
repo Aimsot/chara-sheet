@@ -70,19 +70,40 @@ const ResourceCard = memo(
 
         <div className={statusStyles.calcRow}>
           {isSimpleMode ? (
-            <div className={statusStyles.miniStepper}>
-              {!isReadOnly && (
+            isReadOnly ? (
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.05em',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>{total}</span>
+                {' / 6'}
+              </span>
+            ) : (
+              <div
+                className={statusStyles.miniStepper}
+                style={{ width: '100%', justifyContent: 'space-between' }}
+              >
                 <button aria-label='Decrease' onClick={() => onChange(total - 1)} type='button'>
                   -
                 </button>
-              )}
-              <span className={statusStyles.miniValueDisplay}>LEVEL</span>
-              {!isReadOnly && (
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.05em',
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>{total}</span>
+                  {' / 6'}
+                </span>
                 <button aria-label='Increase' onClick={() => onChange(total + 1)} type='button'>
                   +
                 </button>
-              )}
-            </div>
+              </div>
+            )
           ) : (
             <>
               <span>{base}</span>
@@ -199,6 +220,11 @@ const ResourceSection = ({
           total={gl || 0}
         />
       </div>
+      {!isReadOnly && (
+        <div className={formStyles.notes} style={{ marginTop: '6px' }}>
+          <p>グレードアップ時の最大HPと最大MPの上昇は自動的に計算されます</p>
+        </div>
+      )}
     </section>
   );
 };
