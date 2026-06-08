@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { Tooltip } from 'react-tooltip';
 
 import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
 import { ComboBox } from '@/components/ui/ComboBox';
@@ -113,7 +112,7 @@ const EquipmentRow = memo(
       [slotKey, onUpdate]
     );
 
-    const showNotesRow = !isReadOnly;
+    const showNotesRow = !isReadOnly || !!item.notes || !!item.page;
 
     return (
       <div
@@ -146,13 +145,7 @@ const EquipmentRow = memo(
         <div style={{ gridColumn: '2', gridRow: '1', ...equipInnerGridStyle }}>
           <div className={tableStyles.cell}>
             {isReadOnly ? (
-              <span
-                data-tooltip-content={item.notes || undefined}
-                data-tooltip-id='equip-effect-tooltip'
-                style={{ cursor: item.notes ? 'help' : 'default' }}
-              >
-                {item.name || ''}
-              </span>
+              <span>{item.name || ''}</span>
             ) : (
               <input
                 className={formStyles.input}
@@ -338,21 +331,25 @@ const EquipmentRow = memo(
               )}
             </div>
             {/* ページ */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1,
-                  paddingTop: '6px',
-                  flexShrink: 0,
-                }}
-              >
-                ページ
-              </span>
-              {isReadOnly ? (
-                <span style={{ fontSize: '0.75rem' }}>{item.page || ''}</span>
-              ) : (
+            {isReadOnly ? (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  {item.page ? (/^\d+$/.test(item.page) ? `p.${item.page}` : item.page) : ''}
+                </span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1,
+                    paddingTop: '6px',
+                    flexShrink: 0,
+                  }}
+                >
+                  ページ
+                </span>
                 <input
                   className={formStyles.input}
                   inputMode='text'
@@ -365,8 +362,8 @@ const EquipmentRow = memo(
                   type='text'
                   value={localPage}
                 />
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -441,8 +438,6 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
                   slotKey={key}
                 />
               ))}
-
-              <Tooltip id='equip-effect-tooltip' place='top' />
 
               {/* 合計行 */}
               <div

@@ -166,7 +166,9 @@ const ItemRow = memo(
 
         {/* ページ */}
         {isReadOnly ? (
-          <div className={tableStyles.cell}>{item.page || ''}</div>
+          <div className={tableStyles.cell}>
+            {item.page ? (/^\d+$/.test(item.page) ? `p.${item.page}` : item.page) : ''}
+          </div>
         ) : (
           <div className={tableStyles.cell}>
             <input

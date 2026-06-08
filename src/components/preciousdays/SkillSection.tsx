@@ -60,141 +60,138 @@ const LABEL_ST: React.CSSProperties = {
 // ============================================================
 // 閲覧用: 1行 + ホバー時に効果サブ行
 // ============================================================
-const SkillReadonlyRow = memo(
-  ({ skill, forceExpand, rowIndex }: { skill: Skill; forceExpand: boolean; rowIndex: number }) => {
-    const [hovered, setHovered] = useState(false);
-    const showEffect = forceExpand || hovered;
-    const hasEffect = showEffect && !!skill.effect;
+const SkillReadonlyRow = memo(({ skill, rowIndex }: { skill: Skill; rowIndex: number }) => {
+  const [hovered, setHovered] = useState(false);
+  const hasEffect = !!skill.effect;
 
-    const zebraBase = rowIndex % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'transparent';
+  const zebraBase = rowIndex % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'transparent';
 
-    const outerStyle: React.CSSProperties = {
-      display: 'grid',
-      gridTemplateColumns: '0.7fr minmax(0, 200px) 40px 1.3fr 1fr 1fr 1fr 1fr 1fr',
-      alignItems: 'center',
-      minWidth: '760px',
-      borderBottom: '1px solid var(--card-border)',
-      backgroundColor: hovered
-        ? 'color-mix(in srgb, var(--accent-color), transparent 88%)'
-        : zebraBase,
-      transition: 'background-color 0.15s ease',
-      cursor: 'default',
-    };
+  const outerStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: '0.7fr minmax(0, 200px) 40px 1.3fr 1fr 1fr 1fr 1fr 1fr',
+    alignItems: 'center',
+    minWidth: '760px',
+    borderBottom: '1px solid var(--card-border)',
+    backgroundColor: hovered
+      ? 'color-mix(in srgb, var(--accent-color), transparent 88%)'
+      : zebraBase,
+    transition: 'background-color 0.15s ease',
+    cursor: 'default',
+  };
 
-    return (
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={outerStyle}
+    >
+      {/* 分類: 効果表示時は2行分スパン */}
       <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={outerStyle}
+        className={tableStyles.cell}
+        style={{
+          gridColumn: '1',
+          gridRow: hasEffect ? '1 / 3' : '1',
+          alignSelf: 'stretch',
+          minHeight: '32px',
+          fontSize: '0.75rem',
+          color: 'var(--text-secondary)',
+          borderRight: '1px solid var(--card-border)',
+        }}
       >
-        {/* 分類: 効果表示時は2行分スパン */}
-        <div
-          className={tableStyles.cell}
-          style={{
-            gridColumn: '1',
-            gridRow: hasEffect ? '1 / 3' : '1',
-            alignSelf: 'stretch',
-            minHeight: '32px',
-            fontSize: '0.75rem',
-            color: 'var(--text-secondary)',
-            borderRight: '1px solid var(--card-border)',
-          }}
-        >
-          {skill.category ?? ''}
-        </div>
+        {skill.category ?? ''}
+      </div>
 
-        {/* スキル名 */}
+      {/* スキル名 */}
+      <div
+        className={tableStyles.cell}
+        style={{
+          gridColumn: '2',
+          gridRow: '1',
+          minHeight: '32px',
+          justifyContent: 'center',
+          fontWeight: 'bold',
+        }}
+      >
+        {skill.name}
+      </div>
+
+      {/* GL */}
+      <div
+        className={tableStyles.cell}
+        style={{ gridColumn: '3', gridRow: '1', minHeight: '32px' }}
+      >
+        {skill.level}
+      </div>
+
+      {/* タイミング〜コスト */}
+      {MAIN_COLS.map(({ field }, i) => (
         <div
           className={tableStyles.cell}
+          key={field}
           style={{
-            gridColumn: '2',
+            gridColumn: String(i + 4),
             gridRow: '1',
             minHeight: '32px',
             justifyContent: 'center',
-            fontWeight: 'bold',
           }}
         >
-          {skill.name}
+          {field === 'timing' ? (
+            <span style={{ textAlign: 'center', lineHeight: 1.5 }}>
+              {expandTiming((skill as any)[field] ?? '').map((line, idx) => (
+                <React.Fragment key={idx}>
+                  {idx > 0 && <br />}
+                  {line}
+                </React.Fragment>
+              ))}
+            </span>
+          ) : (
+            <span>{(skill as any)[field] ?? ''}</span>
+          )}
         </div>
+      ))}
 
-        {/* GL */}
+      {/* 効果+ページ: 分類列を除く全列にまたがる */}
+      {hasEffect && (
         <div
-          className={tableStyles.cell}
-          style={{ gridColumn: '3', gridRow: '1', minHeight: '32px' }}
+          style={{
+            gridColumn: '2 / -1',
+            gridRow: '2',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '12px',
+            padding: '4px 8px 6px',
+            borderTop: '1px solid rgba(255,255,255,0.06)',
+            fontSize: '0.75rem',
+          }}
         >
-          {skill.level}
-        </div>
-
-        {/* タイミング〜コスト */}
-        {MAIN_COLS.map(({ field }, i) => (
           <div
-            className={tableStyles.cell}
-            key={field}
             style={{
-              gridColumn: String(i + 4),
-              gridRow: '1',
-              minHeight: '32px',
-              justifyContent: 'center',
+              flex: 1,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              lineHeight: 1.6,
+              color: '#fff',
             }}
           >
-            {field === 'timing' ? (
-              <span style={{ textAlign: 'center', lineHeight: 1.5 }}>
-                {expandTiming((skill as any)[field] ?? '').map((line, idx) => (
-                  <React.Fragment key={idx}>
-                    {idx > 0 && <br />}
-                    {line}
-                  </React.Fragment>
-                ))}
-              </span>
-            ) : (
-              <span>{(skill as any)[field] ?? ''}</span>
-            )}
+            {skill.effect}
           </div>
-        ))}
-
-        {/* 効果+ページ: 分類列を除く全列にまたがる */}
-        {hasEffect && (
-          <div
-            style={{
-              gridColumn: '2 / -1',
-              gridRow: '2',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-              padding: '4px 8px 6px',
-              borderTop: '1px solid rgba(255,255,255,0.06)',
-              fontSize: '0.75rem',
-            }}
-          >
+          {skill.page && (
             <div
               style={{
-                flex: 1,
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                lineHeight: 1.6,
-                color: '#fff',
+                flexShrink: 0,
+                fontSize: '0.7rem',
+                color: 'var(--text-secondary)',
+                whiteSpace: 'nowrap',
               }}
             >
-              {skill.effect}
+              {/^\d+$/.test(skill.page) ? `p.${skill.page}` : skill.page}
             </div>
-            {skill.page && (
-              <div
-                style={{
-                  flexShrink: 0,
-                  fontSize: '0.7rem',
-                  color: 'var(--text-secondary)',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                p.{skill.page}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-);
+          )}
+        </div>
+      )}
+    </div>
+  );
+});
 SkillReadonlyRow.displayName = 'SkillReadonlyRow';
 
 // ============================================================
@@ -446,7 +443,6 @@ interface SkillSectionProps {
 export const SkillSection: React.FC<SkillSectionProps> = memo(
   ({ skills, isReadOnly, autoResize, handleSkillsAdd, handleSkillsRemove, handleSkillsUpdate }) => {
     const [isOpen, setIsOpen] = useState(true);
-    const [forceExpand, setForceExpand] = useState(false);
 
     const readonlyHeaderStyle: React.CSSProperties = {
       display: 'grid',
@@ -468,16 +464,7 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
           style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>スキル</h2>
-          {isReadOnly ? (
-            <button
-              className={btnStyles.solid}
-              onClick={() => setForceExpand(!forceExpand)}
-              style={{ fontSize: '0.75rem', padding: '4px 12px' }}
-              type='button'
-            >
-              {forceExpand ? '折りたたむ' : '効果を全展開'}
-            </button>
-          ) : (
+          {!isReadOnly && (
             <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
           )}
         </div>
@@ -520,12 +507,7 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
                 </div>
               ) : isReadOnly ? (
                 skills.map((skill, index) => (
-                  <SkillReadonlyRow
-                    forceExpand={forceExpand}
-                    key={skill.id}
-                    rowIndex={index}
-                    skill={skill}
-                  />
+                  <SkillReadonlyRow key={skill.id} rowIndex={index} skill={skill} />
                 ))
               ) : (
                 skills.map((skill, index) => (
