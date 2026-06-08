@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   // 1. 基本設定
   poweredByHeader: false,
   reactStrictMode: true,
+  // Discord・OGPチェッカー等も含むすべてのUAでメタデータをブロッキング送信する
+  // (デフォルトのストリーミングメタデータはDiscordbot等が対象外のため)
+  htmlLimitedBots: /.*/,
 
   // 2. 画像最適化設定 (Cloudflare R2 等)
   images: {

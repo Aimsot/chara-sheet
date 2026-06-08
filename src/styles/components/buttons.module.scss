@@ -147,12 +147,16 @@
       text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
       background: rgba(171, 161, 125, 0.15);
       border-color: #ffd700;
-      box-shadow: 0 0 20px rgba(171, 161, 125, 0.4), inset 0 0 10px rgba(171, 161, 125, 0.1);
+      box-shadow:
+        0 0 20px rgba(171, 161, 125, 0.4),
+        inset 0 0 10px rgba(171, 161, 125, 0.1);
       :global(.theme-silver) & {
         text-shadow: 0 0 8px rgba(200, 220, 255, 0.6); /* 青白い光 */
         background: var(--accent-layer);
         border-color: #a3aeb5;
-        box-shadow: 0 0 20px rgba(148, 163, 184, 0.4), inset 0 0 10px rgba(148, 163, 184, 0.1);
+        box-shadow:
+          0 0 20px rgba(148, 163, 184, 0.4),
+          inset 0 0 10px rgba(148, 163, 184, 0.1);
       }
     }
   }

@@ -12,7 +12,7 @@ export async function notifyLoginIP() {
   const ip =
     headerList.get('x-forwarded-for')?.split(',')[0] || headerList.get('x-real-ip') || '127.0.0.1';
 
-  let hostName = '不明';
+  let hostName: string;
   try {
     if (ip !== '::1' && ip !== '127.0.0.1') {
       const hosts = await reverse(ip);

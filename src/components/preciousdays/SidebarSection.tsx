@@ -128,8 +128,8 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               {mode === 'view'
                 ? '編集用パスワード'
                 : password
-                ? 'パスワードを変更する'
-                : 'パスワードを設定する（任意）'}
+                  ? 'パスワードを変更する'
+                  : 'パスワードを設定する（任意）'}
             </label>
             <input
               autoCapitalize='none'
@@ -163,8 +163,8 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 mode === 'view'
                   ? '認証パスワードを入力'
                   : password
-                  ? '変更する場合のみ入力（空欄なら維持）'
-                  : '4〜12文字の半角英数'
+                    ? '変更する場合のみ入力（空欄なら維持）'
+                    : '4〜12文字の半角英数'
               }
               spellCheck='false'
               type='password'
@@ -271,8 +271,8 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                         isSubmitting
                           ? ''
                           : id && !cloneKey
-                          ? '変更を保存する'
-                          : 'キャラクターを登録'
+                            ? '変更を保存する'
+                            : 'キャラクターを登録'
                       }
                       style={{ width: '100%' }}
                       submit={true}

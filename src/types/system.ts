@@ -1,4 +1,3 @@
-// 将来システムが増えたら、ここに追加するだけでOK
 export const TRPG_SYSTEMS = {
   GENERAL: 'general',
   PRECIOUS_DAYS: 'preciousdays',

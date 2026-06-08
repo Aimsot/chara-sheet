@@ -11,6 +11,7 @@ import baseStyles from '@/styles/components/charaSheet/base.module.scss'; // 2�
 import layoutStyles from '@/styles/components/layout.module.scss';
 
 import CharacterViewClient from '../CharacterViewClient';
+
 type Props = {
   params: Promise<{ id: string }>;
 };
@@ -27,11 +28,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const charName = character.characterName || '名無し';
   const playerName = character.playerName || '';
-
   const speciesName = (SPECIES_DATA as any)[character.species]?.name ?? character.species;
   const styleName = (STYLE_DATA as any)[character.style]?.name ?? character.style;
   const elementName = (ELEMENT_DATA as any)[character.element]?.name ?? character.element;
-
   const description = [
     speciesName ? `種族：${speciesName}` : '',
     styleName ? `スタイル：${styleName}` : '',
@@ -65,7 +64,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// 2. メインコンポーネント（既存のまま、型定義だけPropsを使うとスッキリします）
 export default async function CharacterViewPage({ params }: Props) {
   const { id } = await params;
   const character = await getCharacterById(id);

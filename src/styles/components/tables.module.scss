@@ -47,7 +47,9 @@
   align-items: stretch;
   min-height: 36px;
   border-bottom: 1px solid var(--card-border);
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
 
   &:last-child {
     border-bottom: none;
