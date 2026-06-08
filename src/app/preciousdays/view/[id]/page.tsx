@@ -52,9 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: character.image
         ? [
             {
-              url: `${
-                process.env.NEXT_PUBLIC_BASE_URL ?? 'https://chara-sheet.aimsot.net'
-              }/api/preciousdays/character/${id}/image`,
+              url: `${(process.env.NEXT_PUBLIC_BASE_URL ?? 'https://chara-sheet.aimsot.net').replace(/\/$/, '')}/api/preciousdays/character/${id}/image`,
               alt: charName,
             },
           ]
