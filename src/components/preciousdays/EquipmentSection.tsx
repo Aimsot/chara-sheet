@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
+import { Tooltip } from 'react-tooltip';
 
 import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
 import { ComboBox } from '@/components/ui/ComboBox';
@@ -112,10 +113,11 @@ const EquipmentRow = memo(
       [slotKey, onUpdate]
     );
 
-    const showNotesRow = !isReadOnly || !!item.notes;
+    const showNotesRow = !isReadOnly;
 
     return (
       <div
+        className={tableStyles.row}
         style={{
           display: 'grid',
           gridTemplateColumns: '80px 1fr',
@@ -124,7 +126,7 @@ const EquipmentRow = memo(
           minWidth: equipGridStyle.minWidth,
         }}
       >
-        {/* 部位: 備考行がある場合は2行にまたがる */}
+        {/* 部位: 効果行がある場合は2行にまたがる */}
         <div
           className={tableStyles.labelCell}
           style={{
@@ -144,7 +146,13 @@ const EquipmentRow = memo(
         <div style={{ gridColumn: '2', gridRow: '1', ...equipInnerGridStyle }}>
           <div className={tableStyles.cell}>
             {isReadOnly ? (
-              item.name || ''
+              <span
+                data-tooltip-content={item.notes || undefined}
+                data-tooltip-id='equip-effect-tooltip'
+                style={{ cursor: item.notes ? 'help' : 'default' }}
+              >
+                {item.name || ''}
+              </span>
             ) : (
               <input
                 className={formStyles.input}
@@ -274,7 +282,7 @@ const EquipmentRow = memo(
           <div></div>
         </div>
 
-        {/* 備考+ページ 2行目（編集時は常時、閲覧時は内容あるときのみ） */}
+        {/* 効果+ページ 2行目（編集時は常時、閲覧時は内容あるときのみ） */}
         {showNotesRow && (
           <div
             style={{
@@ -287,7 +295,7 @@ const EquipmentRow = memo(
               borderTop: '1px solid rgba(255,255,255,0.06)',
             }}
           >
-            {/* 備考 */}
+            {/* 効果 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
               <span
                 style={{
@@ -298,7 +306,7 @@ const EquipmentRow = memo(
                   flexShrink: 0,
                 }}
               >
-                備考
+                効果
               </span>
               {isReadOnly ? (
                 <div
@@ -322,7 +330,7 @@ const EquipmentRow = memo(
                     setLocalNotes(e.target.value);
                     onUpdate(slotKey, 'notes', e.target.value);
                   }}
-                  placeholder='備考'
+                  placeholder='効果'
                   rows={1}
                   style={{ flex: 1 }}
                   value={localNotes}
@@ -433,6 +441,8 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
                   slotKey={key}
                 />
               ))}
+
+              <Tooltip id='equip-effect-tooltip' place='top' />
 
               {/* 合計行 */}
               <div
