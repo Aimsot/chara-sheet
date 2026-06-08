@@ -96,9 +96,16 @@ const MemoryRow = memo(
           }}
         >
           {isReadOnly ? (
-            <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+            <div
+              style={{
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                maxHeight: autoResize ? undefined : '4.5em',
+                overflowY: autoResize ? undefined : 'auto',
+              }}
+            >
               {memory.content}
-            </span>
+            </div>
           ) : (
             <AutoResizeTextarea
               autoResize={autoResize}
@@ -199,9 +206,8 @@ export const MemorySection: React.FC<MemorySectionProps> = memo(
     return (
       <section className={cardStyles.base}>
         <div
-          className={cardStyles.accordionHeader}
+          className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
-          style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>メモリー</h2>
           {!isReadOnly && (

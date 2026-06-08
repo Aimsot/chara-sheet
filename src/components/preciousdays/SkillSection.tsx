@@ -60,138 +60,133 @@ const LABEL_ST: React.CSSProperties = {
 // ============================================================
 // 閲覧用: 1行 + ホバー時に効果サブ行
 // ============================================================
-const SkillReadonlyRow = memo(({ skill, rowIndex }: { skill: Skill; rowIndex: number }) => {
-  const [hovered, setHovered] = useState(false);
-  const hasEffect = !!skill.effect;
+const SkillReadonlyRow = memo(
+  ({ skill, rowIndex, autoResize }: { skill: Skill; rowIndex: number; autoResize?: boolean }) => {
+    const hasEffect = !!skill.effect;
 
-  const zebraBase = rowIndex % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'transparent';
+    const zebraBase = rowIndex % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'transparent';
 
-  const outerStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: '0.7fr minmax(0, 200px) 40px 1.3fr 1fr 1fr 1fr 1fr 1fr',
-    alignItems: 'center',
-    minWidth: '760px',
-    borderBottom: '1px solid var(--card-border)',
-    backgroundColor: hovered
-      ? 'color-mix(in srgb, var(--accent-color), transparent 88%)'
-      : zebraBase,
-    transition: 'background-color 0.15s ease',
-    cursor: 'default',
-  };
+    const outerStyle: React.CSSProperties = {
+      display: 'grid',
+      gridTemplateColumns: '0.7fr minmax(0, 200px) 40px 1.3fr 1fr 1fr 1fr 1fr 1fr',
+      alignItems: 'center',
+      minWidth: '760px',
+      borderBottom: '1px solid var(--card-border)',
+      backgroundColor: zebraBase,
+    };
 
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={outerStyle}
-    >
-      {/* 分類: 効果表示時は2行分スパン */}
-      <div
-        className={tableStyles.cell}
-        style={{
-          gridColumn: '1',
-          gridRow: hasEffect ? '1 / 3' : '1',
-          alignSelf: 'stretch',
-          minHeight: '32px',
-          fontSize: '0.75rem',
-          color: 'var(--text-secondary)',
-          borderRight: '1px solid var(--card-border)',
-        }}
-      >
-        {skill.category ?? ''}
-      </div>
-
-      {/* スキル名 */}
-      <div
-        className={tableStyles.cell}
-        style={{
-          gridColumn: '2',
-          gridRow: '1',
-          minHeight: '32px',
-          justifyContent: 'center',
-          fontWeight: 'bold',
-        }}
-      >
-        {skill.name}
-      </div>
-
-      {/* GL */}
-      <div
-        className={tableStyles.cell}
-        style={{ gridColumn: '3', gridRow: '1', minHeight: '32px' }}
-      >
-        {skill.level}
-      </div>
-
-      {/* タイミング〜コスト */}
-      {MAIN_COLS.map(({ field }, i) => (
+    return (
+      <div style={outerStyle}>
+        {/* 分類: 効果表示時は2行分スパン */}
         <div
           className={tableStyles.cell}
-          key={field}
           style={{
-            gridColumn: String(i + 4),
+            gridColumn: '1',
+            gridRow: hasEffect ? '1 / 3' : '1',
+            alignSelf: 'stretch',
+            minHeight: '32px',
+            fontSize: '0.75rem',
+            color: 'var(--text-secondary)',
+            borderRight: '1px solid var(--card-border)',
+          }}
+        >
+          {skill.category ?? ''}
+        </div>
+
+        {/* スキル名 */}
+        <div
+          className={tableStyles.cell}
+          style={{
+            gridColumn: '2',
             gridRow: '1',
             minHeight: '32px',
             justifyContent: 'center',
+            fontWeight: 'bold',
           }}
         >
-          {field === 'timing' ? (
-            <span style={{ textAlign: 'center', lineHeight: 1.5 }}>
-              {expandTiming((skill as any)[field] ?? '').map((line, idx) => (
-                <React.Fragment key={idx}>
-                  {idx > 0 && <br />}
-                  {line}
-                </React.Fragment>
-              ))}
-            </span>
-          ) : (
-            <span>{(skill as any)[field] ?? ''}</span>
-          )}
+          {skill.name}
         </div>
-      ))}
 
-      {/* 効果+ページ: 分類列を除く全列にまたがる */}
-      {hasEffect && (
+        {/* GL */}
         <div
-          style={{
-            gridColumn: '2 / -1',
-            gridRow: '2',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '12px',
-            padding: '4px 8px 6px',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            fontSize: '0.75rem',
-          }}
+          className={tableStyles.cell}
+          style={{ gridColumn: '3', gridRow: '1', minHeight: '32px' }}
         >
+          {skill.level}
+        </div>
+
+        {/* タイミング〜コスト */}
+        {MAIN_COLS.map(({ field }, i) => (
           <div
+            className={tableStyles.cell}
+            key={field}
             style={{
-              flex: 1,
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              lineHeight: 1.6,
-              color: '#fff',
+              gridColumn: String(i + 4),
+              gridRow: '1',
+              minHeight: '32px',
+              justifyContent: 'center',
             }}
           >
-            {skill.effect}
+            {field === 'timing' ? (
+              <span style={{ textAlign: 'center', lineHeight: 1.5 }}>
+                {expandTiming((skill as any)[field] ?? '').map((line, idx) => (
+                  <React.Fragment key={idx}>
+                    {idx > 0 && <br />}
+                    {line}
+                  </React.Fragment>
+                ))}
+              </span>
+            ) : (
+              <span>{(skill as any)[field] ?? ''}</span>
+            )}
           </div>
-          {skill.page && (
+        ))}
+
+        {/* 効果+ページ: 分類列を除く全列にまたがる */}
+        {hasEffect && (
+          <div
+            style={{
+              gridColumn: '2 / -1',
+              gridRow: '2',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              padding: '4px 8px 6px',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+              fontSize: '0.75rem',
+            }}
+          >
             <div
               style={{
-                flexShrink: 0,
-                fontSize: '0.7rem',
-                color: 'var(--text-secondary)',
-                whiteSpace: 'nowrap',
+                flex: 1,
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                lineHeight: 1.6,
+                color: '#fff',
+                maxHeight: autoResize ? undefined : '4.5em',
+                overflowY: autoResize ? undefined : 'auto',
               }}
             >
-              {/^\d+$/.test(skill.page) ? `p.${skill.page}` : skill.page}
+              {skill.effect}
             </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-});
+            {skill.page && (
+              <div
+                style={{
+                  flexShrink: 0,
+                  fontSize: '0.7rem',
+                  color: 'var(--text-secondary)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {/^\d+$/.test(skill.page) ? `p.${skill.page}` : skill.page}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+);
 SkillReadonlyRow.displayName = 'SkillReadonlyRow';
 
 // ============================================================
@@ -459,9 +454,8 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
     return (
       <section className={cardStyles.base}>
         <div
-          className={cardStyles.accordionHeader}
+          className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
-          style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>スキル</h2>
           {!isReadOnly && (
@@ -507,7 +501,12 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
                 </div>
               ) : isReadOnly ? (
                 skills.map((skill, index) => (
-                  <SkillReadonlyRow key={skill.id} rowIndex={index} skill={skill} />
+                  <SkillReadonlyRow
+                    autoResize={autoResize}
+                    key={skill.id}
+                    rowIndex={index}
+                    skill={skill}
+                  />
                 ))
               ) : (
                 skills.map((skill, index) => (

@@ -310,6 +310,8 @@ const EquipmentRow = memo(
                     lineHeight: 1.5,
                     color: '#fff',
                     padding: '2px 0',
+                    maxHeight: autoResize ? undefined : '4.5em',
+                    overflowY: autoResize ? undefined : 'auto',
                   }}
                 >
                   {item.notes}
@@ -403,9 +405,8 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
     return (
       <section className={cardStyles.base}>
         <div
-          className={cardStyles.accordionHeader}
+          className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
-          style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>装備品</h2>
           {!isReadOnly && (

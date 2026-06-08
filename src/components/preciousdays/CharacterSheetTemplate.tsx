@@ -1,4 +1,4 @@
-/* src/components/preciousdays/CharacterSheetTemplate.tsx */
+﻿/* src/components/preciousdays/CharacterSheetTemplate.tsx */
 import React, { useRef, useState } from 'react';
 import { Tooltip } from 'react-tooltip';
 
@@ -112,6 +112,8 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
   const router = useRouter();
   const [isAuthVisible, setIsAuthVisible] = useState(false);
   const [ccfoliaCopied, setCcfoliaCopied] = useState(false);
+  const [viewAutoResize, setViewAutoResize] = useState(false);
+  const autoResize = isReadOnly ? viewAutoResize : (char.autoResizeTextarea ?? false);
 
   const handleCopyCcfolia = async () => {
     try {
@@ -338,6 +340,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
 
             <ItemSection
               abilities={char.abilities}
+              autoResize={autoResize}
               equipment={char.equipment}
               handleItemsAdd={handleItemsAdd}
               handleItemsRemove={handleItemsRemove}
@@ -349,6 +352,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
           </div>
 
           <SidebarSection
+            autoResize={isReadOnly ? viewAutoResize : undefined}
             char={char}
             className={`${layoutStyles.span4} ${baseStyles.mobileOrderLast}`}
             handleDelete={handleDelete}
@@ -358,6 +362,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             isReadOnly={isReadOnly}
             isSubmitting={isSubmitting}
             mode={mode}
+            onAutoResizeChange={isReadOnly ? (v) => setViewAutoResize(v) : undefined}
             password={char.password}
             setChar={setChar}
             signinRef={signinRef}
@@ -369,7 +374,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
           >
             <EquipmentSection
               abilities={char.abilities}
-              autoResize={char.autoResizeTextarea ?? false}
+              autoResize={autoResize}
               equipment={char.equipment}
               handleEquipmentUpdate={handleEquipmentUpdate}
               isReadOnly={isReadOnly}
@@ -377,7 +382,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               species={char.species}
             />
             <SkillSection
-              autoResize={char.autoResizeTextarea ?? false}
+              autoResize={autoResize}
               handleSkillsAdd={handleSkillsAdd}
               handleSkillsRemove={handleSkillsRemove}
               handleSkillsUpdate={handleSkillsUpdate}
@@ -385,7 +390,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               skills={char.skills}
             />
             <NoteSection
-              autoResize={char.autoResizeTextarea ?? false}
+              autoResize={autoResize}
               isReadOnly={isReadOnly}
               note={char.note ?? ''}
               secretNote={char.secretNote ?? ''}
@@ -393,7 +398,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               updateSecretNote={(val) => updateBaseField('secretNote', val)}
             />
             <MemorySection
-              autoResize={char.autoResizeTextarea ?? false}
+              autoResize={autoResize}
               handleMemoriesAdd={handleMemoriesAdd}
               handleMemoriesRemove={handleMemoriesRemove}
               handleMemoriesUpdate={handleMemoriesUpdate}

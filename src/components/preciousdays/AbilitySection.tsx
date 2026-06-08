@@ -224,9 +224,8 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
     return (
       <section className={cardStyles.base}>
         <div
-          className={cardStyles.accordionHeader}
+          className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
-          style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>能力値</h2>
           {!isReadOnly && (
@@ -446,8 +445,10 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                   が上限です。
                 </p>
                 <p>
-                  <strong>成長</strong>はGLが1上がるごとに<strong>3点</strong>
-                  まで割り振ることができます（合計GL×3点）。
+                  <strong>成長</strong>はGLが1上がるごとに
+                  <strong>3つの能力値をそれぞれ1点ずつ</strong>
+                  上昇させます（合計GL×3点）。
+                  1回の成長で同じ能力値に2点以上割り振ることはできません。
                 </p>
                 <p>
                   <strong>能力値合計</strong> ＝ (種族基本値 ＋ ボーナス ＋ 成長) ÷ 3 ＋

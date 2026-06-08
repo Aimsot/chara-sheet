@@ -66,9 +66,8 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
       <section className={`${cardStyles.base} ${layoutStyles.span12}`}>
         {/* アコーディオンヘッダー */}
         <div
-          className={cardStyles.accordionHeader}
+          className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
-          style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>基本プロフィール</h2>
           {!isReadOnly && (

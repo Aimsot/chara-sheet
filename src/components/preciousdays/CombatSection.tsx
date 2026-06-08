@@ -197,9 +197,8 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
     return (
       <section className={cardStyles.base}>
         <div
-          className={cardStyles.accordionHeader}
+          className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
-          style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>戦闘値・判定</h2>
           {!isReadOnly && (

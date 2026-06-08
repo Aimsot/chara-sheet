@@ -30,9 +30,8 @@ export const LifepathSection: React.FC<LifepathProps> = memo(
       <section className={`${cardStyles.base} ${layoutStyles.span12}`}>
         {/* ヘッダー */}
         <div
-          className={cardStyles.accordionHeader}
+          className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
-          style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>ライフパス</h2>
           {!isReadOnly && (

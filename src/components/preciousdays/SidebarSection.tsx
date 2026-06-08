@@ -38,6 +38,8 @@ interface StatusSidebarProps {
   isDirty?: boolean;
   handleDelete?: () => Promise<void>;
   signinRef?: (node: HTMLDivElement | null) => void;
+  autoResize?: boolean;
+  onAutoResizeChange?: (value: boolean) => void;
 }
 
 export const SidebarSection: React.FC<StatusSidebarProps> = ({
@@ -53,6 +55,8 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   isDirty,
   handleDelete,
   signinRef,
+  autoResize,
+  onAutoResizeChange,
 }) => {
   const router = useRouter();
   const search = useSearchParams();
@@ -198,6 +202,23 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
             )}
           </div>
         </div>
+
+        {/* 表示設定（閲覧モードのみ） */}
+        {isReadOnly && onAutoResizeChange !== undefined && (
+          <div className={`${baseStyles.stack} ${formStyles.panel}`}>
+            <label className={formStyles.toggleLabel}>
+              <span>テキストエリアを自動サイズ調整</span>
+              <div className={formStyles.toggleSwitch}>
+                <input
+                  checked={autoResize || false}
+                  onChange={(e) => onAutoResizeChange(e.target.checked)}
+                  type='checkbox'
+                />
+                <span className={formStyles.slider}></span>
+              </div>
+            </label>
+          </div>
+        )}
 
         {/* ココフォリア設定 */}
         {!isReadOnly && (

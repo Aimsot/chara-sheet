@@ -22,9 +22,8 @@ export const NoteSection: React.FC<NoteSectionProps> = memo(
     return (
       <section className={cardStyles.base}>
         <div
-          className={cardStyles.accordionHeader}
+          className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
-          style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>メモ</h2>
           {!isReadOnly && (
@@ -35,14 +34,16 @@ export const NoteSection: React.FC<NoteSectionProps> = memo(
           {isReadOnly ? (
             <div
               style={{
-                minHeight: '120px',
+                minHeight: '40px',
+                maxHeight: autoResize ? undefined : '120px',
+                overflowY: autoResize ? undefined : 'auto',
                 whiteSpace: 'pre-wrap',
                 lineHeight: 1.7,
                 fontSize: '0.75rem',
                 color: note ? 'inherit' : 'var(--text-muted)',
               }}
             >
-              {note}
+              {note || 'なし'}
             </div>
           ) : (
             <>

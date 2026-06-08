@@ -15,6 +15,7 @@ const ItemRow = memo(
     item,
     index,
     isReadOnly,
+    autoResize,
     onUpdate,
     onRemove,
     style, // 親から既存のグリッドスタイルを受け取る
@@ -22,6 +23,7 @@ const ItemRow = memo(
     item: Item;
     index: number;
     isReadOnly?: boolean;
+    autoResize?: boolean;
     onUpdate: (index: number, field: keyof Item, value: any) => void;
     onRemove: (index: number) => void;
     style: React.CSSProperties;
@@ -83,9 +85,76 @@ const ItemRow = memo(
       onRemove(index);
     }, [index, onRemove]);
 
-    const [hovered, setHovered] = useState(false);
+    // 閲覧モード: 装備品・スキルと同じ2行レイアウト
+    if (isReadOnly) {
+      const showSub = !!item.notes || !!item.page;
+      const pageText = item.page ? (/^\d+$/.test(item.page) ? `p.${item.page}` : item.page) : '';
+      return (
+        <div
+          className={tableStyles.row}
+          style={{ display: 'block', borderBottom: '1px solid var(--card-border)' }}
+        >
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0,200px) 80px 80px',
+              gap: '12px',
+              alignItems: 'center',
+              padding: '8px 0',
+            }}
+          >
+            <div className={tableStyles.cell} style={{ paddingLeft: '6px' }}>
+              {item.name}
+            </div>
+            <div className={tableStyles.cell}>{item.weight}</div>
+            <div className={tableStyles.cell}>{item.quantity}</div>
+          </div>
+          {showSub && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px',
+                padding: '3px 8px 5px',
+                borderTop: '1px solid rgba(255,255,255,0.06)',
+                fontSize: '0.75rem',
+              }}
+            >
+              {item.notes && (
+                <div
+                  style={{
+                    flex: 1,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    lineHeight: 1.6,
+                    color: '#fff',
+                    maxHeight: autoResize ? undefined : '4.5em',
+                    overflowY: autoResize ? undefined : 'auto',
+                  }}
+                >
+                  {item.notes}
+                </div>
+              )}
+              {item.page && (
+                <div
+                  style={{
+                    flexShrink: 0,
+                    fontSize: '0.7rem',
+                    color: 'var(--text-secondary)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {pageText}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
 
-    const mainRow = (
+    // 編集モード
+    return (
       <div
         className={tableStyles.row}
         style={{
@@ -93,147 +162,83 @@ const ItemRow = memo(
           alignItems: 'center',
           paddingTop: '8px',
           paddingBottom: '8px',
-          backgroundColor:
-            hovered && isReadOnly
-              ? 'color-mix(in srgb, var(--accent-color), transparent 88%)'
-              : undefined,
         }}
       >
         {/* アイテム名 */}
         <div className={tableStyles.cell} style={{ paddingLeft: '6px', paddingRight: '6px' }}>
-          {isReadOnly ? (
-            item.name
-          ) : (
-            <input
-              className={formStyles.input}
-              inputMode='text'
-              onChange={handleNameChange}
-              placeholder='アイテム名'
-              style={{ padding: '0 10px' }}
-              type='text'
-              value={localName}
-            />
-          )}
+          <input
+            className={formStyles.input}
+            inputMode='text'
+            onChange={handleNameChange}
+            placeholder='アイテム名'
+            style={{ padding: '0 10px' }}
+            type='text'
+            value={localName}
+          />
         </div>
 
         {/* 重量 */}
         <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            item.weight
-          ) : (
-            <div className={formStyles.stepperSmall}>
-              <button onClick={() => handleWeightChange((item.weight || 0) - 1)} type='button'>
-                -
-              </button>
-              <NumberInput onChange={handleWeightChange} value={item.weight} />
-              <button onClick={() => handleWeightChange((item.weight || 0) + 1)} type='button'>
-                +
-              </button>
-            </div>
-          )}
+          <div className={formStyles.stepperSmall}>
+            <button onClick={() => handleWeightChange((item.weight || 0) - 1)} type='button'>
+              -
+            </button>
+            <NumberInput onChange={handleWeightChange} value={item.weight} />
+            <button onClick={() => handleWeightChange((item.weight || 0) + 1)} type='button'>
+              +
+            </button>
+          </div>
         </div>
 
         {/* 個数 */}
         <div className={tableStyles.cell}>
-          {isReadOnly ? (
-            item.quantity
-          ) : (
-            <div className={formStyles.stepperSmall}>
-              <button onClick={() => handleQuantityChange((item.quantity || 0) - 1)} type='button'>
-                -
-              </button>
-              <NumberInput onChange={handleQuantityChange} value={item.quantity} />
-              <button onClick={() => handleQuantityChange((item.quantity || 0) + 1)} type='button'>
-                +
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* 備考: 編集時のみ列表示 */}
-        {!isReadOnly && (
-          <div className={tableStyles.cell}>
-            <input
-              className={formStyles.input}
-              inputMode='text'
-              onChange={handleNotesChange}
-              placeholder='備考'
-              type='text'
-              value={localNotes}
-            />
-          </div>
-        )}
-
-        {/* ページ */}
-        {isReadOnly ? (
-          <div className={tableStyles.cell}>
-            {item.page ? (/^\d+$/.test(item.page) ? `p.${item.page}` : item.page) : ''}
-          </div>
-        ) : (
-          <div className={tableStyles.cell}>
-            <input
-              className={formStyles.input}
-              inputMode='text'
-              onChange={handlePageChange}
-              placeholder='p.'
-              type='text'
-              value={localPage}
-            />
-          </div>
-        )}
-
-        {/* 削除ボタン */}
-        {!isReadOnly && (
-          <div className={tableStyles.cell}>
-            <button
-              className={btnStyles.ghost}
-              onClick={handleRemove}
-              style={{ color: '#ff6b6b', padding: '4px' }}
-              title='削除'
-              type='button'
-            >
-              ×
+          <div className={formStyles.stepperSmall}>
+            <button onClick={() => handleQuantityChange((item.quantity || 0) - 1)} type='button'>
+              -
+            </button>
+            <NumberInput onChange={handleQuantityChange} value={item.quantity} />
+            <button onClick={() => handleQuantityChange((item.quantity || 0) + 1)} type='button'>
+              +
             </button>
           </div>
-        )}
-      </div>
-    );
+        </div>
 
-    if (!isReadOnly) return mainRow;
+        {/* 効果 */}
+        <div className={tableStyles.cell}>
+          <input
+            className={formStyles.input}
+            inputMode='text'
+            onChange={handleNotesChange}
+            placeholder='効果'
+            type='text'
+            value={localNotes}
+          />
+        </div>
 
-    return (
-      <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{ borderBottom: '1px solid var(--card-border)' }}
-      >
-        {mainRow}
-        {hovered && item.notes && (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'minmax(0, 200px) 1fr',
-              columnGap: '12px',
-              padding: '3px 0 5px',
-              borderTop: '1px solid rgba(255,255,255,0.06)',
-              backgroundColor: 'color-mix(in srgb, var(--accent-color), transparent 88%)',
-            }}
+        {/* ページ */}
+        <div className={tableStyles.cell}>
+          <input
+            className={formStyles.input}
+            inputMode='text'
+            onChange={handlePageChange}
+            placeholder='p.'
+            type='text'
+            value={localPage}
+          />
+        </div>
+
+        {/* 削除ボタン */}
+        <div className={tableStyles.cell}>
+          <button
+            className={btnStyles.ghost}
+            onClick={handleRemove}
+            style={{ color: '#ff6b6b', padding: '4px' }}
+            title='削除'
+            type='button'
           >
-            <div />
-            <div
-              style={{
-                fontSize: '0.75rem',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                lineHeight: 1.5,
-                color: '#fff',
-                padding: '2px 0',
-              }}
-            >
-              {item.notes}
-            </div>
-          </div>
-        )}
+            ×
+          </button>
+        </div>
       </div>
     );
   }
@@ -246,6 +251,7 @@ interface ItemSectionProps {
   abilities: Character['abilities'];
   species: string;
   isReadOnly?: boolean;
+  autoResize?: boolean;
   handleItemsAdd: () => void;
   handleItemsRemove: (index: number) => void;
   handleItemsUpdate: (index: number, field: keyof Item, value: any) => void;
@@ -258,6 +264,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
     abilities,
     species,
     isReadOnly,
+    autoResize,
     handleItemsAdd,
     handleItemsRemove,
     handleItemsUpdate,
@@ -269,22 +276,25 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
       return items.reduce((sum, item) => sum + item.weight * item.quantity, 0);
     }, [items]);
 
-    // ▼ スタイル定義 (元のまま維持)
-    const itemGridStyle = {
+    const itemEditGridStyle = {
       display: 'grid',
-      gridTemplateColumns: isReadOnly
-        ? 'minmax(0, 200px) 80px 80px 60px'
-        : 'minmax(0, 200px) 80px 80px 2fr 60px 50px',
+      gridTemplateColumns: 'minmax(0, 200px) 80px 80px 2fr 60px 50px',
       gap: '12px',
-      minWidth: isReadOnly ? '420px' : '660px',
+      minWidth: '660px',
     };
+    const itemViewGridStyle = {
+      display: 'grid',
+      gridTemplateColumns: 'minmax(0, 200px) 80px 80px',
+      gap: '12px',
+      minWidth: '360px',
+    };
+    const itemGridStyle = isReadOnly ? itemViewGridStyle : itemEditGridStyle;
 
     return (
       <section className={cardStyles.base}>
         <div
-          className={cardStyles.accordionHeader}
+          className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
-          style={isReadOnly ? { cursor: 'default' } : undefined}
         >
           <h2 className={cardStyles.title}>所持品</h2>
           {!isReadOnly && (
@@ -308,8 +318,8 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                 <div className={tableStyles.labelCell}>アイテム名</div>
                 <div className={tableStyles.cell}>重量</div>
                 <div className={tableStyles.cell}>個数</div>
-                {!isReadOnly && <div className={tableStyles.cell}>備考</div>}
-                <div className={tableStyles.cell}>ページ</div>
+                {!isReadOnly && <div className={tableStyles.cell}>効果</div>}
+                {!isReadOnly && <div className={tableStyles.cell}>ページ</div>}
                 {!isReadOnly && <div className={tableStyles.cell}>削除</div>}
               </div>
 
@@ -324,13 +334,14 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
               ) : (
                 items.map((item, index) => (
                   <ItemRow
+                    autoResize={autoResize}
                     index={index}
                     isReadOnly={isReadOnly}
                     item={item}
                     key={item.id}
                     onRemove={handleItemsRemove}
                     onUpdate={handleItemsUpdate}
-                    style={itemGridStyle} // ここでスタイルを渡すことでレイアウトを維持
+                    style={itemEditGridStyle}
                   />
                 ))
               )}
@@ -347,17 +358,13 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
               >
                 <div
                   className={tableStyles.labelCell}
-                  style={{
-                    color: '#fff',
-                    textAlign: 'right',
-                    paddingRight: '1rem',
-                  }}
+                  style={{ color: '#fff', textAlign: 'right', paddingRight: '1rem' }}
                 >
                   合計
                 </div>
                 <div className={tableStyles.cell}>{totalItemWeight}</div>
                 <div className={tableStyles.cell}></div>
-                <div className={tableStyles.cell}></div>
+                {!isReadOnly && <div className={tableStyles.cell}></div>}
                 {!isReadOnly && <div className={tableStyles.cell}></div>}
                 {!isReadOnly && <div className={tableStyles.cell}></div>}
               </div>

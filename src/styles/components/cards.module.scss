@@ -36,6 +36,15 @@
     }
   }
 
+  &.readOnly {
+    cursor: default;
+    @media (hover: hover) {
+      &:hover {
+        background-color: #000;
+      }
+    }
+  }
+
   /* タイトル文字 */
   .title {
     margin: 0;
