@@ -365,7 +365,7 @@
    ============================================================ */
 
 $lbl-combat: 160px;
-$lbl-equip: 100px;
+$lbl-equip: 80px;
 $col-name: 200px;
 $col-stat: 110px;
 $col-gap: 12px;
@@ -399,7 +399,7 @@ $col-gap: 12px;
 
 /* スキル表（閲覧） */
 .skillReadonlyGrid {
-  grid-template-columns: 0.7fr minmax(0, $col-name) 40px 1.3fr repeat(5, 1fr);
+  grid-template-columns: $lbl-equip minmax(0, $col-name) 40px 1.3fr repeat(5, 1fr);
   align-items: center;
   min-width: 760px;
 }
