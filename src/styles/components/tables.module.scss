@@ -358,17 +358,22 @@
    Section-specific grid templates
    列幅の共通定数（SCSS変数）
      $lbl-combat  : 戦闘値・特殊判定・ダメージのラベル幅
-     $lbl-equip   : 装備品スロットラベル幅
+     $lbl-equip   : 装備品スロット列幅 ＝ スキル分類列幅（同幅に統一）
      $col-name    : 名称列幅（装備品・所持品・メモリー共通）
      $col-stat    : 装備品数値列幅（命中修正・回避値・防御値等）
      $col-gap     : 装備品・所持品テーブルの列間隔
    ============================================================ */
 
 $lbl-combat: 160px;
-$lbl-equip: 80px;
+$lbl-equip: 100px;
 $col-name: 200px;
 $col-stat: 110px;
 $col-gap: 12px;
+
+/* スロット・分類列のwrapper幅（装備品部位＝スキル分類で共通） */
+.slotLabelCol {
+  width: $lbl-equip;
+}
 
 /* --- .row に適用して grid-template-columns を上書きするクラス --- */
 
@@ -401,10 +406,9 @@ $col-gap: 12px;
 
 /* 装備品：ヘッダー / 合計行 */
 .equipHeaderGrid {
-  grid-template-columns: $lbl-equip minmax(
-      0,
-      $col-name
-    ) $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
+  grid-template-columns:
+    $lbl-equip minmax(0, $col-name)
+    $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
   column-gap: $col-gap;
   min-width: 1000px;
 }

@@ -315,7 +315,7 @@ const SkillEditRow = memo(
         <div className={`${tableStyles.subRow} ${tableStyles.subRowCompact}`}>
           <div className={tableStyles.fieldRowShrink}>
             <span className={tableStyles.fieldLabel}>分類</span>
-            <div style={{ width: '100px' }}>
+            <div className={tableStyles.slotLabelCol}>
               <ComboBox
                 className={formStyles.inputSmall}
                 defaultValue={skill.category ?? ''}

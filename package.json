@@ -1,6 +1,6 @@
 {
   "name": "chara-sheet",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Hotch Potch Character Sheet System",
   "private": true,
   "scripts": {
