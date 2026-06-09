@@ -206,6 +206,11 @@
   font-weight: bold;
   color: #fff;
   background-color: var(--accent-dark);
+
+  &:hover {
+    background-color: var(--accent-dark);
+    box-shadow: none;
+  }
 }
 
 /* 編集可能行の背景色 */
