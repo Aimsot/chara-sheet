@@ -366,7 +366,7 @@
 
 $lbl-combat: 160px;
 $lbl-equip: 80px;
-$col-name: 200px;
+$col-name: 180px;
 $col-stat: 110px;
 $col-gap: 12px;
 
@@ -456,7 +456,7 @@ $col-gap: 12px;
   column-gap: $col-gap;
   align-items: center;
   min-height: 36px;
-  padding: 4px 0;
+  padding: 4px 0 4px $col-gap;
 }
 
 /* 所持品（閲覧） */
