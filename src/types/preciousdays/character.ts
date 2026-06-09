@@ -154,6 +154,7 @@ export interface Item {
   quantity: number; // 個数
   notes: string;
   page?: string; // ページ数
+  category?: string; // 種別
   isEquipped?: boolean; // チェックボックス用（もし必要なら）
 }
 

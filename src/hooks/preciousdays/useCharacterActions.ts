@@ -248,6 +248,7 @@ export const useCharacterActions = (
       weight: 1,
       quantity: 1,
       notes: '',
+      category: '',
     };
     setChar((prev) => ({
       ...prev,

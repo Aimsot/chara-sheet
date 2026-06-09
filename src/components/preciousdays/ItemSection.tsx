@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
+import { ComboBox } from '@/components/ui/ComboBox';
 import { NumberInput } from '@/components/ui/NumberInput';
 import btnStyles from '@/styles/components/buttons.module.scss';
 import cardStyles from '@/styles/components/cards.module.scss';
@@ -9,7 +10,8 @@ import { Character, Item } from '@/types/preciousdays/character';
 
 import WeightSection from './WeightSection';
 
-// ▼ 1. 行コンポーネントの切り出し
+const ITEM_CATEGORY_OPTIONS = ['道具', '消耗品', '魔道具', '材料', 'その他'];
+
 const ItemRow = memo(
   ({
     item,
@@ -26,7 +28,6 @@ const ItemRow = memo(
     onUpdate: (index: number, field: keyof Item, value: any) => void;
     onRemove: (index: number) => void;
   }) => {
-    // --- テキスト入力の高速化 (State Mirroringパターン) ---
     const [prevName, setPrevName] = useState(item.name);
     const [prevNotes, setPrevNotes] = useState(item.notes);
     const [prevPage, setPrevPage] = useState(item.page || '');
@@ -35,7 +36,6 @@ const ItemRow = memo(
     const [localNotes, setLocalNotes] = useState(item.notes);
     const [localPage, setLocalPage] = useState(item.page || '');
 
-    // propsが変わった場合、レンダリング中にローカルstateを同期する
     if (item.name !== prevName) {
       setPrevName(item.name);
       setLocalName(item.name);
@@ -49,58 +49,55 @@ const ItemRow = memo(
       setLocalPage(item.page || '');
     }
 
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setLocalName(e.target.value);
-      onUpdate(index, 'name', e.target.value);
-    };
-
-    const handleNotesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setLocalNotes(e.target.value);
-      onUpdate(index, 'notes', e.target.value);
-    };
-
-    const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setLocalPage(e.target.value);
-      onUpdate(index, 'page', e.target.value);
-    };
-
-    // --- 数値入力のハンドラ (固定化) ---
     const handleWeightChange = useCallback(
-      (val: number) => {
-        onUpdate(index, 'weight', val);
-      },
+      (val: number) => onUpdate(index, 'weight', val),
       [index, onUpdate]
     );
-
     const handleQuantityChange = useCallback(
-      (val: number) => {
-        onUpdate(index, 'quantity', val);
-      },
+      (val: number) => onUpdate(index, 'quantity', val),
       [index, onUpdate]
     );
+    const handleRemove = useCallback(() => onRemove(index), [index, onRemove]);
 
-    const handleRemove = useCallback(() => {
-      onRemove(index);
-    }, [index, onRemove]);
-
-    // 閲覧モード: 装備品・スキルと同じ2行レイアウト
+    // 閲覧モード: 種別を左端ラベル列として表示（スキル閲覧行と同じ2行グリッドパターン）
     if (isReadOnly) {
       const showSub = !!item.notes || !!item.page;
       const pageText = item.page ? (/^\d+$/.test(item.page) ? `p.${item.page}` : item.page) : '';
       return (
-        <div className={`${tableStyles.row} ${tableStyles.blockRow}`}>
+        <div className={`${tableStyles.row} ${tableStyles.itemViewGrid}`}>
+          {/* 種別: サブ行がある場合は2行スパン */}
           <div
-            className={tableStyles.itemViewGrid}
-            style={{ alignItems: 'center', padding: '8px 0' }}
+            className={tableStyles.labelCell}
+            style={{ gridColumn: '1', gridRow: showSub ? '1 / 3' : '1', alignSelf: 'stretch' }}
           >
-            <div className={tableStyles.cell} style={{ paddingLeft: '6px' }}>
-              {item.name}
-            </div>
-            <div className={tableStyles.cell}>{item.weight}</div>
-            <div className={tableStyles.cell}>{item.quantity}</div>
+            {item.category ?? ''}
+          </div>
+          <div
+            className={tableStyles.cell}
+            style={{
+              gridColumn: '2',
+              gridRow: '1',
+              justifyContent: 'flex-start',
+              paddingLeft: '6px',
+              minHeight: '32px',
+            }}
+          >
+            {item.name}
+          </div>
+          <div
+            className={tableStyles.cell}
+            style={{ gridColumn: '3', gridRow: '1', minHeight: '32px' }}
+          >
+            {item.weight}
+          </div>
+          <div
+            className={tableStyles.cell}
+            style={{ gridColumn: '4', gridRow: '1', minHeight: '32px' }}
+          >
+            {item.quantity}
           </div>
           {showSub && (
-            <div className={tableStyles.subRow}>
+            <div className={tableStyles.subRow} style={{ gridColumn: '2 / -1', gridRow: '2' }}>
               {item.notes && (
                 <div
                   className={tableStyles.textContent}
@@ -126,12 +123,26 @@ const ItemRow = memo(
         className={`${tableStyles.row} ${tableStyles.itemEditGrid}`}
         style={{ alignItems: 'center', paddingTop: '8px', paddingBottom: '8px' }}
       >
+        {/* 種別 */}
+        <div className={tableStyles.cell} style={{ padding: '0 4px' }}>
+          <ComboBox
+            className={formStyles.inputSmall}
+            defaultValue={item.category ?? ''}
+            onCommit={(val) => onUpdate(index, 'category', val)}
+            options={ITEM_CATEGORY_OPTIONS}
+            placeholder='種別'
+          />
+        </div>
+
         {/* アイテム名 */}
         <div className={tableStyles.cell} style={{ paddingLeft: '6px', paddingRight: '6px' }}>
           <input
             className={formStyles.input}
             inputMode='text'
-            onChange={handleNameChange}
+            onChange={(e) => {
+              setLocalName(e.target.value);
+              onUpdate(index, 'name', e.target.value);
+            }}
             placeholder='アイテム名'
             style={{ padding: '0 10px' }}
             type='text'
@@ -170,7 +181,10 @@ const ItemRow = memo(
           <input
             className={formStyles.input}
             inputMode='text'
-            onChange={handleNotesChange}
+            onChange={(e) => {
+              setLocalNotes(e.target.value);
+              onUpdate(index, 'notes', e.target.value);
+            }}
             placeholder='効果'
             type='text'
             value={localNotes}
@@ -182,7 +196,10 @@ const ItemRow = memo(
           <input
             className={formStyles.input}
             inputMode='text'
-            onChange={handlePageChange}
+            onChange={(e) => {
+              setLocalPage(e.target.value);
+              onUpdate(index, 'page', e.target.value);
+            }}
             placeholder='p.'
             type='text'
             value={localPage}
@@ -233,10 +250,10 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
   }) => {
     const [isOpen, setIsOpen] = useState(true);
 
-    // 合計重量の計算
-    const totalItemWeight = useMemo(() => {
-      return items.reduce((sum, item) => sum + item.weight * item.quantity, 0);
-    }, [items]);
+    const totalItemWeight = useMemo(
+      () => items.reduce((sum, item) => sum + item.weight * item.quantity, 0),
+      [items]
+    );
 
     const itemGridClass = isReadOnly ? tableStyles.itemViewGrid : tableStyles.itemEditGrid;
 
@@ -262,11 +279,12 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
             />
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
-              style={isReadOnly ? undefined : { minWidth: '660px' }}
+              style={isReadOnly ? undefined : { minWidth: '760px' }}
             >
               {/* ヘッダー */}
               <div className={`${tableStyles.headerRow} ${itemGridClass}`}>
-                <div className={tableStyles.labelCell}>アイテム名</div>
+                <div className={tableStyles.labelCell}>種別</div>
+                <div className={tableStyles.cell}>アイテム名</div>
                 <div className={tableStyles.cell}>重量</div>
                 <div className={tableStyles.cell}>個数</div>
                 {!isReadOnly && <div className={tableStyles.cell}>効果</div>}
@@ -274,7 +292,6 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                 {!isReadOnly && <div className={tableStyles.cell}>削除</div>}
               </div>
 
-              {/* アイテムリスト (ItemRowを使用) */}
               {items.length === 0 ? (
                 <div className={`${tableStyles.row} ${tableStyles.emptyRow}`}>
                   <span style={{ color: 'var(--text-muted)' }}>アイテムがありません</span>
@@ -295,12 +312,8 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
 
               {/* 合計行 */}
               <div className={`${tableStyles.row} ${itemGridClass} ${tableStyles.totalRow}`}>
-                <div
-                  className={tableStyles.labelCell}
-                  style={{ color: '#fff', textAlign: 'right', paddingRight: '1rem' }}
-                >
-                  合計
-                </div>
+                <div className={tableStyles.labelCell}>合計</div>
+                <div className={tableStyles.cell}></div>
                 <div className={tableStyles.cell}>{totalItemWeight}</div>
                 <div className={tableStyles.cell}></div>
                 {!isReadOnly && <div className={tableStyles.cell}></div>}
