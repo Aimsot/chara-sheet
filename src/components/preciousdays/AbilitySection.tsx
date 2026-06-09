@@ -32,21 +32,6 @@ interface AbilityTableProps {
   handleAbilitiesGrowthChange: (key: string, val: number, setError: any) => void;
 }
 
-const EDITABLE_ROW_STYLE: React.CSSProperties = {
-  backgroundColor: 'color-mix(in srgb, var(--accent-color), transparent 92%)',
-};
-
-const SECTION_DIVIDER_STYLE: React.CSSProperties = {
-  padding: '3px 8px',
-  fontSize: '0.75rem',
-  fontWeight: 'bold',
-  letterSpacing: '0.08em',
-  color: 'var(--text-secondary)',
-  backgroundColor: 'rgba(0,0,0,0.35)',
-  borderTop: '2px solid var(--card-border)',
-  borderBottom: '1px solid var(--card-border)',
-};
-
 const BonusCell = memo(
   ({
     abilityKey,
@@ -204,11 +189,6 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
       null
     );
 
-    const gridStyle = {
-      '--table-cols': 6,
-      '--table-label-width': '140px',
-    } as React.CSSProperties;
-
     const totalBonus = useMemo(
       () => ABILITY_KEYS.reduce((sum, key) => sum + (abilities[key].bonus || 0), 0),
       [abilities]
@@ -241,7 +221,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                 className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
               >
                 {/* ヘッダー */}
-                <div className={tableStyles.headerRow} style={gridStyle}>
+                <div className={tableStyles.headerRow}>
                   <div className={tableStyles.labelCell}>能力値</div>
                   {ABILITY_KEYS.map((key) => (
                     <div className={tableStyles.cell} key={key}>
@@ -251,10 +231,10 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                 </div>
 
                 {/* ③ セクション区切り: 基本値 */}
-                <div style={SECTION_DIVIDER_STYLE}>基本値</div>
+                <div className={tableStyles.sectionDivider}>基本値</div>
 
                 {/* 種族基本値 */}
-                <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
+                <div className={`${tableStyles.row} ${tableStyles.readonly}`}>
                   <div className={tableStyles.labelCell}>種族基本値</div>
                   {ABILITY_KEYS.map((key) => {
                     const baseValue = (species as SpeciesKey)
@@ -269,10 +249,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                 </div>
 
                 {/* ① ボーナス（編集行） */}
-                <div
-                  className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}
-                  style={gridStyle}
-                >
+                <div className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}>
                   <div className={tableStyles.labelCell}>ボーナス({totalBonus}/5)</div>
                   {ABILITY_KEYS.map((key) => (
                     <BonusCell
@@ -295,10 +272,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                 />
 
                 {/* ① 成長（編集行） */}
-                <div
-                  className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}
-                  style={gridStyle}
-                >
+                <div className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}>
                   <div className={tableStyles.labelCell}>
                     成長({totalGrowth}/{maxGrowth})
                   </div>
@@ -323,7 +297,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                 />
 
                 {/* 能力基本値合計（計算行） */}
-                <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
+                <div className={`${tableStyles.row} ${tableStyles.readonly}`}>
                   <div className={tableStyles.labelCell}>基本値合計</div>
                   {ABILITY_KEYS.map((key) => {
                     const base = (species as SpeciesKey)
@@ -338,7 +312,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                 </div>
 
                 {/* 能力基本値÷3（計算行） */}
-                <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
+                <div className={`${tableStyles.row} ${tableStyles.readonly}`}>
                   <div className={tableStyles.labelCell}>基本値÷3</div>
                   {ABILITY_KEYS.map((key) => {
                     const base = (species as SpeciesKey)
@@ -355,10 +329,10 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                 </div>
 
                 {/* ③ セクション区切り: 修正値 */}
-                <div style={SECTION_DIVIDER_STYLE}>修正値</div>
+                <div className={tableStyles.sectionDivider}>修正値</div>
 
                 {/* スタイル修正（計算行） */}
-                <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
+                <div className={`${tableStyles.row} ${tableStyles.readonly}`}>
                   <div className={tableStyles.labelCell}>スタイル修正</div>
                   {ABILITY_KEYS.map((key) => (
                     <div className={tableStyles.cell} key={key}>
@@ -368,7 +342,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                 </div>
 
                 {/* 属性修正（計算行） */}
-                <div className={`${tableStyles.row} ${tableStyles.readonly}`} style={gridStyle}>
+                <div className={`${tableStyles.row} ${tableStyles.readonly}`}>
                   <div className={tableStyles.labelCell}>属性修正</div>
                   {ABILITY_KEYS.map((key) => (
                     <div className={tableStyles.cell} key={key}>
@@ -379,8 +353,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
 
                 {/* ① その他修正（編集行・色付き） */}
                 <div
-                  className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}
-                  style={{ ...gridStyle, ...(isReadOnly ? {} : EDITABLE_ROW_STYLE) }}
+                  className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : tableStyles.editableRow}`}
                 >
                   <div className={tableStyles.labelCell}>その他修正</div>
                   {ABILITY_KEYS.map((key) => (
@@ -401,7 +374,7 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
               <div
                 className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
               >
-                <div className={tableStyles.headerRow} style={gridStyle}>
+                <div className={tableStyles.headerRow}>
                   <div className={tableStyles.labelCell}>能力値</div>
                   {ABILITY_KEYS.map((key) => (
                     <div className={tableStyles.cell} key={key}>
@@ -409,23 +382,10 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
                     </div>
                   ))}
                 </div>
-                <div
-                  className={tableStyles.row}
-                  style={{
-                    ...gridStyle,
-                    backgroundColor: 'var(--accent-dark)',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  <div className={tableStyles.labelCell} style={{ color: '#fff' }}>
-                    能力値合計
-                  </div>
+                <div className={`${tableStyles.row} ${tableStyles.accentRow}`}>
+                  <div className={tableStyles.labelCell}>能力値合計</div>
                   {ABILITY_KEYS.map((key) => (
-                    <div
-                      className={tableStyles.cell}
-                      key={key}
-                      style={{ fontSize: '0.75rem', color: '#fff' }}
-                    >
+                    <div className={tableStyles.cell} key={key}>
                       {abilities[key].total}
                     </div>
                   ))}

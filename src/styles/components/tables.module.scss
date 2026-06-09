@@ -175,6 +175,11 @@
   /* readonly の固定背景色をリセットして zebra が見えるようにする */
   .readonly {
     background-color: transparent;
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--accent-color), transparent 88%);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
   }
 }
 
@@ -201,7 +206,32 @@
   display: block;
 }
 
-/* 合計行（アクセントカラー・太字・白文字） */
+/* 縦方向フレックスコンテナ */
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+/* フィールドラベル + 入力横並びグループ */
+.fieldInputGroup {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+/* 右寄せフレックスコンテナ */
+.fieldEndAligned {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* 装備品メイン行グリッド（部位ラベル80px + 残り） */
+.equipRowGrid {
+  grid-template-columns: 80px 1fr;
+}
+
+/* 合計行（アクセントカラー・太字・白文字・ホバー無効） */
 .totalRow {
   font-weight: bold;
   color: #fff;
@@ -210,6 +240,28 @@
   &:hover {
     background-color: var(--accent-dark);
     box-shadow: none;
+  }
+
+  .labelCell,
+  .cell {
+    color: #fff;
+  }
+}
+
+/* 計算結果行（アクセントカラー背景・ホバー無効） */
+.accentRow {
+  font-weight: bold;
+  color: #fff;
+  background-color: var(--accent-dark);
+
+  &:hover {
+    background-color: var(--accent-dark);
+    box-shadow: none;
+  }
+
+  .labelCell,
+  .cell {
+    color: #fff;
   }
 }
 
@@ -273,6 +325,27 @@
   border-left: 1px solid var(--card-border);
 }
 
+/* サブ行コンパクト（スキル行など gap: 8px） */
+.subRowCompact {
+  gap: 8px;
+}
+
+/* フレックス行・中央揃え・収縮なし（サブ行の分類・ページ欄など） */
+.fieldRowShrink {
+  display: flex;
+  flex-shrink: 0;
+  gap: 6px;
+  align-items: center;
+}
+
+/* フレックス行・上揃え・伸縮（サブ行の効果欄など） */
+.fieldRowFlex {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+  align-items: flex-start;
+}
+
 /* 追加ボタンのコンテナ */
 .buttonContainer {
   display: flex;
@@ -307,6 +380,7 @@
 
 /* ダメージグリッド（ラベル160px + 1列） */
 .damageGrid {
+  display: grid;
   grid-template-columns: 160px 1fr;
 }
 

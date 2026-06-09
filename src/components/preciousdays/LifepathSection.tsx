@@ -49,10 +49,7 @@ export const LifepathSection: React.FC<LifepathProps> = memo(
                   <label>{field.l}</label>
 
                   {isReadOnly ? (
-                    <div
-                      className={baseStyles.readOnlyField}
-                      style={{ whiteSpace: 'nowrap', overflowX: 'auto', fontSize: '0.9rem' }}
-                    >
+                    <div className={`${baseStyles.readOnlyField} ${formStyles.fieldOverflowAuto}`}>
                       {currentValue}
                     </div>
                   ) : (

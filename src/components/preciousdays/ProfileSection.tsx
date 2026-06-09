@@ -130,7 +130,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span12} ${formStyles.fieldGroup}`}>
                   <label>キャラクター名</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                    <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
                       {characterName}
                     </div>
                   ) : (
@@ -148,7 +148,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label>プレイヤー名（必須）</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                    <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
                       {playerName}
                     </div>
                   ) : (
@@ -166,7 +166,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label>師匠名</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                    <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
                       {masterName}
                     </div>
                   ) : (
@@ -184,7 +184,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label>種族</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                    <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
                       {SPECIES_DATA[species as SpeciesKey]?.name || species}
                     </div>
                   ) : (
@@ -206,7 +206,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label>スタイル</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                    <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
                       {STYLE_DATA[characterStyle as StyleKey]?.name || characterStyle}
                     </div>
                   ) : (
@@ -229,9 +229,8 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                   <label>属性</label>
                   {isReadOnly ? (
                     <div
-                      className={baseStyles.readOnlyField}
+                      className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}
                       style={{
-                        fontSize: '0.9rem',
                         fontWeight: 'bold',
                         color: ELEMENT_COLORS[element] || 'var(--text-primary)',
                         textShadow: ELEMENT_COLORS[element]
@@ -261,7 +260,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label htmlFor='experience'>経験点</label>
                   {isReadOnly ? (
-                    <div className={baseStyles.readOnlyField} style={{ fontSize: '0.9rem' }}>
+                    <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
                       {experience}
                     </div>
                   ) : (

@@ -57,6 +57,24 @@
   }
 }
 
+/* コンパクト入力（スキルサブ行など、高さ28px） */
+.inputSmall {
+  composes: input;
+  height: 28px;
+}
+
+/* 読み取り専用テキスト（0.9rem） */
+.readonlyValue {
+  font-size: 0.9rem;
+}
+
+/* 横スクロール付き読み取り専用テキスト（ライフパス・外見など） */
+.fieldOverflowAuto {
+  overflow-x: auto;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
 /* ============================================================
    Complex Controls: 機能付きの入力部品
    ============================================================ */
@@ -371,4 +389,67 @@
   padding: 16px;
   background-color: rgba(0, 0, 0, 0.15);
   border-radius: 8px;
+}
+
+/* ============================================================
+   Note: メモセクション
+   ============================================================ */
+
+/* 閲覧時メモ本文 */
+.noteReadonly {
+  min-height: 40px;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* 秘匿メモコンテナ */
+.secretNoteContainer {
+  margin-top: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(124, 0, 0, 0.6);
+  border-radius: 8px;
+  box-shadow:
+    0 0 20px rgba(124, 0, 0, 0.25),
+    inset 0 0 30px rgba(124, 0, 0, 0.08);
+}
+
+/* 秘匿メモヘッダーバー */
+.secretNoteHeader {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  padding: 7px 12px;
+  background: linear-gradient(90deg, rgba(124, 0, 0, 0.35) 0%, rgba(124, 0, 0, 0.15) 100%);
+  border-bottom: 1px solid rgba(124, 0, 0, 0.5);
+}
+
+/* 秘匿メモアイコン */
+.secretNoteIcon {
+  flex-shrink: 0;
+  color: rgba(255, 180, 180, 1);
+}
+
+/* 秘匿メモタイトル */
+.secretNoteTitle {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 10px rgba(124, 0, 0, 0.7);
+}
+
+/* 秘匿メモサブタイトル */
+.secretNoteSubtitle {
+  margin-left: 2px;
+  font-size: 0.65rem;
+  color: rgba(255, 180, 180, 0.75);
+}
+
+/* 秘匿メモテキストエリア（.textareaと組み合わせて使用） */
+.secretNoteTextarea {
+  color: rgba(255, 220, 220, 0.95);
+  background: linear-gradient(180deg, rgba(124, 0, 0, 0.12) 0%, rgba(124, 0, 0, 0.06) 100%);
+  border: none;
+  border-radius: 0;
 }

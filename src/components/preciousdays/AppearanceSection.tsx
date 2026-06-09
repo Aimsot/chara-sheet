@@ -38,10 +38,7 @@ export const AppearanceSection: React.FC<AppearanceProps> = memo(
                 <label htmlFor={item.k}>{item.l}</label>
 
                 {isReadOnly ? (
-                  <div
-                    className={baseStyles.readOnlyField}
-                    style={{ whiteSpace: 'nowrap', overflowX: 'auto', fontSize: '0.9rem' }}
-                  >
+                  <div className={`${baseStyles.readOnlyField} ${formStyles.fieldOverflowAuto}`}>
                     {appearance?.[item.k] || ''}
                   </div>
                 ) : (

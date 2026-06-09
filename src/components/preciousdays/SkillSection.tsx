@@ -207,13 +207,12 @@ const SkillEditRow = memo(
             style={{ justifyContent: 'flex-start', padding: '0 8px' }}
           >
             <input
-              className={formStyles.input}
+              className={formStyles.inputSmall}
               onChange={(e) => {
                 setLocalSkillName(e.target.value);
                 onUpdate(index, 'name', e.target.value);
               }}
               placeholder='スキル名'
-              style={{ fontSize: '0.75rem', height: '28px' }}
               type='text'
               value={localSkillName}
             />
@@ -283,10 +282,9 @@ const SkillEditRow = memo(
                 />
               ) : (
                 <input
-                  className={formStyles.input}
+                  className={formStyles.inputSmall}
                   onChange={(e) => onUpdate(index, field, e.target.value)}
                   placeholder={label}
-                  style={{ fontSize: '0.75rem', height: '28px' }}
                   type='text'
                   value={(skill as any)[field] ?? ''}
                 />
@@ -314,22 +312,21 @@ const SkillEditRow = memo(
         </div>
 
         {/* 2行目: 分類 + 効果 + ページ */}
-        <div className={tableStyles.subRow} style={{ gap: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+        <div className={`${tableStyles.subRow} ${tableStyles.subRowCompact}`}>
+          <div className={tableStyles.fieldRowShrink}>
             <span className={tableStyles.fieldLabel}>分類</span>
             <div style={{ width: '100px' }}>
               <ComboBox
-                className={formStyles.input}
+                className={formStyles.inputSmall}
                 defaultValue={skill.category ?? ''}
                 onCommit={(val) => onUpdate(index, 'category', val)}
                 options={CATEGORY_OPTIONS}
                 placeholder='分類'
-                style={{ fontSize: '0.75rem', height: '28px' }}
               />
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', flex: 1 }}>
+          <div className={tableStyles.fieldRowFlex}>
             <span className={tableStyles.fieldLabel}>効果</span>
             <AutoResizeTextarea
               autoResize={autoResize}
@@ -339,22 +336,21 @@ const SkillEditRow = memo(
                 onUpdate(index, 'effect', e.target.value);
               }}
               rows={1}
-              style={{ flex: 1, fontSize: '0.75rem' }}
+              style={{ flex: 1 }}
               value={localEffect}
             />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          <div className={tableStyles.fieldRowShrink}>
             <span className={tableStyles.fieldLabel}>ページ</span>
             <div style={{ width: '60px' }}>
               <input
-                className={formStyles.input}
+                className={formStyles.inputSmall}
                 onChange={(e) => {
                   setLocalPage(e.target.value);
                   onUpdate(index, 'page', e.target.value);
                 }}
                 placeholder='p.'
-                style={{ fontSize: '0.75rem', height: '28px' }}
                 type='text'
                 value={localPage}
               />

@@ -175,7 +175,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               value={isReadOnly ? authPassword : editPassword}
             />
 
-            <div className={formStyles.notes} style={{ marginTop: 0 }}>
+            <div className={`${formStyles.notes} ${layoutStyles.mt0}`}>
               <p>
                 {isReadOnly
                   ? '編集するにはパスワードを入力して認証ボタンを押してください'
@@ -228,7 +228,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               onChange={(color) => setChar((prev: Character) => ({ ...prev, ccfoliaColor: color }))}
               value={char.ccfoliaColor || '#4a90d9'}
             />
-            <div className={formStyles.notes} style={{ marginTop: 0 }}>
+            <div className={`${formStyles.notes} ${layoutStyles.mt0}`}>
               <p>コマの出力は閲覧画面で行なえます</p>
             </div>
           </div>
@@ -299,7 +299,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                       submit={true}
                       variant='primary'
                     />
-                    <div className={formStyles.notes} style={{ marginTop: 0 }}>
+                    <div className={`${formStyles.notes} ${layoutStyles.mt0}`}>
                       <p>Ctrl + S でも保存ができます</p>
                     </div>
                   </>
@@ -359,7 +359,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 style={{ width: '100%' }}
                 variant={ccfoliaCopied ? 'solid' : 'outline'}
               />
-              <div className={formStyles.notes} style={{ marginTop: 0 }}>
+              <div className={`${formStyles.notes} ${layoutStyles.mt0}`}>
                 <p>画像は出力できません</p>
               </div>
 
