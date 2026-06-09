@@ -226,11 +226,6 @@
   justify-content: flex-end;
 }
 
-/* 装備品メイン行グリッド（部位ラベル80px + 残り） */
-.equipRowGrid {
-  grid-template-columns: 80px 1fr;
-}
-
 /* 合計行（アクセントカラー・太字・白文字・ホバー無効） */
 .totalRow {
   font-weight: bold;
@@ -361,98 +356,118 @@
 
 /* ============================================================
    Section-specific grid templates
+   列幅の共通定数（SCSS変数）
+     $lbl-combat  : 戦闘値・特殊判定・ダメージのラベル幅
+     $lbl-equip   : 装備品スロットラベル幅
+     $col-name    : 名称列幅（装備品・所持品・メモリー共通）
+     $col-stat    : 装備品数値列幅（命中修正・回避値・防御値等）
+     $col-gap     : 装備品・所持品テーブルの列間隔
    ============================================================ */
+
+$lbl-combat: 160px;
+$lbl-equip: 80px;
+$col-name: 200px;
+$col-stat: 110px;
+$col-gap: 12px;
+
+/* --- .row に適用して grid-template-columns を上書きするクラス --- */
 
 /* 能力値グリッド（ラベル140px + 6列） */
 .abilityGrid {
   grid-template-columns: 140px repeat(6, 1fr);
 }
 
-/* 戦闘値グリッド（ラベル160px + 4列） */
+/* 戦闘値グリッド（ラベル + 4列） */
 .combatGrid {
-  grid-template-columns: 160px 1fr 1fr 1fr 1fr;
+  grid-template-columns: $lbl-combat repeat(4, 1fr);
 }
 
-/* 特殊判定グリッド（ラベル160px + 3列） */
+/* 特殊判定グリッド（ラベル + 3列） */
 .specialGrid {
-  grid-template-columns: 160px 1fr 1fr 1fr;
+  grid-template-columns: $lbl-combat repeat(3, 1fr);
 }
 
-/* ダメージグリッド（ラベル160px + 1列） */
-.damageGrid {
-  display: grid;
-  grid-template-columns: 160px 1fr;
+/* 装備品：部位ラベル + コンテンツ */
+.equipRowGrid {
+  grid-template-columns: $lbl-equip 1fr;
 }
-
-/* 装備品: 効果・ページのサブ行グリッド */
-.equipSubRow {
-  display: grid;
-  grid-template-columns: 1fr 120px;
-  column-gap: 12px;
-  padding: 3px 8px 5px 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-/* ============================================================
-   Section-specific grid templates (items)
-   ============================================================ */
 
 /* スキル表（閲覧） */
 .skillReadonlyGrid {
-  grid-template-columns: 0.7fr minmax(0, 200px) 40px 1.3fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.7fr minmax(0, $col-name) 40px 1.3fr repeat(5, 1fr);
   align-items: center;
   min-width: 760px;
 }
 
-/* スキル表（編集）の内側グリッド */
-.skillEditGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 200px) 70px 1.3fr 1fr 1fr 1fr 1fr 1fr 36px;
-  align-items: center;
-  min-width: 760px;
-  min-height: 36px;
-}
-
-/* 装備品: ヘッダー / 合計行 */
+/* 装備品：ヘッダー / 合計行 */
 .equipHeaderGrid {
-  grid-template-columns: 80px minmax(0, 200px) 110px 110px 70px 100px 110px 110px 1fr;
-  column-gap: 12px;
+  grid-template-columns: $lbl-equip minmax(
+      0,
+      $col-name
+    ) $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
+  column-gap: $col-gap;
   min-width: 1000px;
-}
-
-/* 装備品: メイン行の内側グリッド（部位列を除く） */
-.equipInnerGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 200px) 110px 110px 70px 100px 110px 110px 1fr;
-  column-gap: 12px;
-  align-items: center;
-  min-height: 36px;
-  padding: 4px 0;
 }
 
 /* 所持品（編集） */
 .itemEditGrid {
-  grid-template-columns: minmax(0, 200px) 80px 80px 2fr 60px 50px;
-  gap: 12px;
+  grid-template-columns: minmax(0, $col-name) 80px 80px 2fr 60px 50px;
+  column-gap: $col-gap;
   min-width: 660px;
-}
-
-/* 所持品（閲覧） */
-.itemViewGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 200px) 80px 80px;
-  gap: 12px;
-  min-width: 360px;
 }
 
 /* メモリー（編集） */
 .memoryEditGrid {
-  grid-template-columns: 200px 1fr 48px 1fr 32px;
+  grid-template-columns: $col-name 1fr 48px 1fr 32px;
   min-width: 500px;
 }
 
 /* メモリー（閲覧） */
 .memoryViewGrid {
-  grid-template-columns: 200px 1fr 48px 1fr;
+  grid-template-columns: $col-name 1fr 48px 1fr;
   min-width: 500px;
+}
+
+/* --- スタンドアロン（display: grid を自ら持つ）クラス --- */
+
+/* ダメージグリッド（.gridTable に直接適用） */
+.damageGrid {
+  display: grid;
+  grid-template-columns: $lbl-combat 1fr;
+}
+
+/* スキル表（編集）の内側グリッド */
+.skillEditGrid {
+  display: grid;
+  grid-template-columns: minmax(0, $col-name) 70px 1.3fr repeat(5, 1fr) 36px;
+  align-items: center;
+  min-width: 760px;
+  min-height: 36px;
+}
+
+/* 装備品：メイン行の内側グリッド（部位列を除く） */
+.equipInnerGrid {
+  display: grid;
+  grid-template-columns: minmax(0, $col-name) $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
+  column-gap: $col-gap;
+  align-items: center;
+  min-height: 36px;
+  padding: 4px 0;
+}
+
+/* 所持品（閲覧） */
+.itemViewGrid {
+  display: grid;
+  grid-template-columns: minmax(0, $col-name) 80px 80px;
+  column-gap: $col-gap;
+  min-width: 360px;
+}
+
+/* 装備品：効果・ページのサブ行グリッド */
+.equipSubRow {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  column-gap: $col-gap;
+  padding: 3px 8px 5px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
