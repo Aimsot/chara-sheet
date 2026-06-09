@@ -10,7 +10,7 @@ import { Character, Item } from '@/types/preciousdays/character';
 
 import WeightSection from './WeightSection';
 
-const ITEM_CATEGORY_OPTIONS = ['道具', '消耗品', '魔道具', '材料', 'その他'];
+const ITEM_CATEGORY_OPTIONS = ['道具', '消耗品'];
 
 const ItemRow = memo(
   ({
