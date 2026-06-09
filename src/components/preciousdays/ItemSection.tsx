@@ -70,9 +70,7 @@ const ItemRow = memo(
           </div>
           <div className={tableStyles.flexColumn}>
             <div className={tableStyles.itemViewGrid} style={{ alignItems: 'center' }}>
-              <div className={tableStyles.cell} style={{ justifyContent: 'flex-start' }}>
-                {item.name}
-              </div>
+              <div className={tableStyles.cell}>{item.name}</div>
               <div className={tableStyles.cell}>{item.weight}</div>
               <div className={tableStyles.cell}>{item.quantity}</div>
             </div>
@@ -82,6 +80,7 @@ const ItemRow = memo(
                   <div
                     className={tableStyles.textContent}
                     style={{
+                      paddingLeft: '12px',
                       maxHeight: autoResize ? undefined : '4.5em',
                       overflowY: autoResize ? undefined : 'auto',
                     }}
