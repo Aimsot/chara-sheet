@@ -18,7 +18,6 @@ const ItemRow = memo(
     autoResize,
     onUpdate,
     onRemove,
-    style, // 親から既存のグリッドスタイルを受け取る
   }: {
     item: Item;
     index: number;
@@ -26,7 +25,6 @@ const ItemRow = memo(
     autoResize?: boolean;
     onUpdate: (index: number, field: keyof Item, value: any) => void;
     onRemove: (index: number) => void;
-    style: React.CSSProperties;
   }) => {
     // --- テキスト入力の高速化 (State Mirroringパターン) ---
     const [prevName, setPrevName] = useState(item.name);
@@ -90,18 +88,10 @@ const ItemRow = memo(
       const showSub = !!item.notes || !!item.page;
       const pageText = item.page ? (/^\d+$/.test(item.page) ? `p.${item.page}` : item.page) : '';
       return (
-        <div
-          className={tableStyles.row}
-          style={{ display: 'block', borderBottom: '1px solid var(--card-border)' }}
-        >
+        <div className={`${tableStyles.row} ${tableStyles.blockRow}`}>
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'minmax(0,200px) 80px 80px',
-              gap: '12px',
-              alignItems: 'center',
-              padding: '8px 0',
-            }}
+            className={tableStyles.itemViewGrid}
+            style={{ alignItems: 'center', padding: '8px 0' }}
           >
             <div className={tableStyles.cell} style={{ paddingLeft: '6px' }}>
               {item.name}
@@ -110,24 +100,12 @@ const ItemRow = memo(
             <div className={tableStyles.cell}>{item.quantity}</div>
           </div>
           {showSub && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '12px',
-                padding: '3px 8px 5px',
-                borderTop: '1px solid rgba(255,255,255,0.06)',
-                fontSize: '0.75rem',
-              }}
-            >
+            <div className={tableStyles.subRow}>
               {item.notes && (
                 <div
+                  className={tableStyles.textContent}
                   style={{
-                    flex: 1,
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                    lineHeight: 1.6,
-                    color: '#fff',
+                    paddingLeft: '12px',
                     maxHeight: autoResize ? undefined : '4.5em',
                     overflowY: autoResize ? undefined : 'auto',
                   }}
@@ -135,18 +113,7 @@ const ItemRow = memo(
                   {item.notes}
                 </div>
               )}
-              {item.page && (
-                <div
-                  style={{
-                    flexShrink: 0,
-                    fontSize: '0.7rem',
-                    color: 'var(--text-secondary)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {pageText}
-                </div>
-              )}
+              {item.page && <div className={tableStyles.pageRef}>{pageText}</div>}
             </div>
           )}
         </div>
@@ -156,13 +123,8 @@ const ItemRow = memo(
     // 編集モード
     return (
       <div
-        className={tableStyles.row}
-        style={{
-          ...style,
-          alignItems: 'center',
-          paddingTop: '8px',
-          paddingBottom: '8px',
-        }}
+        className={`${tableStyles.row} ${tableStyles.itemEditGrid}`}
+        style={{ alignItems: 'center', paddingTop: '8px', paddingBottom: '8px' }}
       >
         {/* アイテム名 */}
         <div className={tableStyles.cell} style={{ paddingLeft: '6px', paddingRight: '6px' }}>
@@ -276,19 +238,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
       return items.reduce((sum, item) => sum + item.weight * item.quantity, 0);
     }, [items]);
 
-    const itemEditGridStyle = {
-      display: 'grid',
-      gridTemplateColumns: 'minmax(0, 200px) 80px 80px 2fr 60px 50px',
-      gap: '12px',
-      minWidth: '660px',
-    };
-    const itemViewGridStyle = {
-      display: 'grid',
-      gridTemplateColumns: 'minmax(0, 200px) 80px 80px',
-      gap: '12px',
-      minWidth: '360px',
-    };
-    const itemGridStyle = isReadOnly ? itemViewGridStyle : itemEditGridStyle;
+    const itemGridClass = isReadOnly ? tableStyles.itemViewGrid : tableStyles.itemEditGrid;
 
     return (
       <section className={cardStyles.base}>
@@ -312,9 +262,10 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
             />
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
+              style={isReadOnly ? undefined : { minWidth: '660px' }}
             >
               {/* ヘッダー */}
-              <div className={tableStyles.headerRow} style={itemGridStyle}>
+              <div className={`${tableStyles.headerRow} ${itemGridClass}`}>
                 <div className={tableStyles.labelCell}>アイテム名</div>
                 <div className={tableStyles.cell}>重量</div>
                 <div className={tableStyles.cell}>個数</div>
@@ -325,10 +276,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
 
               {/* アイテムリスト (ItemRowを使用) */}
               {items.length === 0 ? (
-                <div
-                  className={tableStyles.row}
-                  style={{ justifyContent: 'center', padding: '16px' }}
-                >
+                <div className={`${tableStyles.row} ${tableStyles.emptyRow}`}>
                   <span style={{ color: 'var(--text-muted)' }}>アイテムがありません</span>
                 </div>
               ) : (
@@ -341,21 +289,12 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                     key={item.id}
                     onRemove={handleItemsRemove}
                     onUpdate={handleItemsUpdate}
-                    style={itemEditGridStyle}
                   />
                 ))
               )}
 
               {/* 合計行 */}
-              <div
-                className={tableStyles.row}
-                style={{
-                  ...itemGridStyle,
-                  backgroundColor: 'var(--accent-dark)',
-                  fontWeight: 'bold',
-                  color: '#fff',
-                }}
-              >
+              <div className={`${tableStyles.row} ${itemGridClass} ${tableStyles.totalRow}`}>
                 <div
                   className={tableStyles.labelCell}
                   style={{ color: '#fff', textAlign: 'right', paddingRight: '1rem' }}
@@ -372,13 +311,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
           </div>
 
           {!isReadOnly && (
-            <div
-              style={{
-                padding: '24px 8px 8px',
-                display: 'flex',
-                justifyContent: 'center',
-              }}
-            >
+            <div className={tableStyles.buttonContainer}>
               <button
                 className={btnStyles.outline}
                 onClick={handleItemsAdd}

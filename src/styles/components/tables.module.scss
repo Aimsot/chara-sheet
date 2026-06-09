@@ -167,6 +167,10 @@
 .zebraTable {
   .row:nth-child(odd):not(:first-child) {
     background-color: rgba(255, 255, 255, 0.04);
+    &:hover {
+      background-color: color-mix(in srgb, var(--accent-color), transparent 88%);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
   }
   /* readonly の固定背景色をリセットして zebra が見えるようにする */
   .readonly {
@@ -186,4 +190,190 @@
       opacity: 0.6;
     }
   }
+}
+
+/* ============================================================
+   Utility: 共通パターン
+   ============================================================ */
+
+/* ブロック表示の行（2段構成の編集行外枠） */
+.blockRow {
+  display: block;
+}
+
+/* 合計行（アクセントカラー・太字・白文字） */
+.totalRow {
+  font-weight: bold;
+  color: #fff;
+  background-color: var(--accent-dark);
+}
+
+/* 編集可能行の背景色 */
+.editableRow {
+  background-color: color-mix(in srgb, var(--accent-color), transparent 92%);
+}
+
+/* セクション区切り行 */
+.sectionDivider {
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+  background-color: rgba(0, 0, 0, 0.35);
+  border-top: 2px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border);
+}
+
+/* サブ行コンテナ（効果・備考などの2行目） */
+.subRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 4px 8px 6px;
+  font-size: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* テキスト表示コンテンツ（効果・備考の本文） */
+.textContent {
+  flex: 1;
+  line-height: 1.6;
+  color: #fff;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* ページ参照（p.XXX 等の小さいテキスト） */
+.pageRef {
+  flex-shrink: 0;
+  padding-right: 6px;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* フィールドラベル（効果・ページ等の入力横ラベル） */
+.fieldLabel {
+  flex-shrink: 0;
+  padding-top: 6px;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* 左ボーダー付きセル（MemorySection 列区切り） */
+.cellBorderLeft {
+  border-left: 1px solid var(--card-border);
+}
+
+/* 追加ボタンのコンテナ */
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  padding: 24px 8px 8px;
+}
+
+/* 空の状態の行 */
+.emptyRow {
+  justify-content: center;
+  padding: 16px;
+}
+
+/* ============================================================
+   Section-specific grid templates
+   ============================================================ */
+
+/* 能力値グリッド（ラベル140px + 6列） */
+.abilityGrid {
+  grid-template-columns: 140px repeat(6, 1fr);
+}
+
+/* 戦闘値グリッド（ラベル160px + 4列） */
+.combatGrid {
+  grid-template-columns: 160px 1fr 1fr 1fr 1fr;
+}
+
+/* 特殊判定グリッド（ラベル160px + 3列） */
+.specialGrid {
+  grid-template-columns: 160px 1fr 1fr 1fr;
+}
+
+/* ダメージグリッド（ラベル160px + 1列） */
+.damageGrid {
+  grid-template-columns: 160px 1fr;
+}
+
+/* 装備品: 効果・ページのサブ行グリッド */
+.equipSubRow {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  column-gap: 12px;
+  padding: 3px 8px 5px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================================
+   Section-specific grid templates (items)
+   ============================================================ */
+
+/* スキル表（閲覧） */
+.skillReadonlyGrid {
+  grid-template-columns: 0.7fr minmax(0, 200px) 40px 1.3fr 1fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  min-width: 760px;
+}
+
+/* スキル表（編集）の内側グリッド */
+.skillEditGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) 70px 1.3fr 1fr 1fr 1fr 1fr 1fr 36px;
+  align-items: center;
+  min-width: 760px;
+  min-height: 36px;
+}
+
+/* 装備品: ヘッダー / 合計行 */
+.equipHeaderGrid {
+  grid-template-columns: 80px minmax(0, 200px) 110px 110px 70px 100px 110px 110px 1fr;
+  column-gap: 12px;
+  min-width: 1000px;
+}
+
+/* 装備品: メイン行の内側グリッド（部位列を除く） */
+.equipInnerGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) 110px 110px 70px 100px 110px 110px 1fr;
+  column-gap: 12px;
+  align-items: center;
+  min-height: 36px;
+  padding: 4px 0;
+}
+
+/* 所持品（編集） */
+.itemEditGrid {
+  grid-template-columns: minmax(0, 200px) 80px 80px 2fr 60px 50px;
+  gap: 12px;
+  min-width: 660px;
+}
+
+/* 所持品（閲覧） */
+.itemViewGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) 80px 80px;
+  gap: 12px;
+  min-width: 360px;
+}
+
+/* メモリー（編集） */
+.memoryEditGrid {
+  grid-template-columns: 200px 1fr 48px 1fr 32px;
+  min-width: 500px;
+}
+
+/* メモリー（閲覧） */
+.memoryViewGrid {
+  grid-template-columns: 200px 1fr 48px 1fr;
+  min-width: 500px;
 }

@@ -50,33 +50,23 @@ const MAIN_COLS: { field: keyof Skill; label: string }[] = [
   { field: 'critical', label: 'クリティカル' },
 ];
 
-const LABEL_ST: React.CSSProperties = {
-  fontSize: '0.75rem',
-  color: 'var(--text-secondary)',
-  whiteSpace: 'nowrap',
-  flexShrink: 0,
-};
-
 // ============================================================
 // 閲覧用: 1行 + ホバー時に効果サブ行
 // ============================================================
 const SkillReadonlyRow = memo(
-  ({ skill, rowIndex, autoResize }: { skill: Skill; rowIndex: number; autoResize?: boolean }) => {
+  ({
+    skill,
+    rowIndex: _rowIndex,
+    autoResize,
+  }: {
+    skill: Skill;
+    rowIndex: number;
+    autoResize?: boolean;
+  }) => {
     const hasEffect = !!skill.effect;
 
-    const zebraBase = rowIndex % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'transparent';
-
-    const outerStyle: React.CSSProperties = {
-      display: 'grid',
-      gridTemplateColumns: '0.7fr minmax(0, 200px) 40px 1.3fr 1fr 1fr 1fr 1fr 1fr',
-      alignItems: 'center',
-      minWidth: '760px',
-      borderBottom: '1px solid var(--card-border)',
-      backgroundColor: zebraBase,
-    };
-
     return (
-      <div style={outerStyle}>
+      <div className={`${tableStyles.row} ${tableStyles.skillReadonlyGrid}`}>
         {/* 分類: 効果表示時は2行分スパン */}
         <div
           className={tableStyles.cell}
@@ -115,7 +105,7 @@ const SkillReadonlyRow = memo(
           {skill.level}
         </div>
 
-        {/* タイミング〜コスト */}
+        {/* タイミング〜クリティカル */}
         {MAIN_COLS.map(({ field }, i) => (
           <div
             className={tableStyles.cell}
@@ -144,25 +134,11 @@ const SkillReadonlyRow = memo(
 
         {/* 効果+ページ: 分類列を除く全列にまたがる */}
         {hasEffect && (
-          <div
-            style={{
-              gridColumn: '2 / -1',
-              gridRow: '2',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-              padding: '4px 8px 6px',
-              borderTop: '1px solid rgba(255,255,255,0.06)',
-              fontSize: '0.75rem',
-            }}
-          >
+          <div className={tableStyles.subRow} style={{ gridColumn: '2 / -1', gridRow: '2' }}>
             <div
+              className={tableStyles.textContent}
               style={{
-                flex: 1,
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                lineHeight: 1.6,
-                color: '#fff',
+                paddingLeft: '12px',
                 maxHeight: autoResize ? undefined : '4.5em',
                 overflowY: autoResize ? undefined : 'auto',
               }}
@@ -170,14 +146,7 @@ const SkillReadonlyRow = memo(
               {skill.effect}
             </div>
             {skill.page && (
-              <div
-                style={{
-                  flexShrink: 0,
-                  fontSize: '0.7rem',
-                  color: 'var(--text-secondary)',
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <div className={tableStyles.pageRef}>
                 {/^\d+$/.test(skill.page) ? `p.${skill.page}` : skill.page}
               </div>
             )}
@@ -228,26 +197,10 @@ const SkillEditRow = memo(
       setLocalPage(skill.page ?? '');
     }
 
-    const mainGridStyle: React.CSSProperties = {
-      display: 'grid',
-      gridTemplateColumns: 'minmax(0, 200px) 70px 1.3fr 1fr 1fr 1fr 1fr 1fr 36px',
-      alignItems: 'center',
-      minHeight: '36px',
-      minWidth: '760px',
-    };
-
-    const zebraBase = index % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'transparent';
-
     return (
-      <div
-        style={{
-          backgroundColor: zebraBase,
-          borderBottom: '1px solid var(--card-border)',
-          minWidth: '760px',
-        }}
-      >
+      <div className={`${tableStyles.row} ${tableStyles.blockRow}`}>
         {/* メイン行 */}
-        <div style={mainGridStyle}>
+        <div className={tableStyles.skillEditGrid}>
           {/* スキル名 */}
           <div
             className={tableStyles.cell}
@@ -361,18 +314,9 @@ const SkillEditRow = memo(
         </div>
 
         {/* 2行目: 分類 + 効果 + ページ */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '8px',
-            padding: '4px 8px 6px',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            minWidth: '760px',
-          }}
-        >
+        <div className={tableStyles.subRow} style={{ gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-            <span style={LABEL_ST}>分類</span>
+            <span className={tableStyles.fieldLabel}>分類</span>
             <div style={{ width: '100px' }}>
               <ComboBox
                 className={formStyles.input}
@@ -386,7 +330,7 @@ const SkillEditRow = memo(
           </div>
 
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', flex: 1 }}>
-            <span style={{ ...LABEL_ST, paddingTop: '5px' }}>効果</span>
+            <span className={tableStyles.fieldLabel}>効果</span>
             <AutoResizeTextarea
               autoResize={autoResize}
               className={formStyles.textareaTable}
@@ -401,7 +345,7 @@ const SkillEditRow = memo(
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-            <span style={LABEL_ST}>ページ</span>
+            <span className={tableStyles.fieldLabel}>ページ</span>
             <div style={{ width: '60px' }}>
               <input
                 className={formStyles.input}
@@ -439,18 +383,6 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
   ({ skills, isReadOnly, autoResize, handleSkillsAdd, handleSkillsRemove, handleSkillsUpdate }) => {
     const [isOpen, setIsOpen] = useState(true);
 
-    const readonlyHeaderStyle: React.CSSProperties = {
-      display: 'grid',
-      gridTemplateColumns: '0.7fr minmax(0, 200px) 40px 1.3fr 1fr 1fr 1fr 1fr 1fr',
-      minWidth: '760px',
-    };
-
-    const editHeaderStyle: React.CSSProperties = {
-      display: 'grid',
-      gridTemplateColumns: 'minmax(0, 200px) 70px 1.3fr 1fr 1fr 1fr 1fr 1fr 36px',
-      minWidth: '760px',
-    };
-
     return (
       <section className={cardStyles.base}>
         <div
@@ -465,10 +397,13 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
           <div className={tableStyles.scrollContainer}>
-            <div className={`${tableStyles.gridTable} ${tableStyles.denseTable}`}>
+            <div
+              className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
+              style={{ minWidth: '760px' }}
+            >
               {/* ヘッダー行 */}
               {isReadOnly ? (
-                <div className={tableStyles.headerRow} style={readonlyHeaderStyle}>
+                <div className={`${tableStyles.headerRow} ${tableStyles.skillReadonlyGrid}`}>
                   <div className={tableStyles.labelCell}>分類</div>
                   <div className={tableStyles.cell}>スキル名</div>
                   <div className={tableStyles.cell}>GL</div>
@@ -479,7 +414,7 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
                   ))}
                 </div>
               ) : (
-                <div className={tableStyles.headerRow} style={editHeaderStyle}>
+                <div className={`${tableStyles.headerRow} ${tableStyles.skillEditGrid}`}>
                   <div className={tableStyles.labelCell}>スキル名</div>
                   <div className={tableStyles.cell}>GL</div>
                   {MAIN_COLS.map(({ label }) => (
@@ -493,10 +428,7 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
 
               {/* スキル行 */}
               {skills.length === 0 ? (
-                <div
-                  className={tableStyles.row}
-                  style={{ justifyContent: 'center', padding: '16px' }}
-                >
+                <div className={`${tableStyles.row} ${tableStyles.emptyRow}`}>
                   <span style={{ color: 'var(--text-muted)' }}>スキルがありません</span>
                 </div>
               ) : isReadOnly ? (
@@ -524,7 +456,7 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
           </div>
 
           {!isReadOnly && (
-            <div style={{ padding: '24px 8px 8px', display: 'flex', justifyContent: 'center' }}>
+            <div className={tableStyles.buttonContainer}>
               <button
                 className={btnStyles.outline}
                 onClick={handleSkillsAdd}

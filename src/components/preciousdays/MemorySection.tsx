@@ -7,13 +7,6 @@ import formStyles from '@/styles/components/forms.module.scss';
 import tableStyles from '@/styles/components/tables.module.scss';
 import { Character, Memory } from '@/types/preciousdays/character';
 
-const getGridStyle = (isReadOnly?: boolean): React.CSSProperties => ({
-  display: 'grid',
-  gridTemplateColumns: isReadOnly ? '200px 1fr 48px 1fr' : '200px 1fr 48px 1fr 32px',
-  gap: '0',
-  minWidth: '500px',
-});
-
 const MemoryRow = memo(
   ({
     memory,
@@ -55,12 +48,10 @@ const MemoryRow = memo(
 
     const handleRemove = useCallback(() => onRemove(index), [index, onRemove]);
 
-    const gridStyle = getGridStyle(isReadOnly);
-
     return (
       <div
-        className={tableStyles.row}
-        style={{ ...gridStyle, alignItems: 'center', minHeight: '40px' }}
+        className={`${tableStyles.row} ${isReadOnly ? tableStyles.memoryViewGrid : tableStyles.memoryEditGrid}`}
+        style={{ alignItems: 'center', minHeight: '40px' }}
       >
         {/* 日付 */}
         <div
@@ -221,7 +212,9 @@ export const MemorySection: React.FC<MemorySectionProps> = memo(
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
             >
               {/* ヘッダー */}
-              <div className={tableStyles.headerRow} style={getGridStyle(isReadOnly)}>
+              <div
+                className={`${tableStyles.headerRow} ${isReadOnly ? tableStyles.memoryViewGrid : tableStyles.memoryEditGrid}`}
+              >
                 <div className={tableStyles.cell}>日付</div>
                 <div className={tableStyles.cell}>メモリー</div>
                 <div className={tableStyles.cell}>昇華</div>
