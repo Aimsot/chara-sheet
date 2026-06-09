@@ -59,60 +59,40 @@ const ItemRow = memo(
     );
     const handleRemove = useCallback(() => onRemove(index), [index, onRemove]);
 
-    // 閲覧モード: 種別を左端ラベル列として表示（スキル閲覧行と同じ2行グリッドパターン）
+    // 閲覧モード: 装備品と同じ外枠+内側グリッドパターン
     if (isReadOnly) {
       const showSub = !!item.notes || !!item.page;
       const pageText = item.page ? (/^\d+$/.test(item.page) ? `p.${item.page}` : item.page) : '';
       return (
-        <div className={`${tableStyles.row} ${tableStyles.itemViewGrid}`}>
-          {/* 種別: サブ行がある場合は2行スパン */}
-          <div
-            className={tableStyles.labelCell}
-            style={{ gridColumn: '1', gridRow: showSub ? '1 / 3' : '1', alignSelf: 'stretch' }}
-          >
+        <div className={`${tableStyles.row} ${tableStyles.itemRowGrid}`}>
+          <div className={tableStyles.labelCell} style={{ alignSelf: 'stretch' }}>
             {item.category ?? ''}
           </div>
-          <div
-            className={tableStyles.cell}
-            style={{
-              gridColumn: '2',
-              gridRow: '1',
-              justifyContent: 'flex-start',
-              paddingLeft: '6px',
-              minHeight: '32px',
-            }}
-          >
-            {item.name}
-          </div>
-          <div
-            className={tableStyles.cell}
-            style={{ gridColumn: '3', gridRow: '1', minHeight: '32px' }}
-          >
-            {item.weight}
-          </div>
-          <div
-            className={tableStyles.cell}
-            style={{ gridColumn: '4', gridRow: '1', minHeight: '32px' }}
-          >
-            {item.quantity}
-          </div>
-          {showSub && (
-            <div className={tableStyles.subRow} style={{ gridColumn: '2 / -1', gridRow: '2' }}>
-              {item.notes && (
-                <div
-                  className={tableStyles.textContent}
-                  style={{
-                    paddingLeft: '12px',
-                    maxHeight: autoResize ? undefined : '4.5em',
-                    overflowY: autoResize ? undefined : 'auto',
-                  }}
-                >
-                  {item.notes}
-                </div>
-              )}
-              {item.page && <div className={tableStyles.pageRef}>{pageText}</div>}
+          <div className={tableStyles.flexColumn}>
+            <div className={tableStyles.itemViewGrid} style={{ alignItems: 'center' }}>
+              <div className={tableStyles.cell} style={{ justifyContent: 'flex-start' }}>
+                {item.name}
+              </div>
+              <div className={tableStyles.cell}>{item.weight}</div>
+              <div className={tableStyles.cell}>{item.quantity}</div>
             </div>
-          )}
+            {showSub && (
+              <div className={tableStyles.subRow} style={{ paddingLeft: '12px' }}>
+                {item.notes && (
+                  <div
+                    className={tableStyles.textContent}
+                    style={{
+                      maxHeight: autoResize ? undefined : '4.5em',
+                      overflowY: autoResize ? undefined : 'auto',
+                    }}
+                  >
+                    {item.notes}
+                  </div>
+                )}
+                {item.page && <div className={tableStyles.pageRef}>{pageText}</div>}
+              </div>
+            )}
+          </div>
         </div>
       );
     }
@@ -255,8 +235,6 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
       [items]
     );
 
-    const itemGridClass = isReadOnly ? tableStyles.itemViewGrid : tableStyles.itemEditGrid;
-
     return (
       <section className={cardStyles.base}>
         <div
@@ -282,15 +260,24 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
               style={isReadOnly ? undefined : { minWidth: '760px' }}
             >
               {/* ヘッダー */}
-              <div className={`${tableStyles.headerRow} ${itemGridClass}`}>
-                <div className={tableStyles.labelCell}>種別</div>
-                <div className={tableStyles.cell}>アイテム名</div>
-                <div className={tableStyles.cell}>重量</div>
-                <div className={tableStyles.cell}>個数</div>
-                {!isReadOnly && <div className={tableStyles.cell}>効果</div>}
-                {!isReadOnly && <div className={tableStyles.cell}>ページ</div>}
-                {!isReadOnly && <div className={tableStyles.cell}>削除</div>}
-              </div>
+              {isReadOnly ? (
+                <div className={`${tableStyles.headerRow} ${tableStyles.itemViewHeaderGrid}`}>
+                  <div className={tableStyles.labelCell}>種別</div>
+                  <div className={tableStyles.cell}>アイテム名</div>
+                  <div className={tableStyles.cell}>重量</div>
+                  <div className={tableStyles.cell}>個数</div>
+                </div>
+              ) : (
+                <div className={`${tableStyles.headerRow} ${tableStyles.itemEditGrid}`}>
+                  <div className={tableStyles.labelCell}>種別</div>
+                  <div className={tableStyles.cell}>アイテム名</div>
+                  <div className={tableStyles.cell}>重量</div>
+                  <div className={tableStyles.cell}>個数</div>
+                  <div className={tableStyles.cell}>効果</div>
+                  <div className={tableStyles.cell}>ページ</div>
+                  <div className={tableStyles.cell}>削除</div>
+                </div>
+              )}
 
               {items.length === 0 ? (
                 <div className={`${tableStyles.row} ${tableStyles.emptyRow}`}>
@@ -311,15 +298,28 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
               )}
 
               {/* 合計行 */}
-              <div className={`${tableStyles.row} ${itemGridClass} ${tableStyles.totalRow}`}>
-                <div className={tableStyles.labelCell}>合計</div>
-                <div className={tableStyles.cell}></div>
-                <div className={tableStyles.cell}>{totalItemWeight}</div>
-                <div className={tableStyles.cell}></div>
-                {!isReadOnly && <div className={tableStyles.cell}></div>}
-                {!isReadOnly && <div className={tableStyles.cell}></div>}
-                {!isReadOnly && <div className={tableStyles.cell}></div>}
-              </div>
+              {isReadOnly ? (
+                <div
+                  className={`${tableStyles.row} ${tableStyles.itemViewHeaderGrid} ${tableStyles.totalRow}`}
+                >
+                  <div className={tableStyles.labelCell}>合計</div>
+                  <div className={tableStyles.cell}></div>
+                  <div className={tableStyles.cell}>{totalItemWeight}</div>
+                  <div className={tableStyles.cell}></div>
+                </div>
+              ) : (
+                <div
+                  className={`${tableStyles.row} ${tableStyles.itemEditGrid} ${tableStyles.totalRow}`}
+                >
+                  <div className={tableStyles.labelCell}>合計</div>
+                  <div className={tableStyles.cell}></div>
+                  <div className={tableStyles.cell}>{totalItemWeight}</div>
+                  <div className={tableStyles.cell}></div>
+                  <div className={tableStyles.cell}></div>
+                  <div className={tableStyles.cell}></div>
+                  <div className={tableStyles.cell}></div>
+                </div>
+              )}
             </div>
           </div>
 

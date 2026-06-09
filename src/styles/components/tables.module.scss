@@ -459,11 +459,24 @@ $col-gap: 12px;
   padding: 4px 0 4px $col-gap;
 }
 
-/* 所持品（閲覧） */
-.itemViewGrid {
+/* 所持品（閲覧）：外枠・行モディファイア */
+.itemRowGrid {
+  grid-template-columns: $lbl-equip 1fr;
+}
+
+/* 所持品（閲覧）：ヘッダー・合計行フラットグリッド */
+.itemViewHeaderGrid {
   grid-template-columns: $lbl-equip minmax(0, $col-name) 80px 80px;
   column-gap: $col-gap;
   min-width: 400px;
+}
+
+/* 所持品（閲覧）：内側グリッド（種別列を除く） */
+.itemViewGrid {
+  display: grid;
+  grid-template-columns: minmax(0, $col-name) 80px 80px;
+  column-gap: $col-gap;
+  padding: 4px 0 4px $col-gap;
 }
 
 /* 装備品：効果・ページのサブ行グリッド */
