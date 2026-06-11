@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { AbilitySection } from '@/components/preciousdays/AbilitySection';
 import { AppearanceSection } from '@/components/preciousdays/AppearanceSection';
 import { CombatSection } from '@/components/preciousdays/CombatSection';
+import EnchantmentSection from '@/components/preciousdays/EnchantmentSection';
 import EquipmentSection from '@/components/preciousdays/EquipmentSection';
 import GrowthTableSection from '@/components/preciousdays/GrowthTableSection';
 import { ItemSection } from '@/components/preciousdays/ItemSection';
@@ -17,11 +18,12 @@ import { NoteSection } from '@/components/preciousdays/NoteSection';
 import { ProfileSection } from '@/components/preciousdays/ProfileSection';
 import { SidebarSection } from '@/components/preciousdays/SidebarSection';
 import { SkillSection } from '@/components/preciousdays/SkillSection';
+import WeightSection from '@/components/preciousdays/WeightSection';
 import Loading from '@/components/ui/Loading';
 import btnStyles from '@/styles/components/buttons.module.scss';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
-import { Character, Item, Memory, Skill } from '@/types/preciousdays/character';
+import { Character, Enchantment, Item, Memory, Skill } from '@/types/preciousdays/character';
 import { buildCcfoliaCharacter } from '@/utils/preciousdays/buildCcfoliaCharacter';
 
 import { ActionButton } from '../ui/ActionButton';
@@ -61,6 +63,9 @@ interface EditActions {
   handleMemoriesAdd: () => void;
   handleMemoriesRemove: (index: number) => void;
   handleMemoriesUpdate: (index: number, field: keyof Memory, value: any) => void;
+  handleEnchantmentsAdd: () => void;
+  handleEnchantmentsRemove: (index: number) => void;
+  handleEnchantmentsUpdate: (index: number, field: keyof Enchantment, value: any) => void;
   handleCombatModifierChange: (
     target: 'combatValues' | 'specialChecks',
     key: string,
@@ -103,6 +108,9 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
     handleMemoriesAdd = () => {},
     handleMemoriesRemove = () => {},
     handleMemoriesUpdate = () => {},
+    handleEnchantmentsAdd = () => {},
+    handleEnchantmentsRemove = () => {},
+    handleEnchantmentsUpdate = () => {},
     handleCombatModifierChange = () => {},
     handleEquipmentUpdate = () => {},
     handleResourceUpdate = () => {},
@@ -350,18 +358,6 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               specialChecks={char.specialChecks}
               style={char.style}
             />
-
-            <ItemSection
-              abilities={char.abilities}
-              autoResize={autoResize}
-              equipment={char.equipment}
-              handleItemsAdd={handleItemsAdd}
-              handleItemsRemove={handleItemsRemove}
-              handleItemsUpdate={handleItemsUpdate}
-              isReadOnly={isReadOnly}
-              items={char.items}
-              species={char.species}
-            />
           </div>
 
           <SidebarSection
@@ -393,6 +389,32 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               isReadOnly={isReadOnly}
               items={char.items}
               species={char.species}
+            />
+            <ItemSection
+              autoResize={autoResize}
+              handleItemsAdd={handleItemsAdd}
+              handleItemsRemove={handleItemsRemove}
+              handleItemsUpdate={handleItemsUpdate}
+              isReadOnly={isReadOnly}
+              items={char.items}
+            />
+            <WeightSection
+              abilities={char.abilities}
+              equipment={char.equipment}
+              items={char.items}
+              species={char.species}
+            />
+            <EnchantmentSection
+              autoResize={autoResize}
+              enchantments={
+                char.enchantments?.length
+                  ? char.enchantments
+                  : [{ id: 'e1', name: '', gl: 0, effect: '' }]
+              }
+              handleEnchantmentsAdd={handleEnchantmentsAdd}
+              handleEnchantmentsRemove={handleEnchantmentsRemove}
+              handleEnchantmentsUpdate={handleEnchantmentsUpdate}
+              isReadOnly={isReadOnly}
             />
             <SkillSection
               autoResize={autoResize}

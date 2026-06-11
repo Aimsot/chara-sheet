@@ -198,7 +198,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
                 </div>
               </div>
               <div className={tableStyles.row} style={summaryGridStyle}>
-                <div className={tableStyles.labelCell}>道具</div>
+                <div className={tableStyles.labelCell}>アイテム</div>
                 <div className={tableStyles.cell}>1</div>
                 <div className={tableStyles.cell}>{totalItemsFromMilestones}</div>
                 <div className={tableStyles.cell}>0~{glLevel}</div>

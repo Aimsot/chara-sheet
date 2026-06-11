@@ -8,8 +8,6 @@ import formStyles from '@/styles/components/forms.module.scss';
 import tableStyles from '@/styles/components/tables.module.scss';
 import { Character, Item } from '@/types/preciousdays/character';
 
-import WeightSection from './WeightSection';
-
 const ITEM_CATEGORY_OPTIONS = ['道具', '消耗品'];
 
 const ItemRow = memo(
@@ -49,6 +47,10 @@ const ItemRow = memo(
       setLocalPage(item.page || '');
     }
 
+    const handleGLChange = useCallback(
+      (val: number) => onUpdate(index, 'gl', val),
+      [index, onUpdate]
+    );
     const handleWeightChange = useCallback(
       (val: number) => onUpdate(index, 'weight', val),
       [index, onUpdate]
@@ -71,6 +73,7 @@ const ItemRow = memo(
           <div className={tableStyles.flexColumn}>
             <div className={tableStyles.itemViewGrid} style={{ alignItems: 'center' }}>
               <div className={tableStyles.cell}>{item.name}</div>
+              <div className={tableStyles.cell}>{item.gl ?? '—'}</div>
               <div className={tableStyles.cell}>{item.weight}</div>
               <div className={tableStyles.cell}>{item.quantity}</div>
             </div>
@@ -127,6 +130,19 @@ const ItemRow = memo(
             type='text'
             value={localName}
           />
+        </div>
+
+        {/* GL */}
+        <div className={tableStyles.cell}>
+          <div className={formStyles.stepperSmall}>
+            <button onClick={() => handleGLChange((item.gl ?? 0) - 1)} type='button'>
+              -
+            </button>
+            <NumberInput onChange={handleGLChange} value={item.gl ?? 0} />
+            <button onClick={() => handleGLChange((item.gl ?? 0) + 1)} type='button'>
+              +
+            </button>
+          </div>
         </div>
 
         {/* 重量 */}
@@ -205,9 +221,6 @@ ItemRow.displayName = 'ItemRow';
 
 interface ItemSectionProps {
   items: Character['items'];
-  equipment: Character['equipment'];
-  abilities: Character['abilities'];
-  species: string;
   isReadOnly?: boolean;
   autoResize?: boolean;
   handleItemsAdd: () => void;
@@ -216,17 +229,7 @@ interface ItemSectionProps {
 }
 
 export const ItemSection: React.FC<ItemSectionProps> = memo(
-  ({
-    items,
-    equipment,
-    abilities,
-    species,
-    isReadOnly,
-    autoResize,
-    handleItemsAdd,
-    handleItemsRemove,
-    handleItemsUpdate,
-  }) => {
+  ({ items, isReadOnly, autoResize, handleItemsAdd, handleItemsRemove, handleItemsUpdate }) => {
     const [isOpen, setIsOpen] = useState(true);
 
     const totalItemWeight = useMemo(
@@ -240,7 +243,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
           className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
         >
-          <h2 className={cardStyles.title}>所持品</h2>
+          <h2 className={cardStyles.title}>道具・消耗品</h2>
           {!isReadOnly && (
             <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
           )}
@@ -248,12 +251,6 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
           <div className={tableStyles.scrollContainer}>
-            <WeightSection
-              abilities={abilities}
-              equipment={equipment}
-              items={items}
-              species={species}
-            />
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
               style={isReadOnly ? undefined : { minWidth: '760px' }}
@@ -263,6 +260,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                 <div className={`${tableStyles.headerRow} ${tableStyles.itemViewHeaderGrid}`}>
                   <div className={tableStyles.labelCell}>種別</div>
                   <div className={tableStyles.cell}>アイテム名</div>
+                  <div className={tableStyles.cell}>GL</div>
                   <div className={tableStyles.cell}>重量</div>
                   <div className={tableStyles.cell}>個数</div>
                 </div>
@@ -270,6 +268,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                 <div className={`${tableStyles.headerRow} ${tableStyles.itemEditGrid}`}>
                   <div className={tableStyles.labelCell}>種別</div>
                   <div className={tableStyles.cell}>アイテム名</div>
+                  <div className={tableStyles.cell}>GL</div>
                   <div className={tableStyles.cell}>重量</div>
                   <div className={tableStyles.cell}>個数</div>
                   <div className={tableStyles.cell}>効果</div>
@@ -303,6 +302,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                 >
                   <div className={tableStyles.labelCell}>小計</div>
                   <div className={tableStyles.cell}></div>
+                  <div className={tableStyles.cell}></div>
                   <div className={tableStyles.cell}>{totalItemWeight}</div>
                   <div className={tableStyles.cell}></div>
                 </div>
@@ -311,6 +311,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                   className={`${tableStyles.row} ${tableStyles.itemEditGrid} ${tableStyles.totalRow}`}
                 >
                   <div className={tableStyles.labelCell}>小計</div>
+                  <div className={tableStyles.cell}></div>
                   <div className={tableStyles.cell}></div>
                   <div className={tableStyles.cell}>{totalItemWeight}</div>
                   <div className={tableStyles.cell}></div>

@@ -86,6 +86,7 @@ export const INITIAL_CHARACTER: Character = {
     guardian: { ...EMPTY_EQUIPMENT },
   },
   items: [{ id: 'i1', name: '', weight: 1, quantity: 1, notes: '' }],
+  enchantments: [{ id: 'e1', name: '', gl: 0, effect: '' }],
   skills: [
     {
       id: 's1',

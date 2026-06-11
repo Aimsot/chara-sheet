@@ -76,6 +76,9 @@ export interface Character {
   // ---  携帯品 ---
   items: Item[];
 
+  // --- 付与魔術 ---
+  enchantments?: Enchantment[];
+
   // --- メモ ---
   note?: string;
   secretNote?: string;
@@ -151,12 +154,21 @@ export interface Memory {
 export interface Item {
   id: string;
   name: string;
+  gl?: number; // 必要GL
   weight: number;
   quantity: number; // 個数
   notes: string;
   page?: string; // ページ数
   category?: string; // 種別
   isEquipped?: boolean; // チェックボックス用（もし必要なら）
+}
+
+// 付与魔術
+export interface Enchantment {
+  id: string;
+  name: string;
+  gl: number;
+  effect: string;
 }
 
 // ==========================================

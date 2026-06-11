@@ -9,8 +9,6 @@ import formStyles from '@/styles/components/forms.module.scss';
 import tableStyles from '@/styles/components/tables.module.scss';
 import { Character } from '@/types/preciousdays/character';
 
-import WeightSection from './WeightSection';
-
 interface EquipmentSectionProps {
   equipment: Character['equipment'];
   items: Character['items'];
@@ -352,12 +350,6 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
 
         <div className={`${cardStyles.accordionContent} ${!isOpen ? cardStyles.closed : ''}`}>
           <div className={tableStyles.scrollContainer}>
-            <WeightSection
-              abilities={abilities}
-              equipment={equipment}
-              items={items}
-              species={species}
-            />
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
               style={{ minWidth: '1000px' }}

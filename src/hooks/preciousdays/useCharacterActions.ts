@@ -14,7 +14,7 @@ import {
   ABILITY_DATA,
 } from '@/constants/preciousdays';
 import { saveCharacterAction, deleteCharacterAction } from '@/lib/preciousdays/actions';
-import { Character, Item, Memory, Skill } from '@/types/preciousdays/character';
+import { Character, Enchantment, Item, Memory, Skill } from '@/types/preciousdays/character';
 import { generateUUID } from '@/utils/uuid';
 
 export const useCharacterActions = (
@@ -285,6 +285,44 @@ export const useCharacterActions = (
     [setChar]
   );
 
+  // --- 付与魔術追加 ---
+  const handleEnchantmentsAdd = useCallback(() => {
+    const newEnchantment: Enchantment = {
+      id: generateUUID(),
+      name: '',
+      gl: 0,
+      effect: '',
+    };
+    setChar((prev) => ({
+      ...prev,
+      enchantments: [...(prev.enchantments || []), newEnchantment],
+    }));
+  }, [setChar]);
+
+  // --- 付与魔術削除 ---
+  const handleEnchantmentsRemove = useCallback(
+    (index: number) => {
+      setChar((prev) => {
+        const newEnchantments = [...(prev.enchantments || [])];
+        newEnchantments.splice(index, 1);
+        return { ...prev, enchantments: newEnchantments };
+      });
+    },
+    [setChar]
+  );
+
+  // --- 付与魔術更新 ---
+  const handleEnchantmentsUpdate = useCallback(
+    (index: number, field: keyof Enchantment, value: any) => {
+      setChar((prev) => {
+        const newEnchantments = [...(prev.enchantments || [])];
+        newEnchantments[index] = { ...newEnchantments[index], [field]: value };
+        return { ...prev, enchantments: newEnchantments };
+      });
+    },
+    [setChar]
+  );
+
   // --- メモリー追加 ---
   const handleMemoriesAdd = useCallback(() => {
     const newMemory: Memory = {
@@ -471,5 +509,8 @@ export const useCharacterActions = (
     handleMemoriesAdd,
     handleMemoriesRemove,
     handleMemoriesUpdate,
+    handleEnchantmentsAdd,
+    handleEnchantmentsRemove,
+    handleEnchantmentsUpdate,
   };
 };

@@ -37,37 +37,26 @@ const WeightSection = ({ items, equipment, species, abilities }: WeightProps) =>
   const isOverWeight = totalWeight > weightLimit;
   return (
     <div
-      className={tableStyles.gridTable}
+      className={`${tableStyles.gridTable} ${tableStyles.totalRow}`}
       style={{
         display: 'grid',
-        gridTemplateColumns: '200px 1fr',
-        marginBottom: '1rem',
+        gridTemplateColumns: '140px 1fr',
+        margin: '1rem 0',
         borderColor: isOverWeight ? '#ff4d4f' : 'var(--card-border)',
+        backgroundColor: isOverWeight ? '#5c1a1a' : undefined,
+        boxShadow: isOverWeight ? '0 0 8px rgba(255, 77, 79, 0.4)' : undefined,
       }}
     >
-      <div className={`${tableStyles.headerRow} ${tableStyles.labelCell}`}>総重量 / 限界</div>
-
-      {/* 数値部分：cell を使って中央揃えを維持 */}
+      <div className={tableStyles.labelCell}>重量合計 ／ 限界</div>
       <div
         className={tableStyles.cell}
-        style={{
-          justifyContent: 'flex-start',
-          paddingLeft: '1.5rem',
-          fontSize: '0.75rem',
-          fontWeight: 'bold',
-        }}
+        style={{ justifyContent: 'flex-start', paddingLeft: '1.5rem', fontSize: '0.8rem' }}
       >
         {totalWeight} / {weightLimit}
         {isOverWeight && (
-          <span
-            style={{
-              fontSize: '0.75rem',
-              marginLeft: '12px',
-              fontWeight: 'normal',
-              color: isOverWeight ? '#ff4d4f' : 'inherit',
-            }}
-          >
-            <TriangleAlert size={16} style={{ transform: 'translateY(3px)' }} /> 重量制限オーバー
+          <span style={{ marginLeft: '12px', fontWeight: 'normal', color: '#ff9999' }}>
+            <TriangleAlert size={14} style={{ transform: 'translateY(3px)', marginRight: '4px' }} />
+            重量制限オーバー
           </span>
         )}
       </div>
