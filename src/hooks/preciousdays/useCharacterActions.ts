@@ -165,6 +165,11 @@ export const useCharacterActions = (
 
       if (otherGrowthTotal + safeVal > maxGrowth) {
         setErrorInfo({ key, message: `成長の合計はGL×3（${maxGrowth}点）までです` });
+      } else if (safeVal > (gl || 0)) {
+        setErrorInfo({
+          key,
+          message: `1回の成長で同じ能力値に2点以上割り振ることはできません（上限：${gl || 0}点）`,
+        });
       } else {
         setErrorInfo(null);
       }

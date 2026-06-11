@@ -422,14 +422,14 @@ $col-gap: 12px;
 
 /* メモリー（編集） */
 .memoryEditGrid {
-  grid-template-columns: $col-name 1fr 48px 1fr 32px;
-  min-width: 500px;
+  grid-template-columns: $col-name 1fr 48px 1fr 70px 32px;
+  min-width: 570px;
 }
 
 /* メモリー（閲覧） */
 .memoryViewGrid {
-  grid-template-columns: $col-name 1fr 48px 1fr;
-  min-width: 500px;
+  grid-template-columns: $col-name 1fr 48px 1fr 70px;
+  min-width: 540px;
 }
 
 /* --- スタンドアロン（display: grid を自ら持つ）クラス --- */

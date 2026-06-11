@@ -380,7 +380,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
               <div
                 className={`${tableStyles.row} ${tableStyles.equipHeaderGrid} ${tableStyles.totalRow}`}
               >
-                <div className={tableStyles.labelCell}>合計</div>
+                <div className={tableStyles.labelCell}>小計</div>
                 <div className={tableStyles.cell}></div>
                 <div className={tableStyles.cell}>{totals.weight}</div>
                 <div className={tableStyles.cell}>{totals.hitMod}</div>

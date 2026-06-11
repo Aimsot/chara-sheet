@@ -28,10 +28,12 @@ const MemoryRow = memo(
     const [localDate, setLocalDate] = useState(memory.date);
     const [localContent, setLocalContent] = useState(memory.content);
     const [localPrize, setLocalPrize] = useState(memory.prize);
+    const [localExp, setLocalExp] = useState(memory.experience ?? '');
 
     const [prevDate, setPrevDate] = useState(memory.date);
     const [prevContent, setPrevContent] = useState(memory.content);
     const [prevPrize, setPrevPrize] = useState(memory.prize);
+    const [prevExp, setPrevExp] = useState(memory.experience);
 
     if (memory.date !== prevDate) {
       setPrevDate(memory.date);
@@ -44,6 +46,10 @@ const MemoryRow = memo(
     if (memory.prize !== prevPrize) {
       setPrevPrize(memory.prize);
       setLocalPrize(memory.prize);
+    }
+    if (memory.experience !== prevExp) {
+      setPrevExp(memory.experience);
+      setLocalExp(memory.experience ?? '');
     }
 
     const handleRemove = useCallback(() => onRemove(index), [index, onRemove]);
@@ -148,6 +154,30 @@ const MemoryRow = memo(
           )}
         </div>
 
+        {/* 経験点 */}
+        <div className={tableStyles.cell} style={{ borderLeft: '1px solid var(--card-border)' }}>
+          {isReadOnly ? (
+            <span>{memory.experience ?? ''}</span>
+          ) : (
+            <input
+              className={formStyles.input}
+              inputMode='numeric'
+              onChange={(e) => {
+                setLocalExp(e.target.value);
+                onUpdate(
+                  index,
+                  'experience',
+                  e.target.value === '' ? undefined : Number(e.target.value)
+                );
+              }}
+              placeholder='0'
+              style={{ textAlign: 'center' }}
+              type='text'
+              value={localExp}
+            />
+          )}
+        </div>
+
         {/* 削除ボタン（編集時のみ） */}
         {!isReadOnly && (
           <div className={tableStyles.cell}>
@@ -219,6 +249,7 @@ export const MemorySection: React.FC<MemorySectionProps> = memo(
                 <div className={tableStyles.cell}>メモリー</div>
                 <div className={tableStyles.cell}>昇華</div>
                 <div className={tableStyles.cell}>プライズ</div>
+                <div className={tableStyles.cell}>経験点</div>
                 {!isReadOnly && <div className={tableStyles.cell}></div>}
               </div>
 

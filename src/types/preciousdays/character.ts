@@ -144,6 +144,7 @@ export interface Memory {
   content: string; // メモリー内容
   sublimated: boolean; // 昇華チェック
   prize: string; // プライズ
+  experience?: number; // 経験点
 }
 
 // 携帯品

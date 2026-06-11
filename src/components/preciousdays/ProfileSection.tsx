@@ -256,30 +256,36 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                   )}
                 </div>
 
-                {/* 経験点 */}
+                {/* 経験点合計（メモリーから自動計算） */}
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
-                  <label htmlFor='experience'>経験点</label>
-                  {isReadOnly ? (
-                    <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
-                      {experience}
-                    </div>
-                  ) : (
-                    <input
-                      autoComplete='off'
-                      className={formStyles.input}
-                      inputMode='numeric'
-                      name='experience'
-                      onChange={(e) => updateBaseField('experience', e.target.value)}
-                      pattern='[0-9]*'
-                      placeholder='0'
-                      type='text'
-                      value={experience ?? ''}
-                    />
-                  )}
+                  <label>経験点（合計）</label>
+                  <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
+                    {experience ?? 0}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          {!isReadOnly && (
+            <div className={formStyles.notes} style={{ marginBottom: 0 }}>
+              <p>
+                経験点は各シナリオの獲得分を{' '}
+                <a
+                  href='#memory-section'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document
+                      .getElementById('memory-section')
+                      ?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  style={{ color: 'var(--accent-color)' }}
+                >
+                  メモリー
+                </a>{' '}
+                に記録できます。
+              </p>
+            </div>
+          )}
         </div>
       </section>
     );

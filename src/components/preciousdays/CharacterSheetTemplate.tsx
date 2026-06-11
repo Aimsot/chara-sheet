@@ -9,6 +9,7 @@ import { AbilitySection } from '@/components/preciousdays/AbilitySection';
 import { AppearanceSection } from '@/components/preciousdays/AppearanceSection';
 import { CombatSection } from '@/components/preciousdays/CombatSection';
 import EquipmentSection from '@/components/preciousdays/EquipmentSection';
+import GrowthTableSection from '@/components/preciousdays/GrowthTableSection';
 import { ItemSection } from '@/components/preciousdays/ItemSection';
 import { LifepathSection } from '@/components/preciousdays/LifepathSection';
 import { MemorySection } from '@/components/preciousdays/MemorySection';
@@ -110,6 +111,10 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
 
   const isReadOnly = mode === 'view';
   const router = useRouter();
+  const totalExperience = (char.memories || []).reduce(
+    (sum, m) => sum + (Number(m.experience) || 0),
+    0
+  );
   const [isAuthVisible, setIsAuthVisible] = useState(false);
   const [ccfoliaCopied, setCcfoliaCopied] = useState(false);
   const [viewAutoResize, setViewAutoResize] = useState(false);
@@ -271,7 +276,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               characterName={char.characterName}
               characterStyle={char.style}
               element={char.element}
-              experience={char.experience}
+              experience={totalExperience}
               isReadOnly={isReadOnly}
               masterName={char.masterName}
               playerName={char.playerName}
@@ -283,9 +288,17 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               updateBaseField={updateBaseField}
             />
 
+            <GrowthTableSection
+              experience={totalExperience}
+              gl={char.gl}
+              items={char.items}
+              style={char.style}
+            />
+
             <ResourceSection
               abilities={char.abilities}
               element={char.element}
+              experience={totalExperience}
               gl={char.gl}
               handleGLUpdate={handleGLUpdate}
               handleResourceUpdate={handleResourceUpdate}
@@ -397,14 +410,16 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               updateNote={(val) => updateBaseField('note', val)}
               updateSecretNote={(val) => updateBaseField('secretNote', val)}
             />
-            <MemorySection
-              autoResize={autoResize}
-              handleMemoriesAdd={handleMemoriesAdd}
-              handleMemoriesRemove={handleMemoriesRemove}
-              handleMemoriesUpdate={handleMemoriesUpdate}
-              isReadOnly={isReadOnly}
-              memories={char.memories}
-            />
+            <div id='memory-section'>
+              <MemorySection
+                autoResize={autoResize}
+                handleMemoriesAdd={handleMemoriesAdd}
+                handleMemoriesRemove={handleMemoriesRemove}
+                handleMemoriesUpdate={handleMemoriesUpdate}
+                isReadOnly={isReadOnly}
+                memories={char.memories}
+              />
+            </div>
           </div>
         </form>
       )}

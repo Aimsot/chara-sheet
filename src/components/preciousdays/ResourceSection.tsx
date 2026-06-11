@@ -1,6 +1,7 @@
 'use client';
 
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
+import { Tooltip } from 'react-tooltip';
 
 import { STYLE_DATA, StyleKey } from '@/constants/preciousdays';
 import statusStyles from '@/styles/components/charaSheet/status.module.scss';
@@ -17,6 +18,7 @@ interface ResourceSectionProps {
   mp: Character['mp'];
   wp: Character['wp'];
   gl: number;
+  experience?: number;
   isReadOnly?: boolean;
   handleResourceUpdate: (key: 'hp' | 'mp' | 'wp', val: number) => void;
   handleGLUpdate: (val: number) => void;
@@ -31,6 +33,7 @@ const ResourceCard = memo(
     onChange,
     isSimpleMode = false,
     isReadOnly,
+    increaseButtonId,
   }: {
     label: string;
     total: number;
@@ -39,6 +42,7 @@ const ResourceCard = memo(
     onChange: (val: number) => void;
     isSimpleMode?: boolean;
     isReadOnly?: boolean;
+    increaseButtonId?: string;
   }) => {
     const getGLDynamicStyle = (level: number) => {
       if (label !== 'GL') return {};
@@ -99,7 +103,12 @@ const ResourceCard = memo(
                   <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>{total}</span>
                   {' / 6'}
                 </span>
-                <button aria-label='Increase' onClick={() => onChange(total + 1)} type='button'>
+                <button
+                  aria-label='Increase'
+                  id={increaseButtonId}
+                  onClick={() => onChange(total + 1)}
+                  type='button'
+                >
                   +
                 </button>
               </div>
@@ -149,12 +158,28 @@ const ResourceSection = ({
   mp,
   wp,
   gl,
+  experience = 0,
   isReadOnly,
   handleResourceUpdate,
   handleGLUpdate,
 }: ResourceSectionProps) => {
   const styleData = STYLE_DATA[style as StyleKey];
   const glLevel = gl || 0;
+  const [expWarnOpen, setExpWarnOpen] = useState(false);
+
+  const handleGLWithCheck = useCallback(
+    (val: number) => {
+      if (val > glLevel && val >= 2) {
+        const required = (val - 1) * 10000;
+        if (experience < required) {
+          setExpWarnOpen(true);
+          setTimeout(() => setExpWarnOpen(false), 3000);
+        }
+      }
+      handleGLUpdate(val);
+    },
+    [glLevel, experience, handleGLUpdate]
+  );
 
   // HP/MP 基本値（スタイル基本値 + 成長率×GL）
   const hpBase = (styleData?.hp.base || 0) + (styleData?.hp.growth || 0) * glLevel;
@@ -213,16 +238,41 @@ const ResourceSection = ({
 
         {/* GL */}
         <ResourceCard
+          increaseButtonId='gl-increase-btn'
           isReadOnly={isReadOnly}
           isSimpleMode
           label='GL'
-          onChange={handleGLUpdate}
+          onChange={handleGLWithCheck}
           total={gl || 0}
+        />
+        <Tooltip
+          anchorSelect='#gl-increase-btn'
+          content={`GL${glLevel + 1}には累計${(glLevel * 10000).toLocaleString()}ptが必要です`}
+          id='gl-exp-warn-tooltip'
+          isOpen={expWarnOpen}
+          place='top'
+          style={{ zIndex: 9999 }}
+          variant='error'
         />
       </div>
       {!isReadOnly && (
         <div className={formStyles.notes} style={{ marginTop: '6px' }}>
-          <p>グレードアップ時の最大HPと最大MPの上昇は自動的に計算されます</p>
+          <p>
+            グレードアップと成長テーブルによる最大HP・最大MPの上昇は自動的に計算されます（詳細は{' '}
+            <a
+              href='#growth-table-section'
+              onClick={(e) => {
+                e.preventDefault();
+                document
+                  .getElementById('growth-table-section')
+                  ?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              style={{ color: 'var(--accent-color)' }}
+            >
+              成長テーブル
+            </a>{' '}
+            を確認してください）。
+          </p>
         </div>
       )}
     </section>

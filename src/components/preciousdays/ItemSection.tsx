@@ -301,7 +301,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                 <div
                   className={`${tableStyles.row} ${tableStyles.itemViewHeaderGrid} ${tableStyles.totalRow}`}
                 >
-                  <div className={tableStyles.labelCell}>合計</div>
+                  <div className={tableStyles.labelCell}>小計</div>
                   <div className={tableStyles.cell}></div>
                   <div className={tableStyles.cell}>{totalItemWeight}</div>
                   <div className={tableStyles.cell}></div>
@@ -310,7 +310,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                 <div
                   className={`${tableStyles.row} ${tableStyles.itemEditGrid} ${tableStyles.totalRow}`}
                 >
-                  <div className={tableStyles.labelCell}>合計</div>
+                  <div className={tableStyles.labelCell}>小計</div>
                   <div className={tableStyles.cell}></div>
                   <div className={tableStyles.cell}>{totalItemWeight}</div>
                   <div className={tableStyles.cell}></div>

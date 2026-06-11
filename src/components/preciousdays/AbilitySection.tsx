@@ -398,21 +398,21 @@ export const AbilitySection: React.FC<AbilityTableProps> = memo(
               <div className={`${formStyles.notes} ${layoutStyles.mt3}`}>
                 <p>
                   <strong>ボーナス点</strong>は合計で<strong>5点</strong>
-                  まで割り振ることができます。
+                  まで割り振ることができます。（p.116）
                 </p>
                 <p>
                   各項目の<strong>種族基本値 ＋ ボーナス</strong>の合計は<strong>12</strong>
-                  が上限です。
+                  が上限です。（p.118）
                 </p>
                 <p>
                   <strong>成長</strong>はGLが1上がるごとに
                   <strong>3つの能力値をそれぞれ1点ずつ</strong>
                   上昇させます（合計GL×3点）。
-                  1回の成長で同じ能力値に2点以上割り振ることはできません。
+                  1回の成長で同じ能力値に2点以上割り振ることはできません。（p.196）
                 </p>
                 <p>
                   <strong>能力値合計</strong> ＝ (種族基本値 ＋ ボーナス ＋ 成長) ÷ 3 ＋
-                  スタイル修正 ＋ 属性修正 ＋ その他修正
+                  スタイル修正 ＋ 属性修正 ＋ その他修正（p.118）
                 </p>
               </div>
             )}
