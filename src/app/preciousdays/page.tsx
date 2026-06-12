@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 import { Metadata } from 'next';
 
 import PreciousDaysCharacterList from '@/components/preciousdays/CharacterListClient';
@@ -11,29 +13,12 @@ export const metadata: Metadata = {
   description: 'プレシャスデイズのキャラクターシート一覧。',
 };
 
-export default async function PreciousDaysPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}) {
-  const resolvedSearchParams = await searchParams;
-  const currentPage = Number(resolvedSearchParams.page) || 1;
-  const limit = 10;
-
+export default async function PreciousDaysPage() {
   const allCharacters = await getAllCharacters();
-  const totalCount = allCharacters.length;
-  const totalPages = Math.ceil(totalCount / limit);
-
-  // 10件分だけ切り出す
-  const characters = allCharacters.slice((currentPage - 1) * limit, currentPage * limit);
 
   return (
     <Suspense fallback={<Loading />}>
-      <PreciousDaysCharacterList
-        currentPage={currentPage}
-        initialCharacters={characters}
-        totalPages={totalPages}
-      />
+      <PreciousDaysCharacterList allCharacters={allCharacters} />
     </Suspense>
   );
 }
