@@ -111,7 +111,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                     fill // これで width/height の指定が不要になります
                     src={previewUrl}
                     style={{
-                      objectFit: 'contain', // 枠内に収める（全体を見せたい場合）
+                      objectFit: 'cover',
                       objectPosition: 'top center',
                     }}
                   />
