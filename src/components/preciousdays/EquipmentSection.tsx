@@ -68,21 +68,15 @@ const EquipmentRow = memo(
   }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [prevName, setPrevName] = useState(item.name || '');
-    const [prevDamage, setPrevDamage] = useState(item.damage || '');
     const [prevNotes, setPrevNotes] = useState(item.notes || '');
     const [prevPage, setPrevPage] = useState(item.page || '');
     const [localName, setLocalName] = useState(item.name || '');
-    const [localDamage, setLocalDamage] = useState(item.damage || '');
     const [localNotes, setLocalNotes] = useState(item.notes || '');
     const [localPage, setLocalPage] = useState(item.page || '');
 
     if ((item.name || '') !== prevName) {
       setPrevName(item.name || '');
       setLocalName(item.name || '');
-    }
-    if ((item.damage || '') !== prevDamage) {
-      setPrevDamage(item.damage || '');
-      setLocalDamage(item.damage || '');
     }
     if ((item.notes || '') !== prevNotes) {
       setPrevNotes(item.notes || '');
@@ -219,15 +213,21 @@ const EquipmentRow = memo(
               {isGuardian ? null : isReadOnly ? (
                 item.damage
               ) : (
-                <input
-                  className={formStyles.input}
-                  onChange={(e) => {
-                    setLocalDamage(e.target.value);
-                    onUpdate(slotKey, 'damage', e.target.value);
-                  }}
-                  type='text'
-                  value={localDamage}
-                />
+                <div className={formStyles.stepperSmall}>
+                  <button
+                    onClick={() => updateNum('damage', (Number(item.damage) || 0) - 1)}
+                    type='button'
+                  >
+                    -
+                  </button>
+                  <NumberInput onChange={(v) => updateNum('damage', v)} value={item.damage} />
+                  <button
+                    onClick={() => updateNum('damage', (Number(item.damage) || 0) + 1)}
+                    type='button'
+                  >
+                    +
+                  </button>
+                </div>
               )}
             </div>
             {/* 射程 */}

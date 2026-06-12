@@ -12,7 +12,7 @@ const EMPTY_EQUIPMENT: EquipmentItem = {
   name: '',
   weight: 0,
   hitMod: 0,
-  damage: '',
+  damage: 0,
   range: '',
   dodgeMod: 0,
   defenseMod: 0,

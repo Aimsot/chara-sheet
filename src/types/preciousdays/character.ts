@@ -146,7 +146,7 @@ export interface EquipmentItem {
   name: string;
   weight: number;
   hitMod: number; // 命中修正
-  damage: string; // ダメージ (例: "2D+7")
+  damage: number; // ダメージ修正
   range: string; // 射程
   dodgeMod: number; // 回避修正
   defenseMod: number; // 防御修正
