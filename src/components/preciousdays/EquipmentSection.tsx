@@ -412,7 +412,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
           <div className={tableStyles.scrollContainer}>
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
-              style={{ minWidth: '1024px' }}
+              style={{ minWidth: '900px' }}
             >
               <EquipmentHeader />
 

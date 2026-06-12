@@ -406,7 +406,7 @@
 $lbl-combat: 160px;
 $lbl-equip: 80px;
 $col-name: 220px;
-$col-stat: 110px;
+$col-stat: 80px;
 $col-gap: 12px;
 
 /* スロット・分類列のwrapper幅（装備品部位＝スキル分類で共通） */
@@ -457,8 +457,8 @@ $col-gap: 12px;
 .equipHeaderGrid {
   grid-template-columns:
     ($lbl-equip + 36px) $col-name
-    $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
-  min-width: 1024px;
+    $col-stat $col-stat $col-stat 100px $col-stat $col-stat 1fr;
+  min-width: 900px;
 }
 
 /* 所持品（編集） */
@@ -518,7 +518,7 @@ $col-gap: 12px;
 /* 装備品：メイン行の内側グリッド（部位列を除く） */
 .equipInnerGrid {
   display: grid;
-  grid-template-columns: $col-name $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
+  grid-template-columns: $col-name $col-stat $col-stat $col-stat 100px $col-stat $col-stat 1fr;
   align-items: center;
   min-height: 36px;
   padding: 4px 0;
