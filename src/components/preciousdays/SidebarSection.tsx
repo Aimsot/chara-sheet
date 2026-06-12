@@ -247,10 +247,10 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
           </div>
         )}
 
-        {/* キャラクター種別（編集モードのみ） */}
+        {/* キャラクターの役割（編集モードのみ） */}
         {!isReadOnly && (
           <div className={`${baseStyles.stack} ${formStyles.panel}`}>
-            <label className={formStyles.label}>キャラクター種別</label>
+            <label className={formStyles.label}>キャラクターの役割</label>
             <select
               className={formStyles.select}
               onChange={(e) =>
