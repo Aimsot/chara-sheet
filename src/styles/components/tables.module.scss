@@ -405,7 +405,7 @@
 
 $lbl-combat: 160px;
 $lbl-equip: 80px;
-$col-name: 180px;
+$col-name: 220px;
 $col-stat: 110px;
 $col-gap: 12px;
 
@@ -448,7 +448,7 @@ $col-gap: 12px;
 
 /* スキル表（閲覧） */
 .skillReadonlyGrid {
-  grid-template-columns: ($lbl-equip + 36px) minmax(0, $col-name) 40px 1.3fr repeat(5, 1fr);
+  grid-template-columns: ($lbl-equip + 36px) $col-name 40px 120px repeat(5, 1fr);
   align-items: center;
   min-width: 796px;
 }
@@ -456,14 +456,14 @@ $col-gap: 12px;
 /* 装備品：ヘッダー / 合計行 */
 .equipHeaderGrid {
   grid-template-columns:
-    ($lbl-equip + 36px) minmax(0, $col-name)
+    ($lbl-equip + 36px) $col-name
     $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
   min-width: 1024px;
 }
 
 /* 所持品（編集） */
 .itemEditGrid {
-  grid-template-columns: ($lbl-equip + 36px) minmax(0, $col-name) 80px 80px 80px 2fr 60px 50px;
+  grid-template-columns: ($lbl-equip + 36px) $col-name 80px 80px 80px 2fr 60px 50px;
   min-width: 884px;
 }
 
@@ -509,7 +509,7 @@ $col-gap: 12px;
 /* スキル表（編集）の内側グリッド（取得チェック列は外側グリッドに移動） */
 .skillEditGrid {
   display: grid;
-  grid-template-columns: minmax(0, $col-name) 70px 1.3fr repeat(5, 1fr) 36px;
+  grid-template-columns: $col-name 70px 120px repeat(5, 1fr) 36px;
   align-items: center;
   min-width: 760px;
   min-height: 36px;
@@ -518,7 +518,7 @@ $col-gap: 12px;
 /* 装備品：メイン行の内側グリッド（部位列を除く） */
 .equipInnerGrid {
   display: grid;
-  grid-template-columns: minmax(0, $col-name) $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
+  grid-template-columns: $col-name $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
   align-items: center;
   min-height: 36px;
   padding: 4px 0;
@@ -531,14 +531,14 @@ $col-gap: 12px;
 
 /* 所持品（閲覧）：ヘッダー・合計行フラットグリッド */
 .itemViewHeaderGrid {
-  grid-template-columns: ($lbl-equip + 36px) minmax(0, $col-name) 80px 80px 80px;
+  grid-template-columns: ($lbl-equip + 36px) $col-name 80px 80px 80px;
   min-width: 584px;
 }
 
 /* 所持品（編集）：内側グリッド（labelBlock列を除く） */
 .itemEditInnerGrid {
   display: grid;
-  grid-template-columns: minmax(0, $col-name) 80px 80px 80px 2fr 60px 50px;
+  grid-template-columns: $col-name 80px 80px 80px 2fr 60px 50px;
   align-items: center;
   padding: 4px 0;
 }
@@ -546,21 +546,21 @@ $col-gap: 12px;
 /* 所持品（閲覧）：内側グリッド（種別列を除く） */
 .itemViewGrid {
   display: grid;
-  grid-template-columns: minmax(0, $col-name) 80px 80px 80px;
+  grid-template-columns: $col-name 80px 80px 80px;
   align-items: center;
   padding: 4px 0;
 }
 
 /* 付与魔術（編集） */
 .enchantmentEditGrid {
-  grid-template-columns: ($lbl-equip + 36px) minmax(0, $col-name) 80px 120px 2fr 60px 32px;
-  min-width: 724px;
+  grid-template-columns: ($lbl-equip + 36px) $col-name 40px 120px 2fr 60px 32px;
+  min-width: 700px;
 }
 
 /* 付与魔術（閲覧） */
 .enchantmentViewGrid {
-  grid-template-columns: ($lbl-equip + 36px) minmax(0, $col-name) 80px 120px 2fr;
-  min-width: 564px;
+  grid-template-columns: ($lbl-equip + 36px) $col-name 40px 120px 2fr;
+  min-width: 556px;
 }
 
 /* 装備品：効果・ページのサブ行グリッド */

@@ -6,6 +6,7 @@ import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
 import { ComboBox } from '@/components/ui/ComboBox';
 import { NumberInput } from '@/components/ui/NumberInput';
 import { SPECIES_DATA, SpeciesKey } from '@/constants/preciousdays';
+import btnStyles from '@/styles/components/buttons.module.scss';
 import cardStyles from '@/styles/components/cards.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
 import tableStyles from '@/styles/components/tables.module.scss';
@@ -395,23 +396,12 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
           <h2 className={cardStyles.title}>装備品</h2>
           {isReadOnly ? (
             <button
+              className={btnStyles.expandToggle}
               onClick={() => setShowAll((v) => !v)}
-              style={{
-                fontSize: '0.72rem',
-                color: '#fff',
-                background: 'var(--accent-dark)',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '3px 10px',
-                borderRadius: '9999px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
               type='button'
             >
               {showAll ? '効果を折畳む' : '効果を全展開'}
-              {showAll ? <IconChevronUp size={13} /> : <IconChevronDown size={13} />}
+              {showAll ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
             </button>
           ) : (
             <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>

@@ -287,23 +287,12 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
           <h2 className={cardStyles.title}>携帯品</h2>
           {isReadOnly ? (
             <button
+              className={btnStyles.expandToggle}
               onClick={() => setShowAll((v) => !v)}
-              style={{
-                fontSize: '0.72rem',
-                color: '#fff',
-                background: 'var(--accent-dark)',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '3px 10px',
-                borderRadius: '9999px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
               type='button'
             >
               {showAll ? '効果を折畳む' : '効果を全展開'}
-              {showAll ? <IconChevronUp size={13} /> : <IconChevronDown size={13} />}
+              {showAll ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
             </button>
           ) : (
             <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>

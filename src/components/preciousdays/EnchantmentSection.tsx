@@ -13,6 +13,10 @@ import { Enchantment } from '@/types/preciousdays/character';
 
 const CATEGORY_LABEL = '付与魔術';
 const TIMING_OPTIONS = ['パッシブ', 'ダメージロールの直前', '命中判定の直前'];
+const TIMING_SHORT: Record<string, string> = {
+  ダメージロールの直前: 'DR直前',
+  命中判定の直前: '命中直前',
+};
 
 const EnchantmentRow = memo(
   ({
@@ -88,7 +92,28 @@ const EnchantmentRow = memo(
             )}
           </div>
           <div className={tableStyles.cell}>{enchantment.gl ?? 0}</div>
-          <div className={tableStyles.cell}>{enchantment.timing ?? ''}</div>
+          <div className={tableStyles.cell}>
+            {(() => {
+              const t = enchantment.timing ?? '';
+              return t.includes('\n') ? (
+                <span style={{ textAlign: 'center', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
+                  {t}
+                </span>
+              ) : (
+                <span
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    width: '100%',
+                    textAlign: 'center',
+                  }}
+                >
+                  {TIMING_SHORT[t] ?? t}
+                </span>
+              );
+            })()}
+          </div>
           <div className={tableStyles.cell}>{enchantment.effect}</div>
         </div>
       );

@@ -22,6 +22,15 @@ const TIMING_FULL: Record<string, string> = {
   ダメージロールの直後: 'ダメージロールの直後',
 };
 
+const TIMING_SHORT: Record<string, string> = {
+  メジャーアクション: 'メジャー',
+  マイナーアクション: 'マイナー',
+  セットアッププロセス: 'セットアップ',
+  命中判定の直後: '命中直後',
+  ダメージロールの直前: 'DR直前',
+  ダメージロールの直後: 'DR直後',
+};
+
 function expandTiming(value: string): string[] {
   return value.split('／').map((p) => TIMING_FULL[p.trim()] ?? p.trim());
 }
@@ -141,14 +150,31 @@ const SkillReadonlyRow = memo(
             }}
           >
             {field === 'timing' ? (
-              <span style={{ textAlign: 'center', lineHeight: 1.5 }}>
-                {expandTiming((skill as any)[field] ?? '').map((line, idx) => (
-                  <React.Fragment key={idx}>
-                    {idx > 0 && <br />}
-                    {line}
-                  </React.Fragment>
-                ))}
-              </span>
+              (() => {
+                const lines = expandTiming((skill as any)[field] ?? '');
+                return lines.length > 1 ? (
+                  <span style={{ textAlign: 'center', lineHeight: 1.5 }}>
+                    {lines.map((line, idx) => (
+                      <React.Fragment key={idx}>
+                        {idx > 0 && <br />}
+                        {line}
+                      </React.Fragment>
+                    ))}
+                  </span>
+                ) : (
+                  <span
+                    style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      width: '100%',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {TIMING_SHORT[lines[0]] ?? lines[0]}
+                  </span>
+                );
+              })()
             ) : (
               <span>{(skill as any)[field] ?? ''}</span>
             )}
@@ -420,23 +446,12 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
           <h2 className={cardStyles.title}>スキル</h2>
           {isReadOnly ? (
             <button
+              className={btnStyles.expandToggle}
               onClick={() => setShowAll((v) => !v)}
-              style={{
-                fontSize: '0.72rem',
-                color: '#fff',
-                background: 'var(--accent-dark)',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '3px 10px',
-                borderRadius: '9999px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
               type='button'
             >
               {showAll ? '効果を折畳む' : '効果を全展開'}
-              {showAll ? <IconChevronUp size={13} /> : <IconChevronDown size={13} />}
+              {showAll ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
             </button>
           ) : (
             <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
