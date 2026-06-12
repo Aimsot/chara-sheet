@@ -10,6 +10,7 @@ const EMPTY_COMBAT_VALUE: CombatValue = { modifier: 0 };
 
 const EMPTY_EQUIPMENT: EquipmentItem = {
   name: '',
+  gl: 0,
   weight: 0,
   hitMod: 0,
   damage: 0,

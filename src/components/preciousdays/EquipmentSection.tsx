@@ -38,6 +38,7 @@ const EquipmentHeader = () => (
       <div className={tableStyles.labelCell}>部位</div>
     </div>
     <div className={tableStyles.cell}>名称</div>
+    <div className={tableStyles.cell}>GL</div>
     <div className={tableStyles.cell}>重量</div>
     <div className={tableStyles.cell}>命中修正</div>
     <div className={tableStyles.cell}>ダメージ</div>
@@ -162,6 +163,31 @@ const EquipmentRow = memo(
                   type='text'
                   value={localName}
                 />
+              )}
+            </div>
+            {/* GL */}
+            <div className={tableStyles.cell}>
+              {isReadOnly ? (
+                (item.gl ?? 0)
+              ) : (
+                <div className={formStyles.stepperSmall}>
+                  <button
+                    onClick={() => updateNum('gl', Math.max(0, (Number(item.gl) || 0) - 1))}
+                    type='button'
+                  >
+                    -
+                  </button>
+                  <NumberInput
+                    onChange={(v) => updateNum('gl', Math.max(0, Math.min(6, v)))}
+                    value={item.gl ?? 0}
+                  />
+                  <button
+                    onClick={() => updateNum('gl', Math.min(6, (Number(item.gl) || 0) + 1))}
+                    type='button'
+                  >
+                    +
+                  </button>
+                </div>
               )}
             </div>
             {/* 重量 */}
@@ -412,7 +438,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
           <div className={tableStyles.scrollContainer}>
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
-              style={{ minWidth: '900px' }}
+              style={{ minWidth: '980px' }}
             >
               <EquipmentHeader />
 
@@ -434,6 +460,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
                 className={`${tableStyles.row} ${tableStyles.equipHeaderGrid} ${tableStyles.totalRow}`}
               >
                 <div className={tableStyles.labelCell}>小計</div>
+                <div className={tableStyles.cell}></div>
                 <div className={tableStyles.cell}></div>
                 <div className={tableStyles.cell}>{totals.weight}</div>
                 <div className={tableStyles.cell}>{totals.hitMod}</div>

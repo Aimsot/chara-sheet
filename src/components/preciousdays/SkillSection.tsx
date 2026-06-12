@@ -291,14 +291,19 @@ const SkillEditRow = memo(
             <div className={tableStyles.cell}>
               <div className={formStyles.stepperSmall}>
                 <button
-                  onClick={() => onUpdate(index, 'level', (skill.level || 0) - 1)}
+                  disabled={(skill.level || 0) <= 0}
+                  onClick={() => onUpdate(index, 'level', Math.max(0, (skill.level || 0) - 1))}
                   type='button'
                 >
                   -
                 </button>
-                <NumberInput onChange={(v) => onUpdate(index, 'level', v)} value={skill.level} />
+                <NumberInput
+                  onChange={(v) => onUpdate(index, 'level', Math.max(0, Math.min(6, v)))}
+                  value={skill.level}
+                />
                 <button
-                  onClick={() => onUpdate(index, 'level', (skill.level || 0) + 1)}
+                  disabled={(skill.level || 0) >= 6}
+                  onClick={() => onUpdate(index, 'level', Math.min(6, (skill.level || 0) + 1))}
                   type='button'
                 >
                   +

@@ -144,6 +144,7 @@ export interface Skill {
 // 装備品の1アイテム（武器・防具兼用）
 export interface EquipmentItem {
   name: string;
+  gl?: number;
   weight: number;
   hitMod: number; // 命中修正
   damage: number; // ダメージ修正

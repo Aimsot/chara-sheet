@@ -457,8 +457,8 @@ $col-gap: 12px;
 .equipHeaderGrid {
   grid-template-columns:
     ($lbl-equip + 36px) $col-name
-    $col-stat $col-stat $col-stat 100px $col-stat $col-stat 1fr;
-  min-width: 900px;
+    $col-stat $col-stat $col-stat $col-stat 100px $col-stat $col-stat 1fr;
+  min-width: 980px;
 }
 
 /* 所持品（編集） */
@@ -518,7 +518,7 @@ $col-gap: 12px;
 /* 装備品：メイン行の内側グリッド（部位列を除く） */
 .equipInnerGrid {
   display: grid;
-  grid-template-columns: $col-name $col-stat $col-stat $col-stat 100px $col-stat $col-stat 1fr;
+  grid-template-columns: $col-name $col-stat $col-stat $col-stat $col-stat 100px $col-stat $col-stat 1fr;
   align-items: center;
   min-height: 36px;
   padding: 4px 0;

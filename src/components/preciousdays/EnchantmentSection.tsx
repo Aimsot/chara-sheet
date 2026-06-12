@@ -57,7 +57,7 @@ const EnchantmentRow = memo(
     }
 
     const handleGLChange = useCallback(
-      (val: number) => onUpdate(index, 'gl', val),
+      (val: number) => onUpdate(index, 'gl', Math.max(0, Math.min(6, val))),
       [index, onUpdate]
     );
 
@@ -154,11 +154,19 @@ const EnchantmentRow = memo(
         {/* GL */}
         <div className={tableStyles.cell}>
           <div className={formStyles.stepperSmall}>
-            <button onClick={() => handleGLChange((enchantment.gl ?? 0) - 1)} type='button'>
+            <button
+              disabled={(enchantment.gl ?? 0) <= 0}
+              onClick={() => handleGLChange((enchantment.gl ?? 0) - 1)}
+              type='button'
+            >
               -
             </button>
             <NumberInput onChange={handleGLChange} value={enchantment.gl ?? 0} />
-            <button onClick={() => handleGLChange((enchantment.gl ?? 0) + 1)} type='button'>
+            <button
+              disabled={(enchantment.gl ?? 0) >= 6}
+              onClick={() => handleGLChange((enchantment.gl ?? 0) + 1)}
+              type='button'
+            >
               +
             </button>
           </div>
@@ -288,7 +296,7 @@ const EnchantmentSection: React.FC<EnchantmentSectionProps> = memo(
                   enchantment={enc}
                   index={index}
                   isReadOnly={isReadOnly}
-                  key={enc.id}
+                  key={enc.id || String(index)}
                   onRemove={handleEnchantmentsRemove}
                   onUpdate={handleEnchantmentsUpdate}
                 />
