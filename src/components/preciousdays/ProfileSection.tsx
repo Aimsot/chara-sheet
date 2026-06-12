@@ -64,6 +64,10 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
     const isMaster = characterType === 'master';
     const handleImageChange = (file: File) => {
       if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        alert('画像ファイルは5MB以下にしてください');
+        return;
+      }
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {

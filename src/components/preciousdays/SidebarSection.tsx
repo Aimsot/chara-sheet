@@ -65,6 +65,7 @@ const LinkedMiniCard: React.FC<{ id: string; profile: MiniProfile }> = ({ id, pr
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             alt={profile.characterName}
+            draggable={false}
             src={`/api/preciousdays/character/${id}/image`}
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }}
           />

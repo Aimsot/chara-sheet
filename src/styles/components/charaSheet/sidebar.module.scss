@@ -75,12 +75,21 @@
 }
 
 .miniCardImage {
+  position: relative;
   flex-shrink: 0;
   width: 44px;
   height: 52px;
   overflow: hidden;
   background: var(--input-bg);
   border-radius: 4px;
+
+  /* 透明オーバーレイで右クリック・ドラッグによる保存を抑止 */
+  &::after {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    content: '';
+  }
 }
 
 .miniCardInfo {
