@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 
+import { EyeOff } from 'lucide-react';
+
 import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
 import btnStyles from '@/styles/components/buttons.module.scss';
 import cardStyles from '@/styles/components/cards.module.scss';
@@ -14,6 +16,7 @@ const MemoryRow = memo(
     isReadOnly,
     autoResize,
     isLast,
+    showExperience,
     onUpdate,
     onRemove,
   }: {
@@ -22,6 +25,7 @@ const MemoryRow = memo(
     isReadOnly?: boolean;
     autoResize?: boolean;
     isLast: boolean;
+    showExperience?: boolean;
     onUpdate: (index: number, field: keyof Memory, value: any) => void;
     onRemove: (index: number) => void;
   }) => {
@@ -29,11 +33,13 @@ const MemoryRow = memo(
     const [localContent, setLocalContent] = useState(memory.content);
     const [localPrize, setLocalPrize] = useState(memory.prize);
     const [localExp, setLocalExp] = useState(memory.experience ?? '');
+    const [localSecretNote, setLocalSecretNote] = useState(memory.secretNote ?? '');
 
     const [prevDate, setPrevDate] = useState(memory.date);
     const [prevContent, setPrevContent] = useState(memory.content);
     const [prevPrize, setPrevPrize] = useState(memory.prize);
     const [prevExp, setPrevExp] = useState(memory.experience);
+    const [prevSecretNote, setPrevSecretNote] = useState(memory.secretNote);
 
     if (memory.date !== prevDate) {
       setPrevDate(memory.date);
@@ -51,12 +57,24 @@ const MemoryRow = memo(
       setPrevExp(memory.experience);
       setLocalExp(memory.experience ?? '');
     }
+    if ((memory.secretNote ?? '') !== (prevSecretNote ?? '')) {
+      setPrevSecretNote(memory.secretNote);
+      setLocalSecretNote(memory.secretNote ?? '');
+    }
 
     const handleRemove = useCallback(() => onRemove(index), [index, onRemove]);
 
     return (
       <div
-        className={`${tableStyles.row} ${isReadOnly ? tableStyles.memoryViewGrid : tableStyles.memoryEditGrid}`}
+        className={`${tableStyles.row} ${
+          isReadOnly
+            ? showExperience !== false
+              ? tableStyles.memoryViewGrid
+              : tableStyles.memoryViewGridNoExp
+            : showExperience !== false
+              ? tableStyles.memoryEditGrid
+              : tableStyles.memoryEditGridNoExp
+        }`}
         style={{ alignItems: 'center', minHeight: '40px' }}
       >
         {/* 日付 */}
@@ -155,28 +173,30 @@ const MemoryRow = memo(
         </div>
 
         {/* 経験点 */}
-        <div className={tableStyles.cell} style={{ borderLeft: '1px solid var(--card-border)' }}>
-          {isReadOnly ? (
-            <span>{memory.experience ?? ''}</span>
-          ) : (
-            <input
-              className={formStyles.input}
-              inputMode='numeric'
-              onChange={(e) => {
-                setLocalExp(e.target.value);
-                onUpdate(
-                  index,
-                  'experience',
-                  e.target.value === '' ? undefined : Number(e.target.value)
-                );
-              }}
-              placeholder='0'
-              style={{ textAlign: 'center' }}
-              type='text'
-              value={localExp}
-            />
-          )}
-        </div>
+        {showExperience !== false && (
+          <div className={tableStyles.cell} style={{ borderLeft: '1px solid var(--card-border)' }}>
+            {isReadOnly ? (
+              <span>{memory.experience ?? ''}</span>
+            ) : (
+              <input
+                className={formStyles.input}
+                inputMode='numeric'
+                onChange={(e) => {
+                  setLocalExp(e.target.value);
+                  onUpdate(
+                    index,
+                    'experience',
+                    e.target.value === '' ? undefined : Number(e.target.value)
+                  );
+                }}
+                placeholder='0'
+                style={{ textAlign: 'center' }}
+                type='text'
+                value={localExp}
+              />
+            )}
+          </div>
+        )}
 
         {/* 削除ボタン（編集時のみ） */}
         {!isReadOnly && (
@@ -197,6 +217,30 @@ const MemoryRow = memo(
             </button>
           </div>
         )}
+
+        {/* 秘匿メモ行（編集時のみ・全列スパン） */}
+        {!isReadOnly && (
+          <div className={tableStyles.memorySecretRow}>
+            <div className={formStyles.secretNoteContainer}>
+              <div className={formStyles.secretNoteHeader}>
+                <EyeOff className={formStyles.secretNoteIcon} size={12} />
+                <span className={formStyles.secretNoteTitle}>秘匿メモ</span>
+                <span className={formStyles.secretNoteSubtitle}>— 閲覧画面には表示されません</span>
+              </div>
+              <AutoResizeTextarea
+                autoResize={autoResize}
+                className={`${formStyles.textarea} ${formStyles.secretNoteTextarea}`}
+                onChange={(e) => {
+                  setLocalSecretNote(e.target.value);
+                  onUpdate(index, 'secretNote', e.target.value);
+                }}
+                placeholder='秘匿メモ'
+                rows={1}
+                value={localSecretNote}
+              />
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -207,6 +251,7 @@ interface MemorySectionProps {
   memories: Character['memories'];
   isReadOnly?: boolean;
   autoResize?: boolean;
+  showExperience?: boolean;
   handleMemoriesAdd: () => void;
   handleMemoriesRemove: (index: number) => void;
   handleMemoriesUpdate: (index: number, field: keyof Memory, value: any) => void;
@@ -217,6 +262,7 @@ export const MemorySection: React.FC<MemorySectionProps> = memo(
     memories,
     isReadOnly,
     autoResize,
+    showExperience,
     handleMemoriesAdd,
     handleMemoriesRemove,
     handleMemoriesUpdate,
@@ -243,13 +289,21 @@ export const MemorySection: React.FC<MemorySectionProps> = memo(
             >
               {/* ヘッダー */}
               <div
-                className={`${tableStyles.headerRow} ${isReadOnly ? tableStyles.memoryViewGrid : tableStyles.memoryEditGrid}`}
+                className={`${tableStyles.headerRow} ${
+                  isReadOnly
+                    ? showExperience !== false
+                      ? tableStyles.memoryViewGrid
+                      : tableStyles.memoryViewGridNoExp
+                    : showExperience !== false
+                      ? tableStyles.memoryEditGrid
+                      : tableStyles.memoryEditGridNoExp
+                }`}
               >
                 <div className={tableStyles.cell}>日付</div>
                 <div className={tableStyles.cell}>メモリー</div>
                 <div className={tableStyles.cell}>昇華</div>
                 <div className={tableStyles.cell}>プライズ</div>
-                <div className={tableStyles.cell}>経験点</div>
+                {showExperience !== false && <div className={tableStyles.cell}>経験点</div>}
                 {!isReadOnly && <div className={tableStyles.cell}></div>}
               </div>
 
@@ -263,6 +317,7 @@ export const MemorySection: React.FC<MemorySectionProps> = memo(
                   memory={memory}
                   onRemove={handleMemoriesRemove}
                   onUpdate={handleMemoriesUpdate}
+                  showExperience={showExperience}
                 />
               ))}
             </div>

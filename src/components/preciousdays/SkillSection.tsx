@@ -1,6 +1,8 @@
 'use client';
 import React, { memo, useState } from 'react';
 
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+
 import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
 import { ComboBox } from '@/components/ui/ComboBox';
 import { NumberInput } from '@/components/ui/NumberInput';
@@ -58,29 +60,37 @@ const SkillReadonlyRow = memo(
     skill,
     rowIndex: _rowIndex,
     autoResize,
+    showAll,
   }: {
     skill: Skill;
     rowIndex: number;
     autoResize?: boolean;
+    showAll?: boolean;
   }) => {
+    const [isHovered, setIsHovered] = useState(false);
     const hasEffect = !!skill.effect;
 
     return (
-      <div className={`${tableStyles.row} ${tableStyles.skillReadonlyGrid}`}>
-        {/* 分類: 効果表示時は2行分スパン */}
+      <div
+        className={`${tableStyles.row} ${tableStyles.skillReadonlyGrid}${skill.acquired === false ? ` ${tableStyles.unacquired}` : ''}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* 取得チェック + 分類（labelBlockで結合） */}
         <div
-          className={tableStyles.cell}
-          style={{
-            gridColumn: '1',
-            gridRow: hasEffect ? '1 / 3' : '1',
-            alignSelf: 'stretch',
-            minHeight: '32px',
-            fontSize: '0.75rem',
-            color: 'var(--text-secondary)',
-            borderRight: '1px solid var(--card-border)',
-          }}
+          className={tableStyles.labelBlock}
+          style={{ gridColumn: '1', gridRow: hasEffect ? '1 / 3' : '1' }}
         >
-          {skill.category ?? ''}
+          <div className={tableStyles.labelCell}>
+            <input
+              checked={skill.acquired !== false}
+              className={tableStyles.acquireCheck}
+              disabled
+              readOnly
+              type='checkbox'
+            />
+          </div>
+          <div className={tableStyles.labelCell}>{skill.category ?? ''}</div>
         </div>
 
         {/* スキル名 */}
@@ -92,9 +102,22 @@ const SkillReadonlyRow = memo(
             minHeight: '32px',
             justifyContent: 'center',
             fontWeight: 'bold',
+            gap: '6px',
           }}
         >
-          {skill.name}
+          <span>{skill.name}</span>
+          {skill.page && (
+            <span
+              style={{
+                fontSize: '0.65rem',
+                color: 'rgba(160,160,160,0.45)',
+                fontWeight: 'normal',
+                flexShrink: 0,
+              }}
+            >
+              {/^\d+$/.test(skill.page) ? `p.${skill.page}` : skill.page}
+            </span>
+          )}
         </div>
 
         {/* GL */}
@@ -132,8 +155,8 @@ const SkillReadonlyRow = memo(
           </div>
         ))}
 
-        {/* 効果+ページ: 分類列を除く全列にまたがる */}
-        {hasEffect && (
+        {/* 効果+ページ: 分類列を除く全列にまたがる（ホバー or 全表示時のみ） */}
+        {hasEffect && (isHovered || (showAll ?? false)) && (
           <div className={tableStyles.subRow} style={{ gridColumn: '2 / -1', gridRow: '2' }}>
             <div
               className={tableStyles.textContent}
@@ -145,11 +168,6 @@ const SkillReadonlyRow = memo(
             >
               {skill.effect}
             </div>
-            {skill.page && (
-              <div className={tableStyles.pageRef}>
-                {/^\d+$/.test(skill.page) ? `p.${skill.page}` : skill.page}
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -198,162 +216,175 @@ const SkillEditRow = memo(
     }
 
     return (
-      <div className={`${tableStyles.row} ${tableStyles.blockRow}`}>
-        {/* メイン行 */}
-        <div className={tableStyles.skillEditGrid}>
-          {/* スキル名 */}
-          <div
-            className={tableStyles.cell}
-            style={{ justifyContent: 'flex-start', padding: '0 8px' }}
-          >
+      <div
+        className={`${tableStyles.row} ${tableStyles.skillEditOuterGrid}${skill.acquired === false ? ` ${tableStyles.unacquired}` : ''}`}
+      >
+        {/* 取得チェック + 分類（labelBlockで結合） */}
+        <div className={tableStyles.labelBlock}>
+          <div className={tableStyles.labelCell}>
             <input
-              className={formStyles.inputSmall}
-              onChange={(e) => {
-                setLocalSkillName(e.target.value);
-                onUpdate(index, 'name', e.target.value);
-              }}
-              placeholder='スキル名'
-              type='text'
-              value={localSkillName}
+              checked={skill.acquired !== false}
+              className={tableStyles.acquireCheck}
+              onChange={(e) => onUpdate(index, 'acquired', e.target.checked)}
+              type='checkbox'
             />
           </div>
-
-          {/* GL */}
-          <div className={tableStyles.cell}>
-            <div className={formStyles.stepperSmall}>
-              <button
-                onClick={() => onUpdate(index, 'level', (skill.level || 0) - 1)}
-                type='button'
-              >
-                -
-              </button>
-              <NumberInput onChange={(v) => onUpdate(index, 'level', v)} value={skill.level} />
-              <button
-                onClick={() => onUpdate(index, 'level', (skill.level || 0) + 1)}
-                type='button'
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* タイミング〜コスト */}
-          {MAIN_COLS.map(({ field, label }) => (
-            <div className={tableStyles.cell} key={field}>
-              {field === 'timing' ? (
-                <ComboBox
-                  className={formStyles.input}
-                  defaultValue={(skill as any)[field] ?? ''}
-                  onCommit={(val) => onUpdate(index, field, val)}
-                  options={TIMING_OPTIONS}
-                  placeholder={label}
-                />
-              ) : field === 'range' ? (
-                <ComboBox
-                  className={formStyles.input}
-                  defaultValue={(skill as any)[field] ?? ''}
-                  onCommit={(val) => onUpdate(index, field, val)}
-                  options={RANGE_OPTIONS}
-                  placeholder={label}
-                />
-              ) : field === 'critical' ? (
-                <ComboBox
-                  className={formStyles.input}
-                  defaultValue={(skill as any)[field] ?? ''}
-                  onCommit={(val) => onUpdate(index, field, val)}
-                  options={CRITICAL_OPTIONS}
-                  placeholder={label}
-                />
-              ) : field === 'judge' ? (
-                <ComboBox
-                  className={formStyles.input}
-                  defaultValue={(skill as any)[field] ?? ''}
-                  onCommit={(val) => onUpdate(index, field, val)}
-                  options={JUDGE_OPTIONS}
-                  placeholder={label}
-                />
-              ) : field === 'target' ? (
-                <ComboBox
-                  className={formStyles.input}
-                  defaultValue={(skill as any)[field] ?? ''}
-                  onCommit={(val) => onUpdate(index, field, val)}
-                  options={TARGET_OPTIONS}
-                  placeholder={label}
-                />
-              ) : (
-                <input
-                  className={formStyles.inputSmall}
-                  onChange={(e) => onUpdate(index, field, e.target.value)}
-                  placeholder={label}
-                  type='text'
-                  value={(skill as any)[field] ?? ''}
-                />
-              )}
-            </div>
-          ))}
-
-          {/* 削除ボタン */}
-          <div className={tableStyles.cell}>
-            <button
-              className={btnStyles.ghost}
-              disabled={isFixed}
-              onClick={() => onRemove(index)}
-              style={{
-                color: isFixed ? 'var(--text-muted)' : '#ff6b6b',
-                padding: '4px',
-                cursor: isFixed ? 'not-allowed' : 'pointer',
-              }}
-              title={isFixed ? '削除不可' : '削除'}
-              type='button'
-            >
-              ×
-            </button>
+          <div className={`${tableStyles.labelCell} ${tableStyles.labelCellInput}`}>
+            <ComboBox
+              className={formStyles.inputSmall}
+              defaultValue={skill.category ?? ''}
+              onCommit={(val) => onUpdate(index, 'category', val)}
+              options={CATEGORY_OPTIONS}
+              placeholder='分類'
+            />
           </div>
         </div>
 
-        {/* 2行目: 分類 + 効果 + ページ */}
-        <div className={`${tableStyles.subRow} ${tableStyles.subRowCompact}`}>
-          <div className={tableStyles.fieldRowShrink}>
-            <span className={tableStyles.fieldLabel}>分類</span>
-            <div className={tableStyles.slotLabelCol}>
-              <ComboBox
-                className={formStyles.inputSmall}
-                defaultValue={skill.category ?? ''}
-                onCommit={(val) => onUpdate(index, 'category', val)}
-                options={CATEGORY_OPTIONS}
-                placeholder='分類'
-              />
-            </div>
-          </div>
-
-          <div className={tableStyles.fieldRowFlex}>
-            <span className={tableStyles.fieldLabel}>効果</span>
-            <AutoResizeTextarea
-              autoResize={autoResize}
-              className={formStyles.textareaTable}
-              onChange={(e) => {
-                setLocalEffect(e.target.value);
-                onUpdate(index, 'effect', e.target.value);
-              }}
-              rows={1}
-              style={{ flex: 1 }}
-              value={localEffect}
-            />
-          </div>
-
-          <div className={tableStyles.fieldRowShrink}>
-            <span className={tableStyles.fieldLabel}>ページ</span>
-            <div style={{ width: '60px' }}>
+        {/* コンテンツ列: メイン行 + サブ行 */}
+        <div>
+          {/* メイン行 */}
+          <div className={tableStyles.skillEditGrid}>
+            {/* スキル名 */}
+            <div
+              className={tableStyles.cell}
+              style={{ justifyContent: 'flex-start', padding: '0 8px' }}
+            >
               <input
                 className={formStyles.inputSmall}
                 onChange={(e) => {
-                  setLocalPage(e.target.value);
-                  onUpdate(index, 'page', e.target.value);
+                  setLocalSkillName(e.target.value);
+                  onUpdate(index, 'name', e.target.value);
                 }}
-                placeholder='p.'
+                placeholder='名称'
                 type='text'
-                value={localPage}
+                value={localSkillName}
               />
+            </div>
+
+            {/* GL */}
+            <div className={tableStyles.cell}>
+              <div className={formStyles.stepperSmall}>
+                <button
+                  onClick={() => onUpdate(index, 'level', (skill.level || 0) - 1)}
+                  type='button'
+                >
+                  -
+                </button>
+                <NumberInput onChange={(v) => onUpdate(index, 'level', v)} value={skill.level} />
+                <button
+                  onClick={() => onUpdate(index, 'level', (skill.level || 0) + 1)}
+                  type='button'
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* タイミング〜コスト */}
+            {MAIN_COLS.map(({ field, label }) => (
+              <div className={tableStyles.cell} key={field}>
+                {field === 'timing' ? (
+                  <ComboBox
+                    className={formStyles.input}
+                    defaultValue={(skill as any)[field] ?? ''}
+                    onCommit={(val) => onUpdate(index, field, val)}
+                    options={TIMING_OPTIONS}
+                    placeholder={label}
+                  />
+                ) : field === 'range' ? (
+                  <ComboBox
+                    className={formStyles.input}
+                    defaultValue={(skill as any)[field] ?? ''}
+                    onCommit={(val) => onUpdate(index, field, val)}
+                    options={RANGE_OPTIONS}
+                    placeholder={label}
+                  />
+                ) : field === 'critical' ? (
+                  <ComboBox
+                    className={formStyles.input}
+                    defaultValue={(skill as any)[field] ?? ''}
+                    onCommit={(val) => onUpdate(index, field, val)}
+                    options={CRITICAL_OPTIONS}
+                    placeholder={label}
+                  />
+                ) : field === 'judge' ? (
+                  <ComboBox
+                    className={formStyles.input}
+                    defaultValue={(skill as any)[field] ?? ''}
+                    onCommit={(val) => onUpdate(index, field, val)}
+                    options={JUDGE_OPTIONS}
+                    placeholder={label}
+                  />
+                ) : field === 'target' ? (
+                  <ComboBox
+                    className={formStyles.input}
+                    defaultValue={(skill as any)[field] ?? ''}
+                    onCommit={(val) => onUpdate(index, field, val)}
+                    options={TARGET_OPTIONS}
+                    placeholder={label}
+                  />
+                ) : (
+                  <input
+                    className={formStyles.inputSmall}
+                    onChange={(e) => onUpdate(index, field, e.target.value)}
+                    placeholder={label}
+                    type='text'
+                    value={(skill as any)[field] ?? ''}
+                  />
+                )}
+              </div>
+            ))}
+
+            {/* 削除ボタン */}
+            <div className={tableStyles.cell}>
+              <button
+                className={btnStyles.ghost}
+                disabled={isFixed}
+                onClick={() => onRemove(index)}
+                style={{
+                  color: isFixed ? 'var(--text-muted)' : '#ff6b6b',
+                  padding: '4px',
+                  cursor: isFixed ? 'not-allowed' : 'pointer',
+                }}
+                title={isFixed ? '削除不可' : '削除'}
+                type='button'
+              >
+                ×
+              </button>
+            </div>
+          </div>
+
+          {/* 2行目: 効果 + ページ */}
+          <div className={`${tableStyles.subRow} ${tableStyles.subRowCompact}`}>
+            <div className={tableStyles.fieldRowFlex}>
+              <span className={tableStyles.fieldLabel}>効果</span>
+              <AutoResizeTextarea
+                autoResize={autoResize}
+                className={formStyles.textareaTable}
+                onChange={(e) => {
+                  setLocalEffect(e.target.value);
+                  onUpdate(index, 'effect', e.target.value);
+                }}
+                rows={1}
+                style={{ flex: 1 }}
+                value={localEffect}
+              />
+            </div>
+
+            <div className={tableStyles.fieldRowShrink}>
+              <span className={tableStyles.fieldLabel}>ページ</span>
+              <div style={{ width: '60px' }}>
+                <input
+                  className={formStyles.inputSmall}
+                  onChange={(e) => {
+                    setLocalPage(e.target.value);
+                    onUpdate(index, 'page', e.target.value);
+                  }}
+                  placeholder='p.'
+                  type='text'
+                  value={localPage}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -378,6 +409,7 @@ interface SkillSectionProps {
 export const SkillSection: React.FC<SkillSectionProps> = memo(
   ({ skills, isReadOnly, autoResize, handleSkillsAdd, handleSkillsRemove, handleSkillsUpdate }) => {
     const [isOpen, setIsOpen] = useState(true);
+    const [showAll, setShowAll] = useState(false);
 
     return (
       <section className={cardStyles.base}>
@@ -386,7 +418,27 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
         >
           <h2 className={cardStyles.title}>スキル</h2>
-          {!isReadOnly && (
+          {isReadOnly ? (
+            <button
+              onClick={() => setShowAll((v) => !v)}
+              style={{
+                fontSize: '0.72rem',
+                color: '#fff',
+                background: 'var(--accent-dark)',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '3px 10px',
+                borderRadius: '9999px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+              type='button'
+            >
+              {showAll ? '効果を折畳む' : '効果を全展開'}
+              {showAll ? <IconChevronUp size={13} /> : <IconChevronDown size={13} />}
+            </button>
+          ) : (
             <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
           )}
         </div>
@@ -395,13 +447,16 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
           <div className={tableStyles.scrollContainer}>
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
-              style={{ minWidth: '760px' }}
+              style={isReadOnly ? undefined : { minWidth: '876px' }}
             >
               {/* ヘッダー行 */}
               {isReadOnly ? (
                 <div className={`${tableStyles.headerRow} ${tableStyles.skillReadonlyGrid}`}>
-                  <div className={tableStyles.labelCell}>分類</div>
-                  <div className={tableStyles.cell}>スキル名</div>
+                  <div className={tableStyles.labelBlock}>
+                    <div className={tableStyles.labelCell}>取得</div>
+                    <div className={tableStyles.labelCell}>分類</div>
+                  </div>
+                  <div className={tableStyles.cell}>名称</div>
                   <div className={tableStyles.cell}>GL</div>
                   {MAIN_COLS.map(({ label }) => (
                     <div className={tableStyles.cell} key={label}>
@@ -410,15 +465,21 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
                   ))}
                 </div>
               ) : (
-                <div className={`${tableStyles.headerRow} ${tableStyles.skillEditGrid}`}>
-                  <div className={tableStyles.labelCell}>スキル名</div>
-                  <div className={tableStyles.cell}>GL</div>
-                  {MAIN_COLS.map(({ label }) => (
-                    <div className={tableStyles.cell} key={label}>
-                      {label}
-                    </div>
-                  ))}
-                  <div className={tableStyles.cell}>削除</div>
+                <div className={`${tableStyles.headerRow} ${tableStyles.skillEditOuterGrid}`}>
+                  <div className={tableStyles.labelBlock}>
+                    <div className={tableStyles.labelCell}>取得</div>
+                    <div className={tableStyles.labelCell}>分類</div>
+                  </div>
+                  <div className={tableStyles.skillEditGrid}>
+                    <div className={tableStyles.cell}>名称</div>
+                    <div className={tableStyles.cell}>GL</div>
+                    {MAIN_COLS.map(({ label }) => (
+                      <div className={tableStyles.cell} key={label}>
+                        {label}
+                      </div>
+                    ))}
+                    <div className={tableStyles.cell}>削除</div>
+                  </div>
                 </div>
               )}
 
@@ -433,6 +494,7 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
                     autoResize={autoResize}
                     key={skill.id}
                     rowIndex={index}
+                    showAll={showAll}
                     skill={skill}
                   />
                 ))

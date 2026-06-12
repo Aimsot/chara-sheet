@@ -1,6 +1,6 @@
 {
   "name": "chara-sheet",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "description": "Hotch Potch Character Sheet System",
   "private": true,
   "scripts": {
@@ -15,6 +15,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@tabler/icons-react": "^3.44.0",
     "next": "16.2.7",
     "react": "19.2.7",
     "react-dom": "19.2.7"

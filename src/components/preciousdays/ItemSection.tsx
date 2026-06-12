@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+
 import { ComboBox } from '@/components/ui/ComboBox';
 import { NumberInput } from '@/components/ui/NumberInput';
 import btnStyles from '@/styles/components/buttons.module.scss';
@@ -15,7 +17,8 @@ const ItemRow = memo(
     item,
     index,
     isReadOnly,
-    autoResize,
+    autoResize: _autoResize,
+    showAll,
     onUpdate,
     onRemove,
   }: {
@@ -23,6 +26,7 @@ const ItemRow = memo(
     index: number;
     isReadOnly?: boolean;
     autoResize?: boolean;
+    showAll?: boolean;
     onUpdate: (index: number, field: keyof Item, value: any) => void;
     onRemove: (index: number) => void;
   }) => {
@@ -60,38 +64,50 @@ const ItemRow = memo(
       [index, onUpdate]
     );
     const handleRemove = useCallback(() => onRemove(index), [index, onRemove]);
+    const [isHovered, setIsHovered] = useState(false);
 
     // 閲覧モード: 装備品と同じ外枠+内側グリッドパターン
     if (isReadOnly) {
-      const showSub = !!item.notes || !!item.page;
-      const pageText = item.page ? (/^\d+$/.test(item.page) ? `p.${item.page}` : item.page) : '';
+      const showSub = !!item.notes;
+      const showSubRow = showSub && (isHovered || (showAll ?? false));
+
       return (
-        <div className={`${tableStyles.row} ${tableStyles.itemRowGrid}`}>
-          <div className={tableStyles.labelCell} style={{ alignSelf: 'stretch' }}>
-            {item.category ?? ''}
+        <div
+          className={`${tableStyles.row} ${tableStyles.itemRowGrid}${item.acquired === false ? ` ${tableStyles.unacquired}` : ''}`}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div className={tableStyles.labelBlock}>
+            <div className={tableStyles.labelCell}>
+              <input
+                checked={item.acquired !== false}
+                className={tableStyles.acquireCheck}
+                disabled
+                readOnly
+                type='checkbox'
+              />
+            </div>
+            <div className={tableStyles.labelCell}>{item.category ?? ''}</div>
           </div>
           <div className={tableStyles.flexColumn}>
-            <div className={tableStyles.itemViewGrid} style={{ alignItems: 'center' }}>
-              <div className={tableStyles.cell}>{item.name}</div>
-              <div className={tableStyles.cell}>{item.gl ?? '—'}</div>
+            <div className={tableStyles.itemViewGrid}>
+              <div className={tableStyles.cell} style={{ gap: '6px' }}>
+                <span>{item.name}</span>
+                {item.page && (
+                  <span
+                    style={{ fontSize: '0.65rem', color: 'rgba(160,160,160,0.45)', flexShrink: 0 }}
+                  >
+                    {/^\d+$/.test(item.page) ? `p.${item.page}` : item.page}
+                  </span>
+                )}
+              </div>
+              <div className={tableStyles.cell}>{item.gl ?? 0}</div>
               <div className={tableStyles.cell}>{item.weight}</div>
               <div className={tableStyles.cell}>{item.quantity}</div>
             </div>
-            {showSub && (
-              <div className={tableStyles.subRow} style={{ paddingLeft: '12px' }}>
-                {item.notes && (
-                  <div
-                    className={tableStyles.textContent}
-                    style={{
-                      paddingLeft: '12px',
-                      maxHeight: autoResize ? undefined : '4.5em',
-                      overflowY: autoResize ? undefined : 'auto',
-                    }}
-                  >
-                    {item.notes}
-                  </div>
-                )}
-                {item.page && <div className={tableStyles.pageRef}>{pageText}</div>}
+            {showSubRow && (
+              <div className={tableStyles.subRow}>
+                {item.notes && <div className={tableStyles.textContent}>{item.notes}</div>}
               </div>
             )}
           </div>
@@ -102,116 +118,135 @@ const ItemRow = memo(
     // 編集モード
     return (
       <div
-        className={`${tableStyles.row} ${tableStyles.itemEditGrid}`}
-        style={{ alignItems: 'center', paddingTop: '8px', paddingBottom: '8px' }}
+        className={`${tableStyles.row} ${tableStyles.itemRowGrid}${item.acquired === false ? ` ${tableStyles.unacquired}` : ''}`}
       >
-        {/* 種別 */}
-        <div className={tableStyles.cell} style={{ padding: '0 4px' }}>
-          <ComboBox
-            className={formStyles.inputSmall}
-            defaultValue={item.category ?? ''}
-            onCommit={(val) => onUpdate(index, 'category', val)}
-            options={ITEM_CATEGORY_OPTIONS}
-            placeholder='種別'
-          />
-        </div>
-
-        {/* アイテム名 */}
-        <div className={tableStyles.cell} style={{ paddingLeft: '6px', paddingRight: '6px' }}>
-          <input
-            className={formStyles.input}
-            inputMode='text'
-            onChange={(e) => {
-              setLocalName(e.target.value);
-              onUpdate(index, 'name', e.target.value);
-            }}
-            placeholder='アイテム名'
-            style={{ padding: '0 10px' }}
-            type='text'
-            value={localName}
-          />
-        </div>
-
-        {/* GL */}
-        <div className={tableStyles.cell}>
-          <div className={formStyles.stepperSmall}>
-            <button onClick={() => handleGLChange((item.gl ?? 0) - 1)} type='button'>
-              -
-            </button>
-            <NumberInput onChange={handleGLChange} value={item.gl ?? 0} />
-            <button onClick={() => handleGLChange((item.gl ?? 0) + 1)} type='button'>
-              +
-            </button>
+        {/* 取得チェック + 種別（labelBlockで結合） */}
+        <div className={tableStyles.labelBlock}>
+          <div className={tableStyles.labelCell}>
+            <input
+              checked={item.acquired !== false}
+              className={tableStyles.acquireCheck}
+              onChange={(e) => onUpdate(index, 'acquired', e.target.checked)}
+              type='checkbox'
+            />
+          </div>
+          <div className={`${tableStyles.labelCell} ${tableStyles.labelCellInput}`}>
+            <ComboBox
+              className={formStyles.inputSmall}
+              defaultValue={item.category ?? ''}
+              onCommit={(val) => onUpdate(index, 'category', val)}
+              options={ITEM_CATEGORY_OPTIONS}
+              placeholder='種別'
+            />
           </div>
         </div>
 
-        {/* 重量 */}
-        <div className={tableStyles.cell}>
-          <div className={formStyles.stepperSmall}>
-            <button onClick={() => handleWeightChange((item.weight || 0) - 1)} type='button'>
-              -
-            </button>
-            <NumberInput onChange={handleWeightChange} value={item.weight} />
-            <button onClick={() => handleWeightChange((item.weight || 0) + 1)} type='button'>
-              +
-            </button>
+        {/* コンテンツ列 */}
+        <div className={tableStyles.flexColumn}>
+          <div className={tableStyles.itemEditInnerGrid}>
+            {/* アイテム名 */}
+            <div className={tableStyles.cell}>
+              <input
+                className={formStyles.input}
+                inputMode='text'
+                onChange={(e) => {
+                  setLocalName(e.target.value);
+                  onUpdate(index, 'name', e.target.value);
+                }}
+                placeholder='名称'
+                type='text'
+                value={localName}
+              />
+            </div>
+
+            {/* GL */}
+            <div className={tableStyles.cell}>
+              <div className={formStyles.stepperSmall}>
+                <button onClick={() => handleGLChange((item.gl ?? 0) - 1)} type='button'>
+                  -
+                </button>
+                <NumberInput onChange={handleGLChange} value={item.gl ?? 0} />
+                <button onClick={() => handleGLChange((item.gl ?? 0) + 1)} type='button'>
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* 重量 */}
+            <div className={tableStyles.cell}>
+              <div className={formStyles.stepperSmall}>
+                <button onClick={() => handleWeightChange((item.weight || 0) - 1)} type='button'>
+                  -
+                </button>
+                <NumberInput onChange={handleWeightChange} value={item.weight} />
+                <button onClick={() => handleWeightChange((item.weight || 0) + 1)} type='button'>
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* 個数 */}
+            <div className={tableStyles.cell}>
+              <div className={formStyles.stepperSmall}>
+                <button
+                  onClick={() => handleQuantityChange((item.quantity || 0) - 1)}
+                  type='button'
+                >
+                  -
+                </button>
+                <NumberInput onChange={handleQuantityChange} value={item.quantity} />
+                <button
+                  onClick={() => handleQuantityChange((item.quantity || 0) + 1)}
+                  type='button'
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* 効果 */}
+            <div className={tableStyles.cell}>
+              <input
+                className={formStyles.input}
+                inputMode='text'
+                onChange={(e) => {
+                  setLocalNotes(e.target.value);
+                  onUpdate(index, 'notes', e.target.value);
+                }}
+                placeholder='効果'
+                type='text'
+                value={localNotes}
+              />
+            </div>
+
+            {/* ページ */}
+            <div className={tableStyles.cell}>
+              <input
+                className={formStyles.input}
+                inputMode='text'
+                onChange={(e) => {
+                  setLocalPage(e.target.value);
+                  onUpdate(index, 'page', e.target.value);
+                }}
+                placeholder='p.'
+                type='text'
+                value={localPage}
+              />
+            </div>
+
+            {/* 削除ボタン */}
+            <div className={tableStyles.cell}>
+              <button
+                className={btnStyles.ghost}
+                onClick={handleRemove}
+                style={{ color: '#ff6b6b', padding: '4px' }}
+                title='削除'
+                type='button'
+              >
+                ×
+              </button>
+            </div>
           </div>
-        </div>
-
-        {/* 個数 */}
-        <div className={tableStyles.cell}>
-          <div className={formStyles.stepperSmall}>
-            <button onClick={() => handleQuantityChange((item.quantity || 0) - 1)} type='button'>
-              -
-            </button>
-            <NumberInput onChange={handleQuantityChange} value={item.quantity} />
-            <button onClick={() => handleQuantityChange((item.quantity || 0) + 1)} type='button'>
-              +
-            </button>
-          </div>
-        </div>
-
-        {/* 効果 */}
-        <div className={tableStyles.cell}>
-          <input
-            className={formStyles.input}
-            inputMode='text'
-            onChange={(e) => {
-              setLocalNotes(e.target.value);
-              onUpdate(index, 'notes', e.target.value);
-            }}
-            placeholder='効果'
-            type='text'
-            value={localNotes}
-          />
-        </div>
-
-        {/* ページ */}
-        <div className={tableStyles.cell}>
-          <input
-            className={formStyles.input}
-            inputMode='text'
-            onChange={(e) => {
-              setLocalPage(e.target.value);
-              onUpdate(index, 'page', e.target.value);
-            }}
-            placeholder='p.'
-            type='text'
-            value={localPage}
-          />
-        </div>
-
-        {/* 削除ボタン */}
-        <div className={tableStyles.cell}>
-          <button
-            className={btnStyles.ghost}
-            onClick={handleRemove}
-            style={{ color: '#ff6b6b', padding: '4px' }}
-            title='削除'
-            type='button'
-          >
-            ×
-          </button>
         </div>
       </div>
     );
@@ -231,9 +266,15 @@ interface ItemSectionProps {
 export const ItemSection: React.FC<ItemSectionProps> = memo(
   ({ items, isReadOnly, autoResize, handleItemsAdd, handleItemsRemove, handleItemsUpdate }) => {
     const [isOpen, setIsOpen] = useState(true);
+    const [showAll, setShowAll] = useState(false);
 
     const totalItemWeight = useMemo(
-      () => items.reduce((sum, item) => sum + item.weight * item.quantity, 0),
+      () =>
+        items.reduce(
+          (sum, item) =>
+            sum + (item.acquired !== false ? (item.weight || 0) * (item.quantity || 0) : 0),
+          0
+        ),
       [items]
     );
 
@@ -243,8 +284,28 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
           className={`${cardStyles.accordionHeader}${isReadOnly ? ` ${cardStyles.readOnly}` : ''}`}
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
         >
-          <h2 className={cardStyles.title}>道具・消耗品</h2>
-          {!isReadOnly && (
+          <h2 className={cardStyles.title}>携帯品</h2>
+          {isReadOnly ? (
+            <button
+              onClick={() => setShowAll((v) => !v)}
+              style={{
+                fontSize: '0.72rem',
+                color: '#fff',
+                background: 'var(--accent-dark)',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '3px 10px',
+                borderRadius: '9999px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+              type='button'
+            >
+              {showAll ? '効果を折畳む' : '効果を全展開'}
+              {showAll ? <IconChevronUp size={13} /> : <IconChevronDown size={13} />}
+            </button>
+          ) : (
             <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
           )}
         </div>
@@ -258,16 +319,22 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
               {/* ヘッダー */}
               {isReadOnly ? (
                 <div className={`${tableStyles.headerRow} ${tableStyles.itemViewHeaderGrid}`}>
-                  <div className={tableStyles.labelCell}>種別</div>
-                  <div className={tableStyles.cell}>アイテム名</div>
+                  <div className={tableStyles.labelBlock}>
+                    <div className={tableStyles.labelCell}>取得</div>
+                    <div className={tableStyles.labelCell}>種別</div>
+                  </div>
+                  <div className={tableStyles.cell}>名称</div>
                   <div className={tableStyles.cell}>GL</div>
                   <div className={tableStyles.cell}>重量</div>
                   <div className={tableStyles.cell}>個数</div>
                 </div>
               ) : (
                 <div className={`${tableStyles.headerRow} ${tableStyles.itemEditGrid}`}>
-                  <div className={tableStyles.labelCell}>種別</div>
-                  <div className={tableStyles.cell}>アイテム名</div>
+                  <div className={tableStyles.labelBlock}>
+                    <div className={tableStyles.labelCell}>取得</div>
+                    <div className={tableStyles.labelCell}>種別</div>
+                  </div>
+                  <div className={tableStyles.cell}>名称</div>
                   <div className={tableStyles.cell}>GL</div>
                   <div className={tableStyles.cell}>重量</div>
                   <div className={tableStyles.cell}>個数</div>
@@ -291,6 +358,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                     key={item.id}
                     onRemove={handleItemsRemove}
                     onUpdate={handleItemsUpdate}
+                    showAll={showAll}
                   />
                 ))
               )}
@@ -325,12 +393,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
 
           {!isReadOnly && (
             <div className={tableStyles.buttonContainer}>
-              <button
-                className={btnStyles.outline}
-                onClick={handleItemsAdd}
-                style={{ fontSize: '0.85rem', padding: '6px 24px' }}
-                type='button'
-              >
+              <button className={btnStyles.outline} onClick={handleItemsAdd} type='button'>
                 ＋ アイテムを追加する
               </button>
             </div>

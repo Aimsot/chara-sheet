@@ -1,8 +1,8 @@
 ﻿/* src/components/preciousdays/CharacterSheetTemplate.tsx */
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Tooltip } from 'react-tooltip';
 
-import { ArrowBigLeftDash, ClipboardCopy, Eye, LoaderCircle, Lock, Pen, Save } from 'lucide-react';
+import { ArrowBigLeftDash, ClipboardCopy, Eye, LoaderCircle, Pen, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { AbilitySection } from '@/components/preciousdays/AbilitySection';
@@ -22,9 +22,11 @@ import WeightSection from '@/components/preciousdays/WeightSection';
 import Loading from '@/components/ui/Loading';
 import btnStyles from '@/styles/components/buttons.module.scss';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss';
+import formStyles from '@/styles/components/forms.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
 import { Character, Enchantment, Item, Memory, Skill } from '@/types/preciousdays/character';
 import { buildCcfoliaCharacter } from '@/utils/preciousdays/buildCcfoliaCharacter';
+import { scrambleText } from '@/utils/preciousdays/scrambleText';
 
 import { ActionButton } from '../ui/ActionButton';
 
@@ -118,13 +120,14 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
   } = props;
 
   const isReadOnly = mode === 'view';
+  const isMaster = char.characterType === 'master';
   const router = useRouter();
   const totalExperience = (char.memories || []).reduce(
     (sum, m) => sum + (Number(m.experience) || 0),
     0
   );
-  const [isAuthVisible, setIsAuthVisible] = useState(false);
   const [ccfoliaCopied, setCcfoliaCopied] = useState(false);
+  const [authFlashTrigger, setAuthFlashTrigger] = useState(0);
   const [viewAutoResize, setViewAutoResize] = useState(false);
   const autoResize = isReadOnly ? viewAutoResize : (char.autoResizeTextarea ?? false);
 
@@ -138,33 +141,10 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
       alert('クリップボードへのコピーに失敗しました');
     }
   };
-  const observerRef = useRef<IntersectionObserver | null>(null);
   const scrollToAuth = () => {
     const el = document.getElementById('signin-section');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  };
-
-  const signinRef = (node: HTMLDivElement | null) => {
-    // 前の監視をリセット
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
-
-    if (node) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          setIsAuthVisible(entry.isIntersecting);
-        },
-        {
-          threshold: 1,
-          root: null,
-          rootMargin: '0px',
-        }
-      );
-      observer.observe(node);
-      observerRef.current = observer;
     }
   };
 
@@ -213,14 +193,19 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
           />
         )}
         {/* 編集ボタン */}
-        {mode === 'view' && !char.password && (
+        {mode === 'view' && (
           <ActionButton
             className={`${layoutStyles.mt2} ${baseStyles.compactBtn}`}
             disabled={isSubmitting}
             icon={<Pen size={12} />}
             label='編集'
             onClick={() => {
-              router.push(`/preciousdays/edit?key=${char.id}`);
+              if (char.password) {
+                scrollToAuth();
+                setAuthFlashTrigger((n) => n + 1);
+              } else {
+                router.push(`/preciousdays/edit?key=${char.id}`);
+              }
             }}
             style={{ width: '100%' }}
             variant='midnight'
@@ -240,16 +225,6 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             />
             <Tooltip content='ココフォリア用にコマをコピー' id='ccfolia-tooltip' place='bottom' />
           </>
-        )}
-        {mode === 'view' && char.password && !isAuthVisible && (
-          <ActionButton
-            className={`${layoutStyles.mt2} ${baseStyles.compactBtn}`}
-            disabled={isSubmitting}
-            icon={<Lock size={12} />}
-            label='認証'
-            onClick={scrollToAuth} // ← 関数に変更
-            variant='midnight'
-          />
         )}
         {/* 保存ボタン */}
         {mode !== 'view' && (
@@ -283,12 +258,21 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             <ProfileSection
               characterName={char.characterName}
               characterStyle={char.style}
+              characterType={char.characterType}
+              discipleName={char.discipleName}
               element={char.element}
               experience={totalExperience}
               isReadOnly={isReadOnly}
               masterName={char.masterName}
+              onSpoilerChange={(field, val) =>
+                setChar((prev) => ({
+                  ...prev,
+                  profileSpoilers: { ...prev.profileSpoilers, [field]: val },
+                }))
+              }
               playerName={char.playerName}
               previewUrl={previewUrl}
+              profileSpoilers={char.profileSpoilers}
               setPreviewUrl={setPreviewUrl}
               setSelectedFile={setSelectedFile}
               species={char.species}
@@ -296,39 +280,63 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               updateBaseField={updateBaseField}
             />
 
-            <GrowthTableSection
-              experience={totalExperience}
-              gl={char.gl}
-              items={char.items}
-              style={char.style}
-            />
+            {!isMaster && (
+              <GrowthTableSection
+                experience={totalExperience}
+                gl={char.gl}
+                items={char.items}
+                style={char.style}
+              />
+            )}
 
-            <ResourceSection
-              abilities={char.abilities}
-              element={char.element}
-              experience={totalExperience}
-              gl={char.gl}
-              handleGLUpdate={handleGLUpdate}
-              handleResourceUpdate={handleResourceUpdate}
-              hp={char.hp}
-              isReadOnly={isReadOnly}
-              mp={char.mp}
-              style={char.style}
-              wp={char.wp}
-            />
+            {!isMaster && (
+              <ResourceSection
+                abilities={char.abilities}
+                element={char.element}
+                experience={totalExperience}
+                gl={char.gl}
+                handleGLUpdate={handleGLUpdate}
+                handleResourceUpdate={handleResourceUpdate}
+                hp={char.hp}
+                isReadOnly={isReadOnly}
+                mp={char.mp}
+                style={char.style}
+                wp={char.wp}
+              />
+            )}
 
             <div className={layoutStyles.grid}>
               <div className={layoutStyles.span6}>
                 <AppearanceSection
                   appearance={char.appearance}
+                  appearanceSpoilers={char.appearanceSpoilers}
+                  defaultOpen={isMaster || undefined}
+                  isMaster={isMaster}
                   isReadOnly={isReadOnly}
+                  key={char.characterType ?? 'disciple'}
+                  onSpoilerChange={(field, val) =>
+                    setChar((prev) => ({
+                      ...prev,
+                      appearanceSpoilers: { ...prev.appearanceSpoilers, [field]: val },
+                    }))
+                  }
                   updateAppearance={updateAppearance}
                 />
               </div>
               <div className={layoutStyles.span6} style={{ minWidth: 0 }}>
                 <LifepathSection
+                  defaultOpen={isMaster || undefined}
                   future={char.future}
+                  isMaster={isMaster}
                   isReadOnly={isReadOnly}
+                  key={char.characterType ?? 'disciple'}
+                  lifepathSpoilers={char.lifepathSpoilers}
+                  onSpoilerChange={(field, val) =>
+                    setChar((prev) => ({
+                      ...prev,
+                      lifepathSpoilers: { ...prev.lifepathSpoilers, [field]: val },
+                    }))
+                  }
                   origin={char.origin}
                   secret={char.secret}
                   updateBaseField={updateBaseField}
@@ -336,31 +344,57 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
               </div>
             </div>
 
-            <AbilitySection
-              abilities={char.abilities}
-              element={char.element}
-              gl={char.gl}
-              handleAbilitiesBonusChange={handleAbilitiesBonusChange}
-              handleAbilitiesGrowthChange={handleAbilitiesGrowthChange}
-              handleAbilitiesOtherModifierChange={handleAbilitiesOtherModifierChange}
-              isReadOnly={isReadOnly}
-              species={char.species}
-              style={char.style}
-              updateAbilities={updateAbilities}
-            />
+            {isMaster && !isReadOnly && (
+              <div className={`${formStyles.notes} ${layoutStyles.mt0}`}>
+                <p>
+                  秘匿にチェックを入れたフィールドは、閲覧画面では
+                  <span className={baseStyles.spoiler}>{scrambleText('このような表示')}</span>
+                  のように文字数と同じランダムなカタカナに変換されて隠れて表示されます。
+                </p>
+              </div>
+            )}
 
-            <CombatSection
-              abilities={char.abilities}
-              combatValues={char.combatValues}
-              equipment={char.equipment}
-              handleCombatModifierChange={handleCombatModifierChange}
-              isReadOnly={isReadOnly}
-              specialChecks={char.specialChecks}
-              style={char.style}
-            />
+            {isMaster && (
+              <NoteSection
+                autoResize={autoResize}
+                isReadOnly={isReadOnly}
+                note={char.note ?? ''}
+                secretNote={char.secretNote ?? ''}
+                updateNote={(val) => updateBaseField('note', val)}
+                updateSecretNote={(val) => updateBaseField('secretNote', val)}
+              />
+            )}
+
+            {!isMaster && (
+              <AbilitySection
+                abilities={char.abilities}
+                element={char.element}
+                gl={char.gl}
+                handleAbilitiesBonusChange={handleAbilitiesBonusChange}
+                handleAbilitiesGrowthChange={handleAbilitiesGrowthChange}
+                handleAbilitiesOtherModifierChange={handleAbilitiesOtherModifierChange}
+                isReadOnly={isReadOnly}
+                species={char.species}
+                style={char.style}
+                updateAbilities={updateAbilities}
+              />
+            )}
+
+            {!isMaster && (
+              <CombatSection
+                abilities={char.abilities}
+                combatValues={char.combatValues}
+                equipment={char.equipment}
+                handleCombatModifierChange={handleCombatModifierChange}
+                isReadOnly={isReadOnly}
+                specialChecks={char.specialChecks}
+                style={char.style}
+              />
+            )}
           </div>
 
           <SidebarSection
+            authFlashTrigger={authFlashTrigger}
             autoResize={isReadOnly ? viewAutoResize : undefined}
             char={char}
             className={`${layoutStyles.span4} ${baseStyles.mobileOrderLast}`}
@@ -374,64 +408,75 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
             onAutoResizeChange={isReadOnly ? (v) => setViewAutoResize(v) : undefined}
             password={char.password}
             setChar={setChar}
-            signinRef={signinRef}
           />
 
           <div
             className={`${layoutStyles.span12} ${baseStyles.stack}`}
             style={{ marginTop: '32px' }}
           >
-            <EquipmentSection
-              abilities={char.abilities}
-              autoResize={autoResize}
-              equipment={char.equipment}
-              handleEquipmentUpdate={handleEquipmentUpdate}
-              isReadOnly={isReadOnly}
-              items={char.items}
-              species={char.species}
-            />
-            <ItemSection
-              autoResize={autoResize}
-              handleItemsAdd={handleItemsAdd}
-              handleItemsRemove={handleItemsRemove}
-              handleItemsUpdate={handleItemsUpdate}
-              isReadOnly={isReadOnly}
-              items={char.items}
-            />
-            <WeightSection
-              abilities={char.abilities}
-              equipment={char.equipment}
-              items={char.items}
-              species={char.species}
-            />
-            <EnchantmentSection
-              autoResize={autoResize}
-              enchantments={
-                char.enchantments?.length
-                  ? char.enchantments
-                  : [{ id: 'e1', name: '', gl: 0, effect: '' }]
-              }
-              handleEnchantmentsAdd={handleEnchantmentsAdd}
-              handleEnchantmentsRemove={handleEnchantmentsRemove}
-              handleEnchantmentsUpdate={handleEnchantmentsUpdate}
-              isReadOnly={isReadOnly}
-            />
-            <SkillSection
-              autoResize={autoResize}
-              handleSkillsAdd={handleSkillsAdd}
-              handleSkillsRemove={handleSkillsRemove}
-              handleSkillsUpdate={handleSkillsUpdate}
-              isReadOnly={isReadOnly}
-              skills={char.skills}
-            />
-            <NoteSection
-              autoResize={autoResize}
-              isReadOnly={isReadOnly}
-              note={char.note ?? ''}
-              secretNote={char.secretNote ?? ''}
-              updateNote={(val) => updateBaseField('note', val)}
-              updateSecretNote={(val) => updateBaseField('secretNote', val)}
-            />
+            {!isMaster && (
+              <EquipmentSection
+                abilities={char.abilities}
+                autoResize={autoResize}
+                equipment={char.equipment}
+                handleEquipmentUpdate={handleEquipmentUpdate}
+                isReadOnly={isReadOnly}
+                items={char.items}
+                species={char.species}
+              />
+            )}
+            {!isMaster && (
+              <ItemSection
+                autoResize={autoResize}
+                handleItemsAdd={handleItemsAdd}
+                handleItemsRemove={handleItemsRemove}
+                handleItemsUpdate={handleItemsUpdate}
+                isReadOnly={isReadOnly}
+                items={char.items}
+              />
+            )}
+            {!isMaster && (
+              <WeightSection
+                abilities={char.abilities}
+                equipment={char.equipment}
+                items={char.items}
+                species={char.species}
+              />
+            )}
+            {!isMaster && (
+              <EnchantmentSection
+                autoResize={autoResize}
+                enchantments={
+                  char.enchantments?.length
+                    ? char.enchantments
+                    : [{ id: 'e1', name: '', gl: 0, effect: '' }]
+                }
+                handleEnchantmentsAdd={handleEnchantmentsAdd}
+                handleEnchantmentsRemove={handleEnchantmentsRemove}
+                handleEnchantmentsUpdate={handleEnchantmentsUpdate}
+                isReadOnly={isReadOnly}
+              />
+            )}
+            {!isMaster && (
+              <SkillSection
+                autoResize={autoResize}
+                handleSkillsAdd={handleSkillsAdd}
+                handleSkillsRemove={handleSkillsRemove}
+                handleSkillsUpdate={handleSkillsUpdate}
+                isReadOnly={isReadOnly}
+                skills={char.skills}
+              />
+            )}
+            {!isMaster && (
+              <NoteSection
+                autoResize={autoResize}
+                isReadOnly={isReadOnly}
+                note={char.note ?? ''}
+                secretNote={char.secretNote ?? ''}
+                updateNote={(val) => updateBaseField('note', val)}
+                updateSecretNote={(val) => updateBaseField('secretNote', val)}
+              />
+            )}
             <div id='memory-section'>
               <MemorySection
                 autoResize={autoResize}
@@ -440,6 +485,7 @@ const CharacterSheetTemplate: React.FC<TemplateProps> = (props) => {
                 handleMemoriesUpdate={handleMemoriesUpdate}
                 isReadOnly={isReadOnly}
                 memories={char.memories}
+                showExperience={!isMaster}
               />
             </div>
           </div>

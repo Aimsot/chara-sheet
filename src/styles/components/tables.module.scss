@@ -75,6 +75,7 @@
 
   /* ヘッダー内の文字は太く */
   .cell {
+    padding-inline: 6px;
     font-weight: 700;
   }
 
@@ -93,7 +94,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding-inline: 6px;
   overflow: hidden;
   background-color: transparent;
 }
@@ -127,7 +128,7 @@
   }
 
   .cell {
-    padding: 0 2px;
+    padding: 0 6px;
     font-size: 0.75rem;
 
     input,
@@ -166,7 +167,7 @@
 /* 表全体に zebra を適用する修飾クラス（nth-child ベース） */
 .zebraTable {
   .row:nth-child(odd):not(:first-child) {
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: rgba(255, 255, 255, 0.06);
     &:hover {
       background-color: color-mix(in srgb, var(--accent-color), transparent 88%);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -341,6 +342,44 @@
   align-items: flex-start;
 }
 
+/* 未取得行（opacity を落として薄く表示） */
+.unacquired {
+  opacity: 0.45;
+}
+
+/* 取得チェックボックス（inline style を統一） */
+.acquireCheck {
+  width: 16px;
+  height: 16px;
+
+  &:not(:disabled) {
+    accent-color: var(--accent-color);
+    cursor: pointer;
+  }
+}
+
+/* 取得＋分類ラベルの横並び flex ラッパー（gap なしで隣接させる） */
+.labelBlock {
+  display: flex;
+  align-self: stretch;
+
+  /* 内側の最初の labelCell（取得チェック）は 36px 固定 */
+  > .labelCell:first-child {
+    flex: 0 0 36px;
+  }
+
+  /* 内側の 2番目以降の labelCell（分類・種別等）は残り幅を確保 */
+  > .labelCell:not(:first-child) {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* 所持品・付与魔術の編集データ行パディング */
+.editDataRow {
+  padding: 6px 0;
+}
+
 /* 追加ボタンのコンテナ */
 .buttonContainer {
   display: flex;
@@ -377,6 +416,16 @@ $col-gap: 12px;
 
 /* --- .row に適用して grid-template-columns を上書きするクラス --- */
 
+/* 装備品データ行外枠グリッド（取得+部位 116px ＋ コンテンツ 1fr） */
+.equipDataRowGrid {
+  grid-template-columns: ($lbl-equip + 36px) 1fr;
+}
+
+/* スキル編集行・ヘッダー外枠グリッド（取得+分類 116px ＋ コンテンツ 1fr） */
+.skillEditOuterGrid {
+  grid-template-columns: ($lbl-equip + 36px) 1fr;
+}
+
 /* 能力値グリッド（ラベル140px + 6列） */
 .abilityGrid {
   grid-template-columns: 140px repeat(6, 1fr);
@@ -399,25 +448,23 @@ $col-gap: 12px;
 
 /* スキル表（閲覧） */
 .skillReadonlyGrid {
-  grid-template-columns: $lbl-equip minmax(0, $col-name) 40px 1.3fr repeat(5, 1fr);
+  grid-template-columns: ($lbl-equip + 36px) minmax(0, $col-name) 40px 1.3fr repeat(5, 1fr);
   align-items: center;
-  min-width: 760px;
+  min-width: 796px;
 }
 
 /* 装備品：ヘッダー / 合計行 */
 .equipHeaderGrid {
   grid-template-columns:
-    $lbl-equip minmax(0, $col-name)
+    ($lbl-equip + 36px) minmax(0, $col-name)
     $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
-  column-gap: $col-gap;
-  min-width: 1000px;
+  min-width: 1024px;
 }
 
 /* 所持品（編集） */
 .itemEditGrid {
-  grid-template-columns: $lbl-equip minmax(0, $col-name) 80px 80px 80px 2fr 60px 50px;
-  column-gap: $col-gap;
-  min-width: 860px;
+  grid-template-columns: ($lbl-equip + 36px) minmax(0, $col-name) 80px 80px 80px 2fr 60px 50px;
+  min-width: 884px;
 }
 
 /* メモリー（編集） */
@@ -426,10 +473,29 @@ $col-gap: 12px;
   min-width: 570px;
 }
 
+/* メモリー（編集・経験点なし） */
+.memoryEditGridNoExp {
+  grid-template-columns: $col-name 1fr 48px 1fr 32px;
+  min-width: 500px;
+}
+
 /* メモリー（閲覧） */
 .memoryViewGrid {
   grid-template-columns: $col-name 1fr 48px 1fr 70px;
   min-width: 540px;
+}
+
+/* メモリー（閲覧・経験点なし） */
+.memoryViewGridNoExp {
+  grid-template-columns: $col-name 1fr 48px 1fr;
+  min-width: 470px;
+}
+
+/* メモリー：秘匿メモ行（編集時のみ・全列スパン） */
+.memorySecretRow {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  padding: 0 6px 8px;
 }
 
 /* --- スタンドアロン（display: grid を自ら持つ）クラス --- */
@@ -440,7 +506,7 @@ $col-gap: 12px;
   grid-template-columns: $lbl-combat 1fr;
 }
 
-/* スキル表（編集）の内側グリッド */
+/* スキル表（編集）の内側グリッド（取得チェック列は外側グリッドに移動） */
 .skillEditGrid {
   display: grid;
   grid-template-columns: minmax(0, $col-name) 70px 1.3fr repeat(5, 1fr) 36px;
@@ -453,51 +519,54 @@ $col-gap: 12px;
 .equipInnerGrid {
   display: grid;
   grid-template-columns: minmax(0, $col-name) $col-stat $col-stat 70px 100px $col-stat $col-stat 1fr;
-  column-gap: $col-gap;
   align-items: center;
   min-height: 36px;
-  padding: 4px 0 4px $col-gap;
+  padding: 4px 0;
 }
 
 /* 所持品（閲覧）：外枠・行モディファイア */
 .itemRowGrid {
-  grid-template-columns: $lbl-equip 1fr;
+  grid-template-columns: ($lbl-equip + 36px) 1fr;
 }
 
 /* 所持品（閲覧）：ヘッダー・合計行フラットグリッド */
 .itemViewHeaderGrid {
-  grid-template-columns: $lbl-equip minmax(0, $col-name) 80px 80px 80px;
-  column-gap: $col-gap;
-  min-width: 560px;
+  grid-template-columns: ($lbl-equip + 36px) minmax(0, $col-name) 80px 80px 80px;
+  min-width: 584px;
+}
+
+/* 所持品（編集）：内側グリッド（labelBlock列を除く） */
+.itemEditInnerGrid {
+  display: grid;
+  grid-template-columns: minmax(0, $col-name) 80px 80px 80px 2fr 60px 50px;
+  align-items: center;
+  padding: 4px 0;
 }
 
 /* 所持品（閲覧）：内側グリッド（種別列を除く） */
 .itemViewGrid {
   display: grid;
   grid-template-columns: minmax(0, $col-name) 80px 80px 80px;
-  column-gap: $col-gap;
-  padding: 4px 0 4px $col-gap;
+  align-items: center;
+  padding: 4px 0;
 }
 
 /* 付与魔術（編集） */
 .enchantmentEditGrid {
-  grid-template-columns: 60px 1fr 80px 2fr 32px;
-  column-gap: $col-gap;
-  min-width: 520px;
+  grid-template-columns: ($lbl-equip + 36px) minmax(0, $col-name) 80px 120px 2fr 60px 32px;
+  min-width: 724px;
 }
 
 /* 付与魔術（閲覧） */
 .enchantmentViewGrid {
-  grid-template-columns: 60px 1fr 80px 2fr;
-  column-gap: $col-gap;
-  min-width: 420px;
+  grid-template-columns: ($lbl-equip + 36px) minmax(0, $col-name) 80px 120px 2fr;
+  min-width: 564px;
 }
 
 /* 装備品：効果・ページのサブ行グリッド */
 .equipSubRow {
   display: grid;
   grid-template-columns: 1fr 120px;
-  column-gap: $col-gap;
   padding: 3px 8px 5px 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }

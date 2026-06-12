@@ -82,7 +82,9 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
       };
     }, [experience, glLevel]);
 
-    const currentConsumableCount = items.filter((i) => i.category === '消耗品').length;
+    const currentConsumableCount = items.filter(
+      (i) => i.category === '消耗品' && i.acquired !== false
+    ).length;
 
     const hpGrowth = styleData?.hp.growth || 0;
     const mpGrowth = styleData?.mp.growth || 0;

@@ -22,12 +22,14 @@ const WeightSection = ({ items, equipment, species, abilities }: WeightProps) =>
 
   const totalWeight = useMemo(() => {
     const equipWeight = Object.values(equipment || {}).reduce(
-      (acc, item) => acc + (Number(item?.weight) || 0),
+      (acc, item) => acc + (item?.acquired !== false ? Number(item?.weight) || 0 : 0),
       0
     );
     const itemWeight =
       items?.reduce(
-        (acc, item) => acc + (Number(item.weight) || 0) * (Number(item.quantity) || 0),
+        (acc, item) =>
+          acc +
+          (item.acquired !== false ? (Number(item.weight) || 0) * (Number(item.quantity) || 0) : 0),
         0
       ) || 0;
 
@@ -52,7 +54,7 @@ const WeightSection = ({ items, equipment, species, abilities }: WeightProps) =>
         className={tableStyles.cell}
         style={{ justifyContent: 'flex-start', paddingLeft: '1.5rem', fontSize: '0.8rem' }}
       >
-        {totalWeight} / {weightLimit}
+        {totalWeight} ／ {weightLimit}
         {isOverWeight && (
           <span style={{ marginLeft: '12px', fontWeight: 'normal', color: '#ff9999' }}>
             <TriangleAlert size={14} style={{ transform: 'translateY(3px)', marginRight: '4px' }} />

@@ -13,7 +13,10 @@ import {
   StyleKey,
 } from '@/constants/preciousdays';
 import styles from '@/styles/components/charaList/row.module.scss';
+import baseStyles from '@/styles/components/charaSheet/base.module.scss';
 import { CharacterSummary } from '@/types/preciousdays/character';
+import { getGLColor } from '@/utils/preciousdays/glColor';
+import { scrambleText } from '@/utils/preciousdays/scrambleText';
 
 // 属性に応じたクラス名を返すヘルパー
 const getElementClass = (elementKey: string) => {
@@ -49,6 +52,10 @@ export const CharacterRow = memo(({ characters }: { characters: CharacterSummary
         // 属性名取得 (char.element が undefined でも壊れない)
         const elementName = ELEMENT_DATA[char.element as ElementKey]?.name || char.element || '無';
         const elementStyleClass = getElementClass(char.element);
+        const sp = char.characterType === 'master' ? (char.profileSpoilers ?? {}) : {};
+        const gl = char.gl ?? 0;
+        const discipleGLColor =
+          char.characterType === 'disciple' && gl > 0 ? getGLColor(gl) : undefined;
 
         return (
           <Link className={styles.row} href={`/preciousdays/view/${char.id}`} key={char.id}>
@@ -61,38 +68,88 @@ export const CharacterRow = memo(({ characters }: { characters: CharacterSummary
 
             <div className={styles.colSummary}>
               <div className={styles.stackedItem}>
-                <span className={styles.itemLabel}>種族</span>
-                <span className={styles.itemValueWrapper}>
-                  {SPECIES_DATA[char.species as SpeciesKey]?.name || char.species || '未設定'}
+                <span className={styles.itemLabel}>役割</span>
+                <span
+                  className={
+                    char.characterType === 'master' ? styles.masterType : styles.discipleType
+                  }
+                >
+                  {char.characterType === 'master' ? '師匠' : '弟子'}
                 </span>
               </div>
 
               <div className={styles.stackedItem}>
-                <span className={styles.itemLabel}>型</span>
-                <span className={styles.itemValueWrapper}>
-                  {STYLE_DATA[char.style as StyleKey]?.name || char.style || '未設定'}
+                <span className={styles.itemLabel}>種族</span>
+                <span
+                  className={sp.species ? baseStyles.spoiler : styles.itemValueWrapper}
+                  title={sp.species ? '師匠によって秘匿されています' : undefined}
+                >
+                  {sp.species
+                    ? scrambleText(
+                        SPECIES_DATA[char.species as SpeciesKey]?.name || char.species || '未設定'
+                      )
+                    : SPECIES_DATA[char.species as SpeciesKey]?.name || char.species || '未設定'}
+                </span>
+              </div>
+
+              <div className={styles.stackedItem}>
+                <span className={styles.itemLabel}>ｽﾀｲﾙ</span>
+                <span
+                  className={sp.style ? baseStyles.spoiler : styles.itemValueWrapper}
+                  title={sp.style ? '師匠によって秘匿されています' : undefined}
+                >
+                  {sp.style
+                    ? scrambleText(
+                        STYLE_DATA[char.style as StyleKey]?.name || char.style || '未設定'
+                      )
+                    : STYLE_DATA[char.style as StyleKey]?.name || char.style || '未設定'}
                 </span>
               </div>
 
               <div className={styles.stackedItem}>
                 <span className={styles.itemLabel}>属性</span>
-                <span className={`${styles.elementValue} ${elementStyleClass}`}>{elementName}</span>
+                <span
+                  className={
+                    sp.element ? baseStyles.spoiler : `${styles.elementValue} ${elementStyleClass}`
+                  }
+                  title={sp.element ? '師匠によって秘匿されています' : undefined}
+                >
+                  {sp.element ? scrambleText(elementName) : elementName}
+                </span>
               </div>
             </div>
 
             <div className={styles.colStats}>
-              <div className={`${styles.statBox} ${styles.hp}`}>
-                <span className={styles.statLabel}>HP</span>
-                <span className={styles.statValue}>{char.hp}</span>
-              </div>
-              <div className={`${styles.statBox} ${styles.mp}`}>
-                <span className={styles.statLabel}>MP</span>
-                <span className={styles.statValue}>{char.mp}</span>
-              </div>
-              <div className={`${styles.statBox} ${styles.wp}`}>
-                <span className={styles.statLabel}>WP</span>
-                <span className={styles.statValue}>{char.wp}</span>
-              </div>
+              {char.characterType !== 'master' && (
+                <>
+                  <div className={`${styles.statBox} ${styles.hp}`}>
+                    <span className={styles.statLabel}>HP</span>
+                    <span className={styles.statValue}>{char.hp}</span>
+                  </div>
+                  <div className={`${styles.statBox} ${styles.mp}`}>
+                    <span className={styles.statLabel}>MP</span>
+                    <span className={styles.statValue}>{char.mp}</span>
+                  </div>
+                  <div className={`${styles.statBox} ${styles.wp}`}>
+                    <span className={styles.statLabel}>WP</span>
+                    <span className={styles.statValue}>{char.wp}</span>
+                  </div>
+                  <div
+                    className={styles.statBox}
+                    style={
+                      discipleGLColor
+                        ? {
+                            color: discipleGLColor,
+                            borderLeft: `2px solid ${discipleGLColor}55`,
+                          }
+                        : undefined
+                    }
+                  >
+                    <span className={styles.statLabel}>GL</span>
+                    <span className={styles.statValue}>{char.gl ?? 0}</span>
+                  </div>
+                </>
+              )}
             </div>
           </Link>
         );

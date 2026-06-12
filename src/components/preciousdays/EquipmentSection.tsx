@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+
 import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
 import { ComboBox } from '@/components/ui/ComboBox';
 import { NumberInput } from '@/components/ui/NumberInput';
@@ -30,7 +32,10 @@ const SLOTS: { key: keyof Character['equipment']; label: string }[] = [
 
 const EquipmentHeader = () => (
   <div className={`${tableStyles.headerRow} ${tableStyles.equipHeaderGrid}`}>
-    <div className={tableStyles.labelCell}>部位</div>
+    <div className={tableStyles.labelBlock}>
+      <div className={tableStyles.labelCell}>取得</div>
+      <div className={tableStyles.labelCell}>部位</div>
+    </div>
     <div className={tableStyles.cell}>名称</div>
     <div className={tableStyles.cell}>重量</div>
     <div className={tableStyles.cell}>命中修正</div>
@@ -49,6 +54,7 @@ const EquipmentRow = memo(
     item,
     isReadOnly,
     autoResize,
+    showAll,
     onUpdate,
   }: {
     slotKey: string;
@@ -56,8 +62,10 @@ const EquipmentRow = memo(
     item: any;
     isReadOnly?: boolean;
     autoResize?: boolean;
+    showAll?: boolean;
     onUpdate: (slotKey: string, field: string, value: any) => void;
   }) => {
+    const [isHovered, setIsHovered] = useState(false);
     const [prevName, setPrevName] = useState(item.name || '');
     const [prevDamage, setPrevDamage] = useState(item.damage || '');
     const [prevNotes, setPrevNotes] = useState(item.notes || '');
@@ -93,22 +101,60 @@ const EquipmentRow = memo(
       [slotKey, onUpdate]
     );
 
-    const showNotesRow = !isReadOnly || !!item.notes || !!item.page;
+    const isArmor = ['head', 'body', 'accessory'].includes(slotKey);
+    const isGuardian = slotKey === 'guardian';
+    const showNotesRow = !isReadOnly || !!item.notes;
+    const showSubRow = showNotesRow && (!isReadOnly || isHovered || (showAll ?? false));
 
     return (
-      <div className={tableStyles.row} style={{ gridTemplateColumns: '80px 1fr' }}>
-        {/* 部位ラベル */}
-        <div className={tableStyles.labelCell} style={{ alignSelf: 'stretch' }}>
-          {label}
+      <div
+        className={`${tableStyles.row} ${tableStyles.equipDataRowGrid}${item.acquired === false ? ` ${tableStyles.unacquired}` : ''}`}
+        onMouseEnter={isReadOnly ? () => setIsHovered(true) : undefined}
+        onMouseLeave={isReadOnly ? () => setIsHovered(false) : undefined}
+      >
+        {/* 取得チェック + 部位ラベル（flex で隣接、gap なし） */}
+        <div className={tableStyles.labelBlock}>
+          <div className={tableStyles.labelCell}>
+            {isReadOnly ? (
+              <input
+                checked={item.acquired !== false}
+                className={tableStyles.acquireCheck}
+                disabled
+                readOnly
+                type='checkbox'
+              />
+            ) : (
+              <input
+                checked={item.acquired !== false}
+                className={tableStyles.acquireCheck}
+                onChange={(e) => onUpdate(slotKey, 'acquired', e.target.checked)}
+                type='checkbox'
+              />
+            )}
+          </div>
+          <div className={tableStyles.labelCell}>{label}</div>
         </div>
 
         {/* コンテンツ列: メイン行 + サブ行を縦に積む */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className={tableStyles.flexColumn}>
           {/* メイン行（7列） */}
           <div className={tableStyles.equipInnerGrid}>
-            <div className={tableStyles.cell}>
+            <div className={tableStyles.cell} style={isReadOnly ? { gap: '6px' } : undefined}>
               {isReadOnly ? (
-                <span>{item.name || ''}</span>
+                <>
+                  <span>{item.name || ''}</span>
+                  {item.page && (
+                    <span
+                      style={{
+                        fontSize: '0.65rem',
+                        color: 'rgba(160,160,160,0.45)',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {/^\d+$/.test(item.page) ? `p.${item.page}` : item.page}
+                    </span>
+                  )}
+                </>
               ) : (
                 <input
                   className={formStyles.input}
@@ -123,8 +169,9 @@ const EquipmentRow = memo(
                 />
               )}
             </div>
+            {/* 重量 */}
             <div className={tableStyles.cell}>
-              {isReadOnly ? (
+              {isGuardian ? null : isReadOnly ? (
                 item.weight
               ) : (
                 <div className={formStyles.stepperSmall}>
@@ -144,8 +191,9 @@ const EquipmentRow = memo(
                 </div>
               )}
             </div>
+            {/* 命中修正 */}
             <div className={tableStyles.cell}>
-              {isReadOnly ? (
+              {isArmor || isGuardian ? null : isReadOnly ? (
                 item.hitMod
               ) : (
                 <div className={formStyles.stepperSmall}>
@@ -165,8 +213,9 @@ const EquipmentRow = memo(
                 </div>
               )}
             </div>
+            {/* ダメージ */}
             <div className={tableStyles.cell}>
-              {isReadOnly ? (
+              {isGuardian ? null : isReadOnly ? (
                 item.damage
               ) : (
                 <input
@@ -180,8 +229,9 @@ const EquipmentRow = memo(
                 />
               )}
             </div>
+            {/* 射程 */}
             <div className={tableStyles.cell}>
-              {isReadOnly ? (
+              {isArmor || isGuardian ? null : isReadOnly ? (
                 item.range || ''
               ) : (
                 <ComboBox
@@ -193,8 +243,9 @@ const EquipmentRow = memo(
                 />
               )}
             </div>
+            {/* 回避値 */}
             <div className={tableStyles.cell}>
-              {isReadOnly ? (
+              {isGuardian ? null : isReadOnly ? (
                 item.dodgeMod
               ) : (
                 <div className={formStyles.stepperSmall}>
@@ -241,8 +292,8 @@ const EquipmentRow = memo(
             <div></div>
           </div>
 
-          {/* 効果+ページ 2行目（編集時は常時、閲覧時は内容あるときのみ） */}
-          {showNotesRow && (
+          {/* 効果+ページ 2行目（編集時は常時、閲覧時はホバー or 全表示時のみ） */}
+          {showSubRow && (
             <div className={tableStyles.equipSubRow}>
               {/* 効果 */}
               {isReadOnly ? (
@@ -275,14 +326,8 @@ const EquipmentRow = memo(
                   />
                 </div>
               )}
-              {/* ページ */}
-              {isReadOnly ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                  <span className={tableStyles.pageRef}>
-                    {item.page ? (/^\d+$/.test(item.page) ? `p.${item.page}` : item.page) : ''}
-                  </span>
-                </div>
-              ) : (
+              {/* ページ（編集時のみ） */}
+              {!isReadOnly && (
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
                   <span className={tableStyles.fieldLabel}>ページ</span>
                   <input
@@ -311,22 +356,27 @@ EquipmentRow.displayName = 'EquipmentRow';
 export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
   ({ equipment, items, abilities, species, handleEquipmentUpdate, isReadOnly, autoResize }) => {
     const [isOpen, setIsOpen] = useState(true);
+    const [showAll, setShowAll] = useState(false);
 
     const totals = useMemo(() => {
       const init = { weight: 0, hitMod: 0, dodgeMod: 0, defenseMod: 0, magicDefense: 0 };
-      const equipStats = Object.values(equipment || {}).reduce(
-        (acc, item) => ({
-          weight: acc.weight + (Number(item.weight) || 0),
-          hitMod: acc.hitMod + (Number(item.hitMod) || 0),
-          dodgeMod: acc.dodgeMod + (Number(item.dodgeMod) || 0),
-          defenseMod: acc.defenseMod + (Number(item.defenseMod) || 0),
-          magicDefense: acc.magicDefense + (Number(item.magicDefense) || 0),
-        }),
-        init
-      );
+      const equipStats = Object.values(equipment || {}).reduce((acc, item) => {
+        const active = item?.acquired !== false;
+        return {
+          weight: acc.weight + (active ? Number(item.weight) || 0 : 0),
+          hitMod: acc.hitMod + (active ? Number(item.hitMod) || 0 : 0),
+          dodgeMod: acc.dodgeMod + (active ? Number(item.dodgeMod) || 0 : 0),
+          defenseMod: acc.defenseMod + (active ? Number(item.defenseMod) || 0 : 0),
+          magicDefense: acc.magicDefense + (active ? Number(item.magicDefense) || 0 : 0),
+        };
+      }, init);
       const itemsWeight =
         items?.reduce(
-          (acc, item) => acc + (Number(item.weight) || 0) * (Number(item.quantity) || 0),
+          (acc, item) =>
+            acc +
+            (item.acquired !== false
+              ? (Number(item.weight) || 0) * (Number(item.quantity) || 0)
+              : 0),
           0
         ) || 0;
       const totalWeight = equipStats.weight + itemsWeight;
@@ -343,7 +393,27 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
         >
           <h2 className={cardStyles.title}>装備品</h2>
-          {!isReadOnly && (
+          {isReadOnly ? (
+            <button
+              onClick={() => setShowAll((v) => !v)}
+              style={{
+                fontSize: '0.72rem',
+                color: '#fff',
+                background: 'var(--accent-dark)',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '3px 10px',
+                borderRadius: '9999px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+              type='button'
+            >
+              {showAll ? '効果を折畳む' : '効果を全展開'}
+              {showAll ? <IconChevronUp size={13} /> : <IconChevronDown size={13} />}
+            </button>
+          ) : (
             <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
           )}
         </div>
@@ -352,7 +422,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
           <div className={tableStyles.scrollContainer}>
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
-              style={{ minWidth: '1000px' }}
+              style={{ minWidth: '1024px' }}
             >
               <EquipmentHeader />
 
@@ -364,6 +434,7 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
                   key={key}
                   label={label}
                   onUpdate={handleEquipmentUpdate}
+                  showAll={showAll}
                   slotKey={key}
                 />
               ))}

@@ -17,11 +17,16 @@ import imageStyles from '@/styles/components/charaSheet/image.module.scss'; // �
 import formStyles from '@/styles/components/forms.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
 import { Character } from '@/types/preciousdays/character';
+import { scrambleText } from '@/utils/preciousdays/scrambleText';
+
+type ProfileSpoilerKey = 'species' | 'style' | 'element';
 
 interface ProfileProps {
   characterName: string | undefined;
   playerName: string | undefined;
   masterName: string | undefined;
+  discipleName: string | undefined;
+  characterType: 'disciple' | 'master' | undefined;
   species: string;
   characterStyle: string;
   element: string;
@@ -32,6 +37,8 @@ interface ProfileProps {
   setPreviewUrl: (url: string | null) => void;
   setSelectedFile: (file: File | null) => void;
   isReadOnly?: boolean;
+  profileSpoilers?: { species?: boolean; style?: boolean; element?: boolean };
+  onSpoilerChange?: (field: ProfileSpoilerKey, value: boolean) => void;
 }
 
 export const ProfileSection: React.FC<ProfileProps> = memo(
@@ -39,6 +46,8 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
     characterName,
     playerName,
     masterName,
+    discipleName,
+    characterType,
     species,
     characterStyle,
     element,
@@ -49,7 +58,10 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
     setPreviewUrl,
     setSelectedFile,
     isReadOnly,
+    profileSpoilers,
+    onSpoilerChange,
   }) => {
+    const isMaster = characterType === 'master';
     const handleImageChange = (file: File) => {
       if (!file) return;
       setSelectedFile(file);
@@ -162,20 +174,22 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                   )}
                 </div>
 
-                {/* 師匠名 */}
+                {/* 師匠名 / 弟子名（種別により切替） */}
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
-                  <label>師匠名</label>
+                  <label>{isMaster ? '弟子名' : '師匠名'}</label>
                   {isReadOnly ? (
                     <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
-                      {masterName}
+                      {isMaster ? discipleName : masterName}
                     </div>
                   ) : (
                     <input
                       className={formStyles.input}
                       inputMode='text'
-                      onChange={(e) => updateBaseField('masterName', e.target.value)}
+                      onChange={(e) =>
+                        updateBaseField(isMaster ? 'discipleName' : 'masterName', e.target.value)
+                      }
                       type='text'
-                      value={masterName ?? ''}
+                      value={(isMaster ? discipleName : masterName) ?? ''}
                     />
                   )}
                 </div>
@@ -184,21 +198,58 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label>種族</label>
                   {isReadOnly ? (
-                    <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
-                      {SPECIES_DATA[species as SpeciesKey]?.name || species}
-                    </div>
+                    profileSpoilers?.species ? (
+                      <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
+                        <span className={baseStyles.spoiler} title='師匠によって秘匿されています'>
+                          {scrambleText(SPECIES_DATA[species as SpeciesKey]?.name || species)}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
+                        {SPECIES_DATA[species as SpeciesKey]?.name || species}
+                      </div>
+                    )
                   ) : (
-                    <select
-                      className={formStyles.select}
-                      onChange={(e) => updateAbilities({ species: e.target.value as SpeciesKey })}
-                      value={species}
-                    >
-                      {Object.entries(SPECIES_DATA).map(([k, v]) => (
-                        <option key={k} value={k}>
-                          {v.name}
-                        </option>
-                      ))}
-                    </select>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <select
+                        className={formStyles.select}
+                        onChange={(e) => updateAbilities({ species: e.target.value as SpeciesKey })}
+                        style={{ flex: 1 }}
+                        value={species}
+                      >
+                        {Object.entries(SPECIES_DATA).map(([k, v]) => (
+                          <option key={k} value={k}>
+                            {v.name}
+                          </option>
+                        ))}
+                      </select>
+                      {isMaster && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '2px',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: '0.65rem',
+                              color: 'var(--text-secondary)',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            秘匿
+                          </span>
+                          <input
+                            checked={profileSpoilers?.species ?? false}
+                            onChange={(e) => onSpoilerChange?.('species', e.target.checked)}
+                            type='checkbox'
+                          />
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -206,21 +257,60 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label>スタイル</label>
                   {isReadOnly ? (
-                    <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
-                      {STYLE_DATA[characterStyle as StyleKey]?.name || characterStyle}
-                    </div>
+                    profileSpoilers?.style ? (
+                      <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
+                        <span className={baseStyles.spoiler} title='師匠によって秘匿されています'>
+                          {scrambleText(
+                            STYLE_DATA[characterStyle as StyleKey]?.name || characterStyle
+                          )}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
+                        {STYLE_DATA[characterStyle as StyleKey]?.name || characterStyle}
+                      </div>
+                    )
                   ) : (
-                    <select
-                      className={formStyles.select}
-                      onChange={(e) => updateAbilities({ style: e.target.value as StyleKey })}
-                      value={characterStyle}
-                    >
-                      {Object.entries(STYLE_DATA).map(([k, v]) => (
-                        <option key={k} value={k}>
-                          {v.name}
-                        </option>
-                      ))}
-                    </select>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <select
+                        className={formStyles.select}
+                        onChange={(e) => updateAbilities({ style: e.target.value as StyleKey })}
+                        style={{ flex: 1 }}
+                        value={characterStyle}
+                      >
+                        {Object.entries(STYLE_DATA).map(([k, v]) => (
+                          <option key={k} value={k}>
+                            {v.name}
+                          </option>
+                        ))}
+                      </select>
+                      {isMaster && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '2px',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: '0.65rem',
+                              color: 'var(--text-secondary)',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            秘匿
+                          </span>
+                          <input
+                            checked={profileSpoilers?.style ?? false}
+                            onChange={(e) => onSpoilerChange?.('style', e.target.checked)}
+                            type='checkbox'
+                          />
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -228,45 +318,87 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                 <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
                   <label>属性</label>
                   {isReadOnly ? (
-                    <div
-                      className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}
-                      style={{
-                        fontWeight: 'bold',
-                        color: ELEMENT_COLORS[element] || 'var(--text-primary)',
-                        textShadow: ELEMENT_COLORS[element]
-                          ? `0 0 8px ${ELEMENT_COLORS[element]}88`
-                          : 'none',
-                      }}
-                    >
-                      {ELEMENT_DATA[element as ElementKey]?.name || element}
-                    </div>
+                    profileSpoilers?.element ? (
+                      <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
+                        <span className={baseStyles.spoiler} title='師匠によって秘匿されています'>
+                          {scrambleText(ELEMENT_DATA[element as ElementKey]?.name || element)}
+                        </span>
+                      </div>
+                    ) : (
+                      <div
+                        className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}
+                        style={{
+                          fontWeight: 'bold',
+                          color: ELEMENT_COLORS[element] || 'var(--text-primary)',
+                          textShadow: ELEMENT_COLORS[element]
+                            ? `0 0 8px ${ELEMENT_COLORS[element]}88`
+                            : 'none',
+                        }}
+                      >
+                        {ELEMENT_DATA[element as ElementKey]?.name || element}
+                      </div>
+                    )
                   ) : (
-                    <select
-                      className={formStyles.select}
-                      onChange={(e) => updateAbilities({ element: e.target.value as ElementKey })}
-                      style={{ color: ELEMENT_COLORS[element] || 'inherit' }}
-                      value={element}
-                    >
-                      {Object.entries(ELEMENT_DATA).map(([k, v]) => (
-                        <option key={k} style={{ color: ELEMENT_COLORS[k] || 'inherit' }} value={k}>
-                          {v.name}
-                        </option>
-                      ))}
-                    </select>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <select
+                        className={formStyles.select}
+                        onChange={(e) => updateAbilities({ element: e.target.value as ElementKey })}
+                        style={{ flex: 1, color: ELEMENT_COLORS[element] || 'inherit' }}
+                        value={element}
+                      >
+                        {Object.entries(ELEMENT_DATA).map(([k, v]) => (
+                          <option
+                            key={k}
+                            style={{ color: ELEMENT_COLORS[k] || 'inherit' }}
+                            value={k}
+                          >
+                            {v.name}
+                          </option>
+                        ))}
+                      </select>
+                      {isMaster && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '2px',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: '0.65rem',
+                              color: 'var(--text-secondary)',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            秘匿
+                          </span>
+                          <input
+                            checked={profileSpoilers?.element ?? false}
+                            onChange={(e) => onSpoilerChange?.('element', e.target.checked)}
+                            type='checkbox'
+                          />
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 
-                {/* 経験点合計（メモリーから自動計算） */}
-                <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
-                  <label>経験点（合計）</label>
-                  <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
-                    {experience ?? 0}
+                {/* 経験点合計（弟子のみ） */}
+                {!isMaster && (
+                  <div className={`${layoutStyles.span6} ${formStyles.fieldGroup}`}>
+                    <label>経験点（合計）</label>
+                    <div className={`${baseStyles.readOnlyField} ${formStyles.readonlyValue}`}>
+                      {experience ?? 0}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
-          {!isReadOnly && (
+          {!isReadOnly && !isMaster && (
             <div className={formStyles.notes} style={{ marginBottom: 0 }}>
               <p>
                 経験点は各シナリオの獲得分を{' '}

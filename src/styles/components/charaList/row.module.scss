@@ -154,6 +154,19 @@ $color-light: #ffd43b;
     white-space: nowrap;
   }
 
+  /* --- キャラクター種別 --- */
+  .masterType {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #ffc107;
+    text-shadow: 0 0 5px rgba(255, 193, 7, 0.35);
+  }
+
+  .discipleType {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+  }
+
   /* --- 属性値の色設定 --- */
   .elementValue {
     display: inline-flex;

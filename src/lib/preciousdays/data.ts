@@ -120,6 +120,9 @@ function createCharacterSummary(char: any): CharacterSummary {
       (char.abilities?.passion?.total || 0) +
       (char.abilities?.affection?.total || 0) +
       (char.wp?.modifier || 0),
+    gl: char.gl,
+    characterType: char.characterType,
+    profileSpoilers: char.profileSpoilers,
   };
 }
 

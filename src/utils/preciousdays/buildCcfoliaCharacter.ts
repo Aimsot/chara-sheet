@@ -1,6 +1,9 @@
 import { ELEMENT_DATA, SPECIES_DATA, STYLE_DATA, STYLE_MAGIC_TYPE } from '@/constants/preciousdays';
 import { Character } from '@/types/preciousdays/character';
 
+const isKatakanaOnly = (str: string) => /^[ァ-ヶーｦ-ﾟ・\u3000\s]+$/.test(str);
+const wrapName = (name: string) => (isKatakanaOnly(name) ? `《${name}》` : name);
+
 export function buildCcfoliaCharacter(char: Character): string {
   const style = char.style;
   const styleData = STYLE_DATA[style as keyof typeof STYLE_DATA];
@@ -52,32 +55,28 @@ export function buildCcfoliaCharacter(char: Character): string {
   const styleName = styleData?.name ?? char.style;
   const elementName = ELEMENT_DATA[char.element as keyof typeof ELEMENT_DATA]?.name ?? char.element;
 
-  const appearanceParts = [
-    char.appearance.age ? `年齢: ${char.appearance.age}` : '',
-    char.appearance.gender ? `性別: ${char.appearance.gender}` : '',
-    char.appearance.height ? `身長: ${char.appearance.height}` : '',
-    char.appearance.hairColor ? `髪の色: ${char.appearance.hairColor}` : '',
-    char.appearance.eyeColor ? `瞳の色: ${char.appearance.eyeColor}` : '',
-    char.appearance.skinColor ? `肌の色: ${char.appearance.skinColor}` : '',
+  const ap = char.appearance ?? {};
+  const appearanceLines = [
+    ap.age || ap.gender ? `年齢：${ap.age || ''}　性別：${ap.gender || ''}` : '',
+    ap.height || ap.hairColor ? `身長：${ap.height || ''}　髪の色：${ap.hairColor || ''}` : '',
+    ap.eyeColor ? `瞳の色：${ap.eyeColor}` : '',
+    ap.skinColor ? `肌の色：${ap.skinColor}` : '',
   ].filter(Boolean);
 
-  const appearancePaired = [];
-  for (let idx = 0; idx < appearanceParts.length; idx += 2) {
-    appearancePaired.push(
-      appearanceParts[idx + 1]
-        ? `${appearanceParts[idx]}　${appearanceParts[idx + 1]}`
-        : appearanceParts[idx]
-    );
-  }
+  const lifepathLines = [
+    char.origin ? `出自：${char.origin}` : '',
+    char.secret ? `秘密：${char.secret}` : '',
+    char.future ? `未来：${char.future}` : '',
+  ].filter(Boolean);
 
   const memo = [
-    `${char.characterName || '名無し'}　PL：${char.playerName || ''}`,
-    `種族: ${speciesName}　スタイル: ${styleName}`,
-    `属性: ${elementName}　術式: ${magicType}`,
-    char.masterName ? `師匠: ${char.masterName}` : '',
-    appearancePaired.length > 0 ? `\n【外見】\n${appearancePaired.join('\n')}` : '',
+    `${char.characterName || '名無し'}、PL：${char.playerName || ''}`,
+    char.masterName ? `師匠：${char.masterName}` : '',
+    `${speciesName}　${styleName}　${elementName}`,
+    ...(appearanceLines.length > 0 ? ['', '【外見】', ...appearanceLines] : []),
+    ...(lifepathLines.length > 0 ? ['', '【ライフパス】', ...lifepathLines] : []),
   ]
-    .filter(Boolean)
+    .filter((line, idx, arr) => !(line === '' && (idx === 0 || arr[idx - 1] === '')))
     .join('\n');
 
   const commands = [
@@ -94,19 +93,46 @@ export function buildCcfoliaCharacter(char: Character): string {
     ``,
     `{防御値} 防御値`,
     `{回避値} 回避値`,
-    ...(char.skills.length > 0
-      ? [
-          ``,
-          ...char.skills
-            .filter((s) => s.name)
-            .map((s) => {
-              const meta = [s.timing, s.critical, s.judge, s.target, s.range, s.cost]
-                .filter(Boolean)
-                .join('/');
-              return meta ? `【${s.name}】 ${meta}｜${s.effect}` : `【${s.name}】 ${s.effect}`;
+    ...(() => {
+      const acquiredSkills = char.skills.filter((s) => s.name && s.acquired !== false);
+      return acquiredSkills.length > 0
+        ? [
+            ``,
+            `【スキル】`,
+            ...acquiredSkills.map((s) => {
+              const lines = [
+                wrapName(s.name),
+                `分類：${s.category || ''}　GL：${s.level ?? 0}`,
+                s.timing ? `タイミング：${s.timing}` : '',
+                s.judge || s.target ? `判定：${s.judge || ''}　対象：${s.target || ''}` : '',
+                s.range || s.cost ? `射程：${s.range || '―'}　コスト：${s.cost || '0'}` : '',
+                s.effect ? `効果：${s.effect}` : '',
+                s.critical ? `クリティカル：${s.critical}` : '',
+              ].filter(Boolean);
+              return lines.join('\\n');
             }),
-        ]
-      : []),
+          ]
+        : [];
+    })(),
+    ...(() => {
+      const acquiredEnchantments = (char.enchantments ?? []).filter(
+        (e) => e.name && e.acquired !== false
+      );
+      return acquiredEnchantments.length > 0
+        ? [
+            ``,
+            `【付与魔術】`,
+            ...acquiredEnchantments.map((e) => {
+              const lines = [
+                wrapName(e.name),
+                `GL：${e.gl ?? 0}${e.timing ? `　タイミング：${e.timing}` : ''}`,
+                e.effect ? `効果：${e.effect}` : '',
+              ].filter(Boolean);
+              return lines.join('\\n');
+            }),
+          ]
+        : [];
+    })(),
   ].join('\n');
 
   const payload = {

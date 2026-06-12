@@ -77,3 +77,16 @@
   background: transparent; // 背景色を抜く
   border-bottom: 1px solid rgba(255, 255, 255, 0.2); // 控えめな下線
 }
+
+/* 師匠の秘匿フィールド：スポイラー（テキストのみに適用） */
+.spoiler {
+  display: inline-block;
+  padding: 0 4px;
+  color: rgba(200, 200, 230, 0.6);
+  pointer-events: auto;
+  cursor: help;
+  user-select: none;
+  background-color: rgba(120, 120, 160, 0.25);
+  border-radius: 3px;
+  filter: blur(4px);
+}

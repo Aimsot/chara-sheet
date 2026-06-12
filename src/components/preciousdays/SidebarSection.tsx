@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
   AlertCircle,
-  ArrowBigLeftDash,
   Ban,
   ClipboardCopy,
   Copy,
+  ExternalLink,
   Eye,
   LoaderCircle,
   PenIcon,
@@ -14,6 +14,15 @@ import {
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import {
+  ELEMENT_COLORS,
+  ELEMENT_DATA,
+  ElementKey,
+  SPECIES_DATA,
+  SpeciesKey,
+  STYLE_DATA,
+  StyleKey,
+} from '@/constants/preciousdays';
 import btnStyles from '@/styles/components/buttons.module.scss';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss';
 import sidebarStyles from '@/styles/components/charaSheet/sidebar.module.scss';
@@ -21,9 +30,70 @@ import formStyles from '@/styles/components/forms.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
 import { Character } from '@/types/preciousdays/character';
 import { buildCcfoliaCharacter } from '@/utils/preciousdays/buildCcfoliaCharacter';
+import { getGLColor } from '@/utils/preciousdays/glColor';
 
 import { ActionButton } from '../ui/ActionButton';
 import { ColorPicker } from '../ui/ColorPicker';
+
+interface MiniProfile {
+  characterName: string;
+  playerName: string;
+  characterType: 'disciple' | 'master';
+  hasImage: boolean;
+  species: string;
+  style: string;
+  element: string;
+  gl: number;
+  profileSpoilers: { species?: boolean; style?: boolean; element?: boolean };
+}
+
+const LinkedMiniCard: React.FC<{ id: string; profile: MiniProfile }> = ({ id, profile }) => {
+  const { profileSpoilers: sp } = profile;
+  const speciesName = !sp.species
+    ? SPECIES_DATA[profile.species as SpeciesKey]?.name || profile.species
+    : null;
+  const styleName = !sp.style ? STYLE_DATA[profile.style as StyleKey]?.name || profile.style : null;
+  const elementName = !sp.element
+    ? ELEMENT_DATA[profile.element as ElementKey]?.name || profile.element
+    : null;
+  const elementColor = !sp.element ? ELEMENT_COLORS[profile.element] || undefined : undefined;
+
+  return (
+    <div className={sidebarStyles.miniCard}>
+      {profile.hasImage && (
+        <div className={sidebarStyles.miniCardImage}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            alt={profile.characterName}
+            src={`/api/preciousdays/character/${id}/image`}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }}
+          />
+        </div>
+      )}
+      <div className={sidebarStyles.miniCardInfo}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span className={sidebarStyles.miniCardType}>
+            {profile.characterType === 'master' ? '師匠' : '弟子'}
+          </span>
+          {profile.characterType === 'disciple' && (
+            <span
+              className={sidebarStyles.miniCardMetaTag}
+              style={{ color: getGLColor(profile.gl), borderColor: `${getGLColor(profile.gl)}60` }}
+            >
+              GL{profile.gl}
+            </span>
+          )}
+        </div>
+        <span className={sidebarStyles.miniCardName}>{profile.characterName}</span>
+        <div className={sidebarStyles.miniCardMeta}>
+          {speciesName && <span>{speciesName}</span>}
+          {styleName && <span>{styleName}</span>}
+          {elementName && <span style={{ color: elementColor }}>{elementName}</span>}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface StatusSidebarProps {
   id: string | undefined;
@@ -37,9 +107,9 @@ interface StatusSidebarProps {
   isReadOnly?: boolean;
   isDirty?: boolean;
   handleDelete?: () => Promise<void>;
-  signinRef?: (node: HTMLDivElement | null) => void;
   autoResize?: boolean;
   onAutoResizeChange?: (value: boolean) => void;
+  authFlashTrigger?: number;
 }
 
 export const SidebarSection: React.FC<StatusSidebarProps> = ({
@@ -54,9 +124,9 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   isReadOnly,
   isDirty,
   handleDelete,
-  signinRef,
   autoResize,
   onAutoResizeChange,
+  authFlashTrigger,
 }) => {
   const router = useRouter();
   const search = useSearchParams();
@@ -66,6 +136,40 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [editPassword, setEditPassword] = useState('');
   const [ccfoliaCopied, setCcfoliaCopied] = useState(false);
+  const [idCopied, setIdCopied] = useState(false);
+  const [isFlashing, setIsFlashing] = useState(false);
+  const [linkedProfile, setLinkedProfile] = useState<MiniProfile | null>(null);
+
+  useEffect(() => {
+    if (!authFlashTrigger) return;
+    const startTimer = setTimeout(() => setIsFlashing(true), 0);
+    const endTimer = setTimeout(() => setIsFlashing(false), 700);
+    return () => {
+      clearTimeout(startTimer);
+      clearTimeout(endTimer);
+    };
+  }, [authFlashTrigger]);
+
+  useEffect(() => {
+    const linkedId = char.linkedCharacterId?.trim();
+    if (!linkedId) {
+      const t = setTimeout(() => setLinkedProfile(null), 0);
+      return () => clearTimeout(t);
+    }
+    let cancelled = false;
+    fetch(`/api/preciousdays/character/${linkedId}/profile`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled) setLinkedProfile(data);
+      })
+      .catch(() => {
+        if (!cancelled) setLinkedProfile(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [char.linkedCharacterId]);
+
   const initialPasswordRef = useRef(char.password);
 
   const handleCopyCcfolia = async () => {
@@ -119,12 +223,105 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
   };
 
   return (
-    <aside
-      className={`${layoutStyles.span4} ${className || ''}`}
-      id='signin-section'
-      ref={signinRef}
-    >
+    <aside className={`${layoutStyles.span4} ${className || ''}`} id='signin-section'>
       <div className={sidebarStyles.container}>
+        {/* シートID */}
+        {id && (
+          <div className={`${baseStyles.stack} ${formStyles.panel}`}>
+            <label className={formStyles.label}>シートID</label>
+            <div className={sidebarStyles.idDisplay}>
+              <span className={sidebarStyles.idText}>{id}</span>
+              <button
+                className={btnStyles.ghost}
+                onClick={async () => {
+                  await navigator.clipboard.writeText(id);
+                  setIdCopied(true);
+                  setTimeout(() => setIdCopied(false), 2000);
+                }}
+                title='IDをコピー'
+                type='button'
+              >
+                {idCopied ? <span style={{ fontSize: '0.65rem' }}>✓</span> : <Copy size={13} />}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* キャラクター種別（編集モードのみ） */}
+        {!isReadOnly && (
+          <div className={`${baseStyles.stack} ${formStyles.panel}`}>
+            <label className={formStyles.label}>キャラクター種別</label>
+            <select
+              className={formStyles.select}
+              onChange={(e) =>
+                setChar((prev) => ({
+                  ...prev,
+                  characterType: e.target.value as 'disciple' | 'master',
+                }))
+              }
+              value={char.characterType ?? 'disciple'}
+            >
+              <option value='disciple'>弟子</option>
+              <option value='master'>師匠</option>
+            </select>
+            {char.characterType === 'master' && (
+              <div className={`${formStyles.notes} ${layoutStyles.mt0}`}>
+                <p>師匠モードでは能力値・装備などの欄が非表示になります</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* リンク先シートID */}
+        {!isReadOnly ? (
+          <div className={`${baseStyles.stack} ${formStyles.panel}`}>
+            <label className={formStyles.label}>
+              {char.characterType === 'master' ? '弟子' : '師匠'}のシートID
+            </label>
+            <input
+              className={formStyles.input}
+              onChange={(e) => setChar((prev) => ({ ...prev, linkedCharacterId: e.target.value }))}
+              placeholder='リンク先のシートIDを入力'
+              type='text'
+              value={char.linkedCharacterId ?? ''}
+            />
+            {char.linkedCharacterId && linkedProfile && (
+              <LinkedMiniCard id={char.linkedCharacterId} profile={linkedProfile} />
+            )}
+            {char.linkedCharacterId && (
+              <ActionButton
+                icon={<ExternalLink size={14} />}
+                label={`${char.characterType === 'master' ? '弟子' : '師匠'}のシートを開く`}
+                onClick={() =>
+                  window.open(`/preciousdays/view/${char.linkedCharacterId}`, '_blank')
+                }
+                style={{ width: '100%', marginTop: '6px' }}
+                variant='outline'
+              />
+            )}
+          </div>
+        ) : (
+          char.linkedCharacterId && (
+            <div className={`${baseStyles.stack} ${formStyles.panel}`}>
+              <label className={formStyles.label}>
+                {char.characterType === 'master' ? '弟子' : '師匠'}のシート
+              </label>
+              {linkedProfile && (
+                <LinkedMiniCard id={char.linkedCharacterId} profile={linkedProfile} />
+              )}
+              <ActionButton
+                icon={<ExternalLink size={14} />}
+                label={`${char.characterType === 'master' ? '弟子' : '師匠'}のシートを開く`}
+                onClick={() =>
+                  window.open(`/preciousdays/view/${char.linkedCharacterId}`, '_blank')
+                }
+                style={{ width: '100%' }}
+                variant='outline'
+              />
+            </div>
+          )
+        )}
+
         {/* PASSWORD エリア */}
         <div className={`${baseStyles.stack} ${formStyles.panel}`}>
           <div onSubmit={handleAuthSubmit}>
@@ -139,7 +336,7 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               autoCapitalize='none'
               autoComplete='current-password'
               autoCorrect='off'
-              className={formStyles.input}
+              className={`${formStyles.input} ${isFlashing ? sidebarStyles.inputFlash : ''}`}
               inputMode='email'
               lang='en'
               name='password'
@@ -317,35 +514,24 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
                 )}
               </div>
 
-              {/* 閲覧ページに戻るボタン (編集モード かつ 既存キャラ複製の場合) */}
+              {/* 閲覧ページに戻るボタン (編集モード かつ 既存キャラ) */}
               {id && cloneKey === null && (
-                <>
-                  <ActionButton
-                    className={layoutStyles.mt2}
-                    disabled={isSubmitting}
-                    icon={<Trash2 size={16} />}
-                    label='キャラクターを削除'
-                    onClick={() => handleDelete?.()} // 削除ハンドラを呼ぶ
-                    style={{ width: '100%', marginTop: '12px' }}
-                    variant='danger'
-                  />
-                  <ActionButton
-                    icon={<Eye size={16} />}
-                    label='閲覧画面に戻る'
-                    onClick={() => {
-                      if (isSubmitting) return;
-                      if (isDirty) {
-                        const ok = window.confirm(
-                          '編集中ですが、保存せずに閲覧ページに戻ってもよろしいですか？'
-                        );
-                        if (!ok) return;
-                      }
-                      router.push(`/preciousdays/view/${id}`);
-                    }}
-                    style={{ width: '100%', marginTop: '8px' }}
-                    variant='outline'
-                  />
-                </>
+                <ActionButton
+                  icon={<Eye size={16} />}
+                  label='閲覧画面に戻る'
+                  onClick={() => {
+                    if (isSubmitting) return;
+                    if (isDirty) {
+                      const ok = window.confirm(
+                        '編集中ですが、保存せずに閲覧ページに戻ってもよろしいですか？'
+                      );
+                      if (!ok) return;
+                    }
+                    router.push(`/preciousdays/view/${id}`);
+                  }}
+                  style={{ width: '100%', marginTop: '8px' }}
+                  variant='outline'
+                />
               )}
             </>
           )}
@@ -390,22 +576,18 @@ export const SidebarSection: React.FC<StatusSidebarProps> = ({
               </div>
             </>
           )}
-          {/* 一覧に戻るボタン (共通) */}
-          <ActionButton
-            className={layoutStyles.mt2}
-            icon={<ArrowBigLeftDash size={16} />}
-            label='一覧に戻る'
-            onClick={() => {
-              if (isSubmitting) return;
-              if (isDirty) {
-                const ok = window.confirm('編集中ですが、保存せずに一覧に戻ってもよろしいですか？');
-                if (!ok) return;
-              }
-              router.push('/preciousdays');
-            }}
-            style={{ width: '100%' }}
-            variant='outline'
-          />
+          {/* 削除ボタン (編集モード かつ 既存キャラ) */}
+          {mode !== 'view' && id && cloneKey === null && (
+            <ActionButton
+              className={layoutStyles.mt2}
+              disabled={isSubmitting}
+              icon={<Trash2 size={16} />}
+              label='キャラクターを削除'
+              onClick={() => handleDelete?.()}
+              style={{ width: '100%', marginTop: '24px' }}
+              variant='danger'
+            />
+          )}
         </div>
       </div>
     </aside>

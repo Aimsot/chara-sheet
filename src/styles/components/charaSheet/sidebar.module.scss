@@ -26,3 +26,130 @@
     font-size: 0.75rem;
   }
 }
+
+/* シートID表示 */
+.idDisplay {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+
+  button {
+    flex-shrink: 0;
+    min-height: auto !important;
+    padding: 4px 6px !important;
+  }
+}
+
+@keyframes inputFlash {
+  0% {
+    box-shadow: none;
+  }
+  20% {
+    box-shadow: 0 0 0 3px var(--accent-color);
+  }
+  50% {
+    box-shadow: 0 0 0 2px var(--accent-color);
+  }
+  80% {
+    box-shadow: 0 0 0 3px var(--accent-color);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+.inputFlash {
+  animation: inputFlash 0.7s ease;
+}
+
+/* リンク先キャラクターのミニカード */
+.miniCard {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  margin-top: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+}
+
+.miniCardImage {
+  flex-shrink: 0;
+  width: 44px;
+  height: 52px;
+  overflow: hidden;
+  background: var(--input-bg);
+  border-radius: 4px;
+}
+
+.miniCardInfo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.miniCardType {
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: var(--accent-color);
+  letter-spacing: 0.05em;
+}
+
+.miniCardName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.miniCardPlayer {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+%miniTag {
+  padding: 1px 4px;
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.miniCardMetaTag {
+  @extend %miniTag;
+}
+
+.miniCardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+
+  span {
+    @extend %miniTag;
+  }
+}
+
+.idText {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}

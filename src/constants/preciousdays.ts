@@ -104,11 +104,7 @@ export const INITIAL_CHARACTER: Character = {
     },
   ],
   note: '',
-  memories: [
-    { id: 'm1', date: '', content: '', sublimated: false, prize: '' },
-    { id: 'm2', date: '', content: '', sublimated: false, prize: '' },
-    { id: 'm3', date: '', content: '', sublimated: false, prize: '' },
-  ],
+  memories: [{ id: 'm1', date: '', content: '', sublimated: false, prize: '' }],
 };
 
 export const ABILITY_KEYS = [

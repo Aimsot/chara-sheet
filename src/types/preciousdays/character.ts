@@ -5,11 +5,25 @@ export interface Character {
   image?: string; // 画像データ(Base64)
   isCopyProhibited?: boolean; // 複製禁止フラグ
   autoResizeTextarea?: boolean; // テキストエリア自動サイズ調整
+  characterType?: 'disciple' | 'master'; // キャラクター種別（デフォルト: 弟子）
+  linkedCharacterId?: string; // リンク先キャラクターID
+  discipleName?: string; // 弟子名（師匠シートのみ）
+  lifepathSpoilers?: { origin?: boolean; secret?: boolean; future?: boolean }; // ライフパス秘密フラグ
+  appearanceSpoilers?: {
+    age?: boolean;
+    gender?: boolean;
+    height?: boolean;
+    weight?: boolean;
+    hairColor?: boolean;
+    eyeColor?: boolean;
+    skinColor?: boolean;
+  }; // 外見秘密フラグ
+  profileSpoilers?: { species?: boolean; style?: boolean; element?: boolean }; // プロフィール秘密フラグ
 
   // --- 基本情報 ---
   playerName?: string; // プレイヤー名
   characterName?: string; // キャラクター名
-  masterName?: string; // 師匠
+  masterName?: string; // 師匠名（弟子シートのみ）
 
   hp: { modifier: number };
   mp: { modifier: number };
@@ -116,6 +130,7 @@ export interface Skill {
   name: string;
   category?: string; // 分類
   level: number;
+  acquired?: boolean; // 取得済みフラグ
   timing?: string; // タイミング
   critical?: string; // クリティカル
   judge?: string; // 判定
@@ -138,6 +153,7 @@ export interface EquipmentItem {
   magicDefense: number; // もし魔防があれば
   notes: string; // 備考
   page?: string; // ページ数
+  acquired?: boolean; // 取得済みフラグ
 }
 
 // メモリー
@@ -148,6 +164,7 @@ export interface Memory {
   sublimated: boolean; // 昇華チェック
   prize: string; // プライズ
   experience?: number; // 経験点
+  secretNote?: string; // 秘匿メモ（編集画面のみ表示）
 }
 
 // 携帯品
@@ -160,6 +177,7 @@ export interface Item {
   notes: string;
   page?: string; // ページ数
   category?: string; // 種別
+  acquired?: boolean; // 取得済みフラグ
   isEquipped?: boolean; // チェックボックス用（もし必要なら）
 }
 
@@ -168,7 +186,10 @@ export interface Enchantment {
   id: string;
   name: string;
   gl: number;
+  timing?: string;
   effect: string;
+  page?: string;
+  acquired?: boolean;
 }
 
 // ==========================================
@@ -185,4 +206,7 @@ export type CharacterSummary = {
   hp: number;
   mp: number;
   wp: number;
+  gl?: number;
+  characterType?: 'disciple' | 'master';
+  profileSpoilers?: { species?: boolean; style?: boolean; element?: boolean };
 };

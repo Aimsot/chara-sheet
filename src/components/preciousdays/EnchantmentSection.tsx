@@ -3,6 +3,7 @@
 import React, { memo, useCallback, useState } from 'react';
 
 import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
+import { ComboBox } from '@/components/ui/ComboBox';
 import { NumberInput } from '@/components/ui/NumberInput';
 import btnStyles from '@/styles/components/buttons.module.scss';
 import cardStyles from '@/styles/components/cards.module.scss';
@@ -11,6 +12,7 @@ import tableStyles from '@/styles/components/tables.module.scss';
 import { Enchantment } from '@/types/preciousdays/character';
 
 const CATEGORY_LABEL = '付与魔術';
+const TIMING_OPTIONS = ['パッシブ', 'ダメージロールの直前', '命中判定の直前'];
 
 const EnchantmentRow = memo(
   ({
@@ -32,8 +34,10 @@ const EnchantmentRow = memo(
   }) => {
     const [prevName, setPrevName] = useState(enchantment.name);
     const [prevEffect, setPrevEffect] = useState(enchantment.effect);
+    const [prevPage, setPrevPage] = useState(enchantment.page ?? '');
     const [localName, setLocalName] = useState(enchantment.name);
     const [localEffect, setLocalEffect] = useState(enchantment.effect);
+    const [localPage, setLocalPage] = useState(enchantment.page ?? '');
 
     if (enchantment.name !== prevName) {
       setPrevName(enchantment.name);
@@ -43,6 +47,10 @@ const EnchantmentRow = memo(
       setPrevEffect(enchantment.effect);
       setLocalEffect(enchantment.effect);
     }
+    if ((enchantment.page ?? '') !== prevPage) {
+      setPrevPage(enchantment.page ?? '');
+      setLocalPage(enchantment.page ?? '');
+    }
 
     const handleGLChange = useCallback(
       (val: number) => onUpdate(index, 'gl', val),
@@ -50,48 +58,61 @@ const EnchantmentRow = memo(
     );
 
     if (isReadOnly) {
+      const pageText = enchantment.page
+        ? /^\d+$/.test(enchantment.page)
+          ? `p.${enchantment.page}`
+          : enchantment.page
+        : '';
       return (
-        <div className={`${tableStyles.row} ${tableStyles.enchantmentViewGrid}`}>
-          <div className={tableStyles.labelCell}>{CATEGORY_LABEL}</div>
-          <div
-            className={tableStyles.cell}
-            style={{ justifyContent: 'flex-start', paddingLeft: '8px' }}
-          >
-            {enchantment.name}
+        <div
+          className={`${tableStyles.row} ${tableStyles.enchantmentViewGrid}${enchantment.acquired === false ? ` ${tableStyles.unacquired}` : ''}`}
+        >
+          <div className={tableStyles.labelBlock}>
+            <div className={tableStyles.labelCell}>
+              <input
+                checked={enchantment.acquired !== false}
+                className={tableStyles.acquireCheck}
+                disabled
+                readOnly
+                type='checkbox'
+              />
+            </div>
+            <div className={tableStyles.labelCell}>{CATEGORY_LABEL}</div>
           </div>
-          <div className={tableStyles.cell}>{enchantment.gl || '—'}</div>
-          <div
-            className={tableStyles.cell}
-            style={{
-              justifyContent: 'flex-start',
-              paddingLeft: '8px',
-              whiteSpace: 'pre-wrap',
-              overflow: 'hidden',
-              maxHeight: autoResize ? undefined : '4.5em',
-              overflowY: autoResize ? undefined : 'auto',
-            }}
-          >
-            {enchantment.effect}
+          <div className={tableStyles.cell} style={{ justifyContent: 'center', gap: '6px' }}>
+            <span>{enchantment.name}</span>
+            {pageText && (
+              <span style={{ fontSize: '0.65rem', color: 'rgba(160,160,160,0.45)', flexShrink: 0 }}>
+                {pageText}
+              </span>
+            )}
           </div>
+          <div className={tableStyles.cell}>{enchantment.gl ?? 0}</div>
+          <div className={tableStyles.cell}>{enchantment.timing ?? ''}</div>
+          <div className={tableStyles.cell}>{enchantment.effect}</div>
         </div>
       );
     }
 
     return (
       <div
-        className={`${tableStyles.row} ${tableStyles.enchantmentEditGrid}`}
-        style={{ alignItems: 'center', paddingTop: '6px', paddingBottom: '6px' }}
+        className={`${tableStyles.row} ${tableStyles.enchantmentEditGrid}${enchantment.acquired === false ? ` ${tableStyles.unacquired}` : ''}`}
       >
-        {/* 種別（固定） */}
-        <div
-          className={tableStyles.cell}
-          style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', justifyContent: 'center' }}
-        >
-          {CATEGORY_LABEL}
+        {/* 取得チェック + 種別（labelBlockで結合） */}
+        <div className={tableStyles.labelBlock}>
+          <div className={tableStyles.labelCell}>
+            <input
+              checked={enchantment.acquired !== false}
+              className={tableStyles.acquireCheck}
+              onChange={(e) => onUpdate(index, 'acquired', e.target.checked)}
+              type='checkbox'
+            />
+          </div>
+          <div className={tableStyles.labelCell}>{CATEGORY_LABEL}</div>
         </div>
 
-        {/* 名前 */}
-        <div className={tableStyles.cell} style={{ paddingLeft: '6px', paddingRight: '6px' }}>
+        {/* 名称 */}
+        <div className={tableStyles.cell}>
           <input
             className={formStyles.input}
             inputMode='text'
@@ -99,8 +120,7 @@ const EnchantmentRow = memo(
               setLocalName(e.target.value);
               onUpdate(index, 'name', e.target.value);
             }}
-            placeholder='術式名'
-            style={{ padding: '0 10px' }}
+            placeholder='名称'
             type='text'
             value={localName}
           />
@@ -109,27 +129,55 @@ const EnchantmentRow = memo(
         {/* GL */}
         <div className={tableStyles.cell}>
           <div className={formStyles.stepperSmall}>
-            <button onClick={() => handleGLChange((enchantment.gl || 0) - 1)} type='button'>
+            <button onClick={() => handleGLChange((enchantment.gl ?? 0) - 1)} type='button'>
               -
             </button>
-            <NumberInput onChange={handleGLChange} value={enchantment.gl || 0} />
-            <button onClick={() => handleGLChange((enchantment.gl || 0) + 1)} type='button'>
+            <NumberInput onChange={handleGLChange} value={enchantment.gl ?? 0} />
+            <button onClick={() => handleGLChange((enchantment.gl ?? 0) + 1)} type='button'>
               +
             </button>
           </div>
         </div>
 
+        {/* タイミング */}
+        <div className={tableStyles.cell}>
+          <ComboBox
+            className={formStyles.input}
+            defaultValue={enchantment.timing ?? ''}
+            onCommit={(val) => onUpdate(index, 'timing', val)}
+            options={TIMING_OPTIONS}
+            placeholder='タイミング'
+          />
+        </div>
+
         {/* 効果 */}
-        <div className={tableStyles.cell} style={{ padding: '0 6px' }}>
+        <div className={tableStyles.cell}>
           <AutoResizeTextarea
             autoResize={autoResize}
-            className={formStyles.input}
+            className={formStyles.textareaTable}
             onChange={(e) => {
               setLocalEffect(e.target.value);
               onUpdate(index, 'effect', e.target.value);
             }}
             placeholder='効果'
+            rows={1}
+            style={{ flex: 1 }}
             value={localEffect}
+          />
+        </div>
+
+        {/* ページ */}
+        <div className={tableStyles.cell}>
+          <input
+            className={formStyles.input}
+            inputMode='text'
+            onChange={(e) => {
+              setLocalPage(e.target.value);
+              onUpdate(index, 'page', e.target.value);
+            }}
+            placeholder='p.'
+            type='text'
+            value={localPage}
           />
         </div>
 
@@ -194,13 +242,17 @@ const EnchantmentSection: React.FC<EnchantmentSectionProps> = memo(
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
             >
               <div
-                className={`${tableStyles.headerRow} ${tableStyles.enchantmentViewGrid}`}
-                style={isReadOnly ? undefined : { gridTemplateColumns: '60px 1fr 80px 2fr 32px' }}
+                className={`${tableStyles.headerRow} ${isReadOnly ? tableStyles.enchantmentViewGrid : tableStyles.enchantmentEditGrid}`}
               >
-                <div className={tableStyles.labelCell}>種別</div>
-                <div className={tableStyles.cell}>術式名</div>
+                <div className={tableStyles.labelBlock}>
+                  <div className={tableStyles.labelCell}>取得</div>
+                  <div className={tableStyles.labelCell}>種別</div>
+                </div>
+                <div className={tableStyles.cell}>名称</div>
                 <div className={tableStyles.cell}>GL</div>
+                <div className={tableStyles.cell}>タイミング</div>
                 <div className={tableStyles.cell}>効果</div>
+                {!isReadOnly && <div className={tableStyles.cell}>ページ</div>}
                 {!isReadOnly && <div className={tableStyles.cell}>削除</div>}
               </div>
 

@@ -7,6 +7,7 @@ import { STYLE_DATA, StyleKey } from '@/constants/preciousdays';
 import statusStyles from '@/styles/components/charaSheet/status.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
 import { Character } from '@/types/preciousdays/character';
+import { getGLCardStyle, getGLColor } from '@/utils/preciousdays/glColor';
 
 import { NumberInput } from '../ui/NumberInput';
 
@@ -44,33 +45,18 @@ const ResourceCard = memo(
     isReadOnly?: boolean;
     increaseButtonId?: string;
   }) => {
-    const getGLDynamicStyle = (level: number) => {
-      if (label !== 'GL') return {};
-
-      // レベル(0-6)に応じたパーセンテージ計算
-      const mixPercentage = 10 + level * 13;
-
-      return {
-        backgroundColor: `color-mix(in srgb, var(--accent-color), transparent ${
-          100 - mixPercentage
-        }%)`,
-        borderColor:
-          level >= 4
-            ? `var(--accent-color)`
-            : `color-mix(in srgb, var(--accent-color), transparent 70%)`,
-        color: level >= 4 ? '#fff' : 'var(--text-primary)',
-        boxShadow: level >= 6 ? `0 0 15px var(--accent-glow)` : 'none',
-        transition: 'all 0.3s ease-out',
-      };
-    };
+    const isGL = label === 'GL';
+    const glColor = isGL && total > 0 ? getGLColor(total) : undefined;
 
     return (
       <div
-        className={`${statusStyles.resourceCard} ${isSimpleMode ? statusStyles.glCard : ''}`}
-        style={getGLDynamicStyle(total)}
+        className={`${statusStyles.resourceCard} ${isSimpleMode && total > 0 ? statusStyles.glCard : ''}`}
+        style={glColor ? getGLCardStyle(total) : undefined}
       >
         <div className={statusStyles.cardHeader}>{label}</div>
-        <div className={statusStyles.totalValue}>{total}</div>
+        <div className={statusStyles.totalValue} style={glColor ? { color: glColor } : undefined}>
+          {total}
+        </div>
 
         <div className={statusStyles.calcRow}>
           {isSimpleMode ? (
@@ -82,7 +68,9 @@ const ResourceCard = memo(
                   color: 'var(--text-secondary)',
                 }}
               >
-                <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>{total}</span>
+                <span style={{ ...(glColor ? { color: glColor } : {}), fontWeight: 'bold' }}>
+                  {total}
+                </span>
                 {' / 6'}
               </span>
             ) : (
@@ -100,7 +88,9 @@ const ResourceCard = memo(
                     color: 'var(--text-secondary)',
                   }}
                 >
-                  <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>{total}</span>
+                  <span style={{ ...(glColor ? { color: glColor } : {}), fontWeight: 'bold' }}>
+                    {total}
+                  </span>
                   {' / 6'}
                 </span>
                 <button
@@ -247,7 +237,7 @@ const ResourceSection = ({
         />
         <Tooltip
           anchorSelect='#gl-increase-btn'
-          content={`GL${glLevel + 1}には累計${(glLevel * 10000).toLocaleString()}ptが必要です`}
+          content={`GL${glLevel}には累計${((glLevel - 1) * 10000).toLocaleString()}ptが必要です`}
           id='gl-exp-warn-tooltip'
           isOpen={expWarnOpen}
           place='top'
