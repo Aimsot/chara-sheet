@@ -51,28 +51,44 @@ export function buildCcfoliaCharacter(char: Character): string {
   const defenseTotal = p + defenseEquipMod + (char.combatValues.defense.modifier || 0);
   const damageModTotal = damageEquipMod + (char.combatValues.damage.modifier || 0);
 
+  const sp = char.profileSpoilers ?? {};
+  const as_ = char.appearanceSpoilers ?? {};
+  const ls = char.lifepathSpoilers ?? {};
+
   const speciesName = SPECIES_DATA[char.species as keyof typeof SPECIES_DATA]?.name ?? char.species;
   const styleName = styleData?.name ?? char.style;
   const elementName = ELEMENT_DATA[char.element as keyof typeof ELEMENT_DATA]?.name ?? char.element;
 
+  const profileLine = [
+    !sp.species ? speciesName : '',
+    !sp.style ? styleName : '',
+    !sp.element ? elementName : '',
+  ]
+    .filter(Boolean)
+    .join('　');
+
   const ap = char.appearance ?? {};
+  const agePart = !as_.age && ap.age ? `年齢：${ap.age}` : '';
+  const genderPart = !as_.gender && ap.gender ? `性別：${ap.gender}` : '';
+  const heightPart = !as_.height && ap.height ? `身長：${ap.height}` : '';
+  const hairPart = !as_.hairColor && ap.hairColor ? `髪の色：${ap.hairColor}` : '';
   const appearanceLines = [
-    ap.age || ap.gender ? `年齢：${ap.age || ''}　性別：${ap.gender || ''}` : '',
-    ap.height || ap.hairColor ? `身長：${ap.height || ''}　髪の色：${ap.hairColor || ''}` : '',
-    ap.eyeColor ? `瞳の色：${ap.eyeColor}` : '',
-    ap.skinColor ? `肌の色：${ap.skinColor}` : '',
+    [agePart, genderPart].filter(Boolean).join('　'),
+    [heightPart, hairPart].filter(Boolean).join('　'),
+    !as_.eyeColor && ap.eyeColor ? `瞳の色：${ap.eyeColor}` : '',
+    !as_.skinColor && ap.skinColor ? `肌の色：${ap.skinColor}` : '',
   ].filter(Boolean);
 
   const lifepathLines = [
-    char.origin ? `出自：${char.origin}` : '',
-    char.secret ? `秘密：${char.secret}` : '',
-    char.future ? `未来：${char.future}` : '',
+    !ls.origin && char.origin ? `出自：${char.origin}` : '',
+    !ls.secret && char.secret ? `秘密：${char.secret}` : '',
+    !ls.future && char.future ? `未来：${char.future}` : '',
   ].filter(Boolean);
 
   const memo = [
     `${char.characterName || '名無し'}、PL：${char.playerName || ''}`,
     char.masterName ? `師匠：${char.masterName}` : '',
-    `${speciesName}　${styleName}　${elementName}`,
+    profileLine,
     ...(appearanceLines.length > 0 ? ['', '【外見】', ...appearanceLines] : []),
     ...(lifepathLines.length > 0 ? ['', '【ライフパス】', ...lifepathLines] : []),
   ]
