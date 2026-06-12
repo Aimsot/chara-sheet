@@ -60,9 +60,9 @@ export function buildCcfoliaCharacter(char: Character): string {
   const elementName = ELEMENT_DATA[char.element as keyof typeof ELEMENT_DATA]?.name ?? char.element;
 
   const profileLine = [
-    !sp.species ? speciesName : '',
-    !sp.style ? styleName : '',
-    !sp.element ? elementName : '',
+    !sp.species ? `種族：${speciesName}` : '',
+    !sp.style ? `スタイル：${styleName}` : '',
+    !sp.element ? `属性：${elementName}` : '',
   ]
     .filter(Boolean)
     .join('　');
@@ -85,94 +85,110 @@ export function buildCcfoliaCharacter(char: Character): string {
     !ls.future && char.future ? `未来：${char.future}` : '',
   ].filter(Boolean);
 
-  const memo = [
-    `${char.characterName || '名無し'}、PL：${char.playerName || ''}`,
-    char.masterName ? `師匠：${char.masterName}` : '',
+  const memoHeader = [
+    `${char.characterName || '名無し'}　PL：${char.playerName || ''}`,
+    char.characterType === 'master'
+      ? char.discipleName
+        ? `弟子：${char.discipleName}`
+        : ''
+      : char.masterName
+        ? `師匠：${char.masterName}`
+        : '',
     profileLine,
+  ].filter(Boolean);
+
+  const memo = [
+    ...memoHeader,
     ...(appearanceLines.length > 0 ? ['', '【外見】', ...appearanceLines] : []),
     ...(lifepathLines.length > 0 ? ['', '【ライフパス】', ...lifepathLines] : []),
-  ]
-    .filter((line, idx, arr) => !(line === '' && (idx === 0 || arr[idx - 1] === '')))
-    .join('\n');
-
-  const commands = [
-    `2d6+{体力} 体力判定`,
-    `2d6+{知力} 知力判定`,
-    `2d6+{神秘} 神秘判定`,
-    `2d6+{俊敏} 俊敏判定`,
-    `2d6+{情熱} 情熱判定`,
-    `2d6+{優愛} 優愛判定`,
-    `2d6+{魔術値} 魔術判定(${magicType})`,
-    `2d6+{知力} エネミー識別`,
-    `2d6+{知力} 鑑定`,
-    `2d6+${damageModTotal} ダメージ`,
-    ``,
-    `{防御値} 防御値`,
-    `{回避値} 回避値`,
-    ...(() => {
-      const acquiredSkills = char.skills.filter((s) => s.name && s.acquired !== false);
-      return acquiredSkills.length > 0
-        ? [
-            ``,
-            `【スキル】`,
-            ...acquiredSkills.map((s) => {
-              const lines = [
-                wrapName(s.name),
-                `分類：${s.category || ''}　GL：${s.level ?? 0}`,
-                s.timing ? `タイミング：${s.timing}` : '',
-                s.judge || s.target ? `判定：${s.judge || ''}　対象：${s.target || ''}` : '',
-                s.range || s.cost ? `射程：${s.range || '―'}　コスト：${s.cost || '0'}` : '',
-                s.effect ? `効果：${s.effect}` : '',
-                s.critical ? `クリティカル：${s.critical}` : '',
-              ].filter(Boolean);
-              return lines.join('\\n');
-            }),
-          ]
-        : [];
-    })(),
-    ...(() => {
-      const acquiredEnchantments = (char.enchantments ?? []).filter(
-        (e) => e.name && e.acquired !== false
-      );
-      return acquiredEnchantments.length > 0
-        ? [
-            ``,
-            `【付与魔術】`,
-            ...acquiredEnchantments.map((e) => {
-              const lines = [
-                wrapName(e.name),
-                `GL：${e.gl ?? 0}${e.timing ? `　タイミング：${e.timing}` : ''}`,
-                e.effect ? `効果：${e.effect}` : '',
-              ].filter(Boolean);
-              return lines.join('\\n');
-            }),
-          ]
-        : [];
-    })(),
   ].join('\n');
+
+  const isMaster = char.characterType === 'master';
+
+  const commands = isMaster
+    ? ''
+    : [
+        `2d6+{体力} 体力判定`,
+        `2d6+{知力} 知力判定`,
+        `2d6+{神秘} 神秘判定`,
+        `2d6+{俊敏} 俊敏判定`,
+        `2d6+{情熱} 情熱判定`,
+        `2d6+{優愛} 優愛判定`,
+        `2d6+{魔術値} 魔術判定(${magicType})`,
+        `2d6+{知力} エネミー識別`,
+        `2d6+{知力} 鑑定`,
+        `2d6+${damageModTotal} ダメージ`,
+        ``,
+        `{防御値} 防御値`,
+        `{回避値} 回避値`,
+        ...(() => {
+          const acquiredSkills = char.skills.filter((s) => s.name && s.acquired !== false);
+          return acquiredSkills.length > 0
+            ? [
+                ``,
+                `【スキル】`,
+                ...acquiredSkills.map((s) => {
+                  const lines = [
+                    wrapName(s.name),
+                    `分類：${s.category || ''}　GL：${s.level ?? 0}`,
+                    s.timing ? `タイミング：${s.timing}` : '',
+                    s.judge || s.target ? `判定：${s.judge || ''}　対象：${s.target || ''}` : '',
+                    s.range || s.cost ? `射程：${s.range || '―'}　コスト：${s.cost || '0'}` : '',
+                    s.effect ? `効果：${s.effect}` : '',
+                    s.critical ? `クリティカル：${s.critical}` : '',
+                  ].filter(Boolean);
+                  return lines.join('\\n');
+                }),
+              ]
+            : [];
+        })(),
+        ...(() => {
+          const acquiredEnchantments = (char.enchantments ?? []).filter(
+            (e) => e.name && e.acquired !== false
+          );
+          return acquiredEnchantments.length > 0
+            ? [
+                ``,
+                `【付与魔術】`,
+                ...acquiredEnchantments.map((e) => {
+                  const lines = [
+                    wrapName(e.name),
+                    `GL：${e.gl ?? 0}${e.timing ? `　タイミング：${e.timing}` : ''}`,
+                    e.effect ? `効果：${e.effect}` : '',
+                  ].filter(Boolean);
+                  return lines.join('\\n');
+                }),
+              ]
+            : [];
+        })(),
+      ].join('\n');
 
   const payload = {
     kind: 'character',
     data: {
       name: char.characterName || '名無し',
       memo,
-      status: [
-        { label: 'HP', value: hpTotal, max: hpTotal },
-        { label: 'MP', value: mpTotal, max: mpTotal },
-        { label: 'WP', value: wpTotal, max: wpTotal },
-        { label: 'GL', value: char.gl || 0, max: 6 },
-      ],
-      params: [
-        { label: '体力', value: String(p) },
-        { label: '知力', value: String(i) },
-        { label: '神秘', value: String(m) },
-        { label: '俊敏', value: String(a) },
-        { label: '情熱', value: String(pa) },
-        { label: '優愛', value: String(af) },
-        { label: '魔術値', value: String(magicTotal) },
-        { label: '回避値', value: String(dodgeTotal) },
-        { label: '防御値', value: String(defenseTotal) },
-      ],
+      status: isMaster
+        ? []
+        : [
+            { label: 'HP', value: hpTotal, max: hpTotal },
+            { label: 'MP', value: mpTotal, max: mpTotal },
+            { label: 'WP', value: wpTotal, max: wpTotal },
+            { label: 'GL', value: char.gl || 0, max: 6 },
+          ],
+      params: isMaster
+        ? []
+        : [
+            { label: '体力', value: String(p) },
+            { label: '知力', value: String(i) },
+            { label: '神秘', value: String(m) },
+            { label: '俊敏', value: String(a) },
+            { label: '情熱', value: String(pa) },
+            { label: '優愛', value: String(af) },
+            { label: '魔術値', value: String(magicTotal) },
+            { label: '回避値', value: String(dodgeTotal) },
+            { label: '防御値', value: String(defenseTotal) },
+          ],
       commands,
       iconUrl: null,
       ...(char.ccfoliaColor ? { color: char.ccfoliaColor } : {}),
