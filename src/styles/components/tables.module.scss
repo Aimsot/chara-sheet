@@ -559,7 +559,9 @@ $col-gap: 12px;
 
 /* 付与魔術（閲覧） */
 .enchantmentViewGrid {
+  grid-template-rows: minmax(36px, auto);
   grid-template-columns: ($lbl-equip + 36px) $col-name $col-stat 120px;
+  align-items: center;
   min-width: 536px;
 }
 

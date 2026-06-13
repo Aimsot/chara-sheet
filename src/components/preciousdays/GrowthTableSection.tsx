@@ -10,6 +10,7 @@ import cardStyles from '@/styles/components/cards.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
 import tableStyles from '@/styles/components/tables.module.scss';
 import { Item } from '@/types/preciousdays/character';
+import { GROWTH_MILESTONES } from '@/utils/preciousdays/growthCapacity';
 
 interface GrowthTableSectionProps {
   experience?: number;
@@ -17,28 +18,6 @@ interface GrowthTableSectionProps {
   items: Item[];
   style: string;
 }
-
-const MILESTONES = [
-  { exp: 1000, label: 'スキルをひとつ獲得', skills: 1, items: 0, consumables: 0, hpMp: false },
-  { exp: 3000, label: 'HP・MP上昇', skills: 0, items: 0, consumables: 0, hpMp: true },
-  {
-    exp: 5000,
-    label: 'アイテムと消耗品をひとつずつ獲得',
-    skills: 0,
-    items: 1,
-    consumables: 1,
-    hpMp: false,
-  },
-  {
-    exp: 6000,
-    label: 'スキルと消耗品をひとつずつ獲得',
-    skills: 1,
-    items: 0,
-    consumables: 1,
-    hpMp: false,
-  },
-  { exp: 8000, label: 'スキルをひとつ獲得', skills: 1, items: 0, consumables: 0, hpMp: false },
-] as const;
 
 const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
   ({ experience = 0, gl, items, style }) => {
@@ -58,7 +37,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
       // GL0→1 はファーストシナリオで無償のため、マイルストーンサイクル数 = max(0, gl-1)
       const completedCycles = Math.max(0, glLevel - 1);
       const currentCycleExp = Math.max(0, experience - completedCycles * 10000);
-      const reachedInCycle = MILESTONES.filter((m) => currentCycleExp >= m.exp);
+      const reachedInCycle = GROWTH_MILESTONES.filter((m) => currentCycleExp >= m.exp);
 
       return {
         currentCycleExp,
@@ -129,7 +108,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
                 <div className={tableStyles.cell}>内容</div>
                 <div className={tableStyles.cell}>達成</div>
               </div>
-              {MILESTONES.map((milestone) => {
+              {GROWTH_MILESTONES.map((milestone) => {
                 const reached = currentCycleExp >= milestone.exp;
                 return (
                   <div
