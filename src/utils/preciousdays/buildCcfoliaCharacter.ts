@@ -16,10 +16,16 @@ export function buildCcfoliaCharacter(char: Character): string {
   const pa = char.abilities.passion.total || 0;
   const af = char.abilities.affection.total || 0;
 
-  // HP/MP/WP（GLによる成長を含む）
+  // HP/MP/WP（GL + マイルストーン成長を含む）
   const glLevel = char.gl || 0;
-  const hpBase = (styleData?.hp.base ?? 0) + (styleData?.hp.growth ?? 0) * glLevel;
-  const mpBase = (styleData?.mp.base ?? 0) + (styleData?.mp.growth ?? 0) * glLevel;
+  const experience = char.experience || 0;
+  const completedCycles = Math.max(0, glLevel - 1);
+  const currentCycleExp = Math.max(0, experience - completedCycles * 10000);
+  const hpMpMilestoneCount = completedCycles + (currentCycleExp >= 3000 ? 1 : 0);
+  const hpBase =
+    (styleData?.hp.base ?? 0) + (styleData?.hp.growth ?? 0) * (glLevel + hpMpMilestoneCount);
+  const mpBase =
+    (styleData?.mp.base ?? 0) + (styleData?.mp.growth ?? 0) * (glLevel + hpMpMilestoneCount);
   const wpBase = pa + af;
   const hpTotal = hpBase + (char.hp.modifier || 0);
   const mpTotal = mpBase + (char.mp.modifier || 0);

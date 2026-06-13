@@ -171,9 +171,16 @@ const ResourceSection = ({
     [glLevel, experience, handleGLUpdate]
   );
 
-  // HP/MP 基本値（スタイル基本値 + 成長率×GL）
-  const hpBase = (styleData?.hp.base || 0) + (styleData?.hp.growth || 0) * glLevel;
-  const mpBase = (styleData?.mp.base || 0) + (styleData?.mp.growth || 0) * glLevel;
+  // マイルストーン HP/MP 成長回数（3000exp 到達ごとに +1）
+  const completedCycles = Math.max(0, glLevel - 1);
+  const currentCycleExp = Math.max(0, experience - completedCycles * 10000);
+  const hpMpMilestoneCount = completedCycles + (currentCycleExp >= 3000 ? 1 : 0);
+
+  // HP/MP 基本値（スタイル基本値 + 成長率 × (GL + マイルストーン回数)）
+  const hpBase =
+    (styleData?.hp.base || 0) + (styleData?.hp.growth || 0) * (glLevel + hpMpMilestoneCount);
+  const mpBase =
+    (styleData?.mp.base || 0) + (styleData?.mp.growth || 0) * (glLevel + hpMpMilestoneCount);
 
   // WPの基本値計算
   const wpBase = (abilities.passion?.total || 0) + (abilities.affection?.total || 0);
