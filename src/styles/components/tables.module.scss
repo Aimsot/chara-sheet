@@ -3,9 +3,9 @@
    ============================================================ */
 .scrollContainer {
   display: block; /* GridではなくBlockで枠を確保 */
-  width: calc(100% + 32px); /* 親のpadding 16px×2 分を相殺 */
+  width: calc(100% + 24px); /* 親のpadding 12px×2 分を相殺 */
   padding: 0;
-  margin: 0 -16px;
+  margin: 0 -12px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 
