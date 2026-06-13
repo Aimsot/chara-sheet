@@ -28,11 +28,13 @@
       }
     }
   }
-  /* スマホでは幅いっぱいに */
+  /* スマホでは正方形に */
   @media (max-width: 980px) {
     flex: none;
-    width: 100%;
-    min-height: 300px;
+    align-self: center;
+    width: min(100%, 280px);
+    min-height: unset;
+    aspect-ratio: 1 / 1;
   }
 }
 
