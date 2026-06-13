@@ -559,8 +559,8 @@ $col-gap: 12px;
 
 /* 付与魔術（閲覧） */
 .enchantmentViewGrid {
-  grid-template-columns: ($lbl-equip + 36px) $col-name $col-stat 120px 2fr;
-  min-width: 596px;
+  grid-template-columns: ($lbl-equip + 36px) $col-name $col-stat 120px;
+  min-width: 536px;
 }
 
 /* 装備品：効果・ページのサブ行グリッド */

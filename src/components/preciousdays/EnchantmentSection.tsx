@@ -2,6 +2,8 @@
 
 import React, { memo, useCallback, useState } from 'react';
 
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+
 import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
 import { ComboBox } from '@/components/ui/ComboBox';
 import { NumberInput } from '@/components/ui/NumberInput';
@@ -24,6 +26,7 @@ const EnchantmentRow = memo(
     index,
     isReadOnly,
     autoResize,
+    showAll,
     canRemove,
     onUpdate,
     onRemove,
@@ -32,10 +35,12 @@ const EnchantmentRow = memo(
     index: number;
     isReadOnly?: boolean;
     autoResize?: boolean;
+    showAll?: boolean;
     canRemove: boolean;
     onUpdate: (index: number, field: keyof Enchantment, value: any) => void;
     onRemove: (index: number) => void;
   }) => {
+    const [isHovered, setIsHovered] = useState(false);
     const [prevName, setPrevName] = useState(enchantment.name);
     const [prevEffect, setPrevEffect] = useState(enchantment.effect);
     const [prevPage, setPrevPage] = useState(enchantment.page ?? '');
@@ -67,11 +72,17 @@ const EnchantmentRow = memo(
           ? `p.${enchantment.page}`
           : enchantment.page
         : '';
+      const hasEffect = !!enchantment.effect;
       return (
         <div
           className={`${tableStyles.row} ${tableStyles.enchantmentViewGrid}${enchantment.acquired === false ? ` ${tableStyles.unacquired}` : ''}`}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
         >
-          <div className={tableStyles.labelBlock}>
+          <div
+            className={tableStyles.labelBlock}
+            style={{ gridColumn: '1', gridRow: hasEffect ? '1 / 3' : '1' }}
+          >
             <div className={tableStyles.labelCell}>
               <input
                 checked={enchantment.acquired !== false}
@@ -83,7 +94,7 @@ const EnchantmentRow = memo(
             </div>
             <div className={tableStyles.labelCell}>{CATEGORY_LABEL}</div>
           </div>
-          <div className={tableStyles.cell} style={{ justifyContent: 'center', gap: '6px' }}>
+          <div className={tableStyles.cell} style={{ gridColumn: '2', gridRow: '1', gap: '6px' }}>
             <span>{enchantment.name}</span>
             {pageText && (
               <span style={{ fontSize: '0.65rem', color: 'rgba(160,160,160,0.45)', flexShrink: 0 }}>
@@ -91,8 +102,10 @@ const EnchantmentRow = memo(
               </span>
             )}
           </div>
-          <div className={tableStyles.cell}>{enchantment.gl ?? 0}</div>
-          <div className={tableStyles.cell}>
+          <div className={tableStyles.cell} style={{ gridColumn: '3', gridRow: '1' }}>
+            {enchantment.gl ?? 0}
+          </div>
+          <div className={tableStyles.cell} style={{ gridColumn: '4', gridRow: '1' }}>
             {(() => {
               const t = enchantment.timing ?? '';
               return t.includes('\n') ? (
@@ -114,20 +127,20 @@ const EnchantmentRow = memo(
               );
             })()}
           </div>
-          <div className={tableStyles.cell} style={{ alignItems: 'flex-start', paddingBlock: '6px' }}>
-            <div
-              style={{
-                maxHeight: autoResize ? undefined : '4.5em',
-                overflowY: autoResize ? undefined : 'auto',
-                fontSize: '0.75rem',
-                lineHeight: 1.5,
-                whiteSpace: 'pre-wrap',
-                width: '100%',
-              }}
-            >
-              {enchantment.effect}
+          {hasEffect && (isHovered || (showAll ?? false)) && (
+            <div className={tableStyles.subRow} style={{ gridColumn: '2 / -1', gridRow: '2' }}>
+              <div
+                className={tableStyles.textContent}
+                style={{
+                  paddingLeft: '12px',
+                  maxHeight: autoResize ? undefined : '4.5em',
+                  overflowY: autoResize ? undefined : 'auto',
+                }}
+              >
+                {enchantment.effect}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       );
     }
@@ -269,6 +282,7 @@ const EnchantmentSection: React.FC<EnchantmentSectionProps> = memo(
     handleEnchantmentsUpdate,
   }) => {
     const [isOpen, setIsOpen] = useState(true);
+    const [showAll, setShowAll] = useState(false);
 
     return (
       <section className={cardStyles.base}>
@@ -277,7 +291,16 @@ const EnchantmentSection: React.FC<EnchantmentSectionProps> = memo(
           onClick={isReadOnly ? undefined : () => setIsOpen(!isOpen)}
         >
           <h2 className={cardStyles.title}>付与魔術</h2>
-          {!isReadOnly && (
+          {isReadOnly ? (
+            <button
+              className={btnStyles.expandToggle}
+              onClick={() => setShowAll((v) => !v)}
+              type='button'
+            >
+              {showAll ? '効果を折畳む' : '効果を全展開'}
+              {showAll ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
+            </button>
+          ) : (
             <span className={`${cardStyles.icon} ${!isOpen ? cardStyles.closed : ''}`}></span>
           )}
         </div>
@@ -297,7 +320,7 @@ const EnchantmentSection: React.FC<EnchantmentSectionProps> = memo(
                 <div className={tableStyles.cell}>名称</div>
                 <div className={tableStyles.cell}>GL</div>
                 <div className={tableStyles.cell}>タイミング</div>
-                <div className={tableStyles.cell}>効果</div>
+                {!isReadOnly && <div className={tableStyles.cell}>効果</div>}
                 {!isReadOnly && <div className={tableStyles.cell}>ページ</div>}
                 {!isReadOnly && <div className={tableStyles.cell}>削除</div>}
               </div>
@@ -312,6 +335,7 @@ const EnchantmentSection: React.FC<EnchantmentSectionProps> = memo(
                   key={enc.id || String(index)}
                   onRemove={handleEnchantmentsRemove}
                   onUpdate={handleEnchantmentsUpdate}
+                  showAll={showAll}
                 />
               ))}
             </div>

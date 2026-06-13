@@ -176,7 +176,7 @@ const SkillReadonlyRow = memo(
                 );
               })()
             ) : (
-              <span>{(skill as any)[field] ?? ''}</span>
+              <span style={{ textAlign: 'center' }}>{(skill as any)[field] ?? ''}</span>
             )}
           </div>
         ))}
