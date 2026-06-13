@@ -450,7 +450,7 @@ $col-gap: 12px;
 .skillReadonlyGrid {
   grid-template-columns: ($lbl-equip + 36px) $col-name 40px 120px repeat(5, 1fr);
   align-items: center;
-  min-width: 796px;
+  min-width: 946px;
 }
 
 /* 装備品：ヘッダー / 合計行 */

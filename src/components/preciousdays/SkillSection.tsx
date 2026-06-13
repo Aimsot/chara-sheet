@@ -467,7 +467,7 @@ export const SkillSection: React.FC<SkillSectionProps> = memo(
           <div className={tableStyles.scrollContainer}>
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
-              style={{ minWidth: isReadOnly ? '796px' : '876px' }}
+              style={{ minWidth: isReadOnly ? '946px' : '876px' }}
             >
               {/* ヘッダー行 */}
               {isReadOnly ? (
