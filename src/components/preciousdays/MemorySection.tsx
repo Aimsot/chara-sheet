@@ -29,37 +29,43 @@ const MemoryRow = memo(
     onUpdate: (index: number, field: keyof Memory, value: any) => void;
     onRemove: (index: number) => void;
   }) => {
-    const [localDate, setLocalDate] = useState(memory.date);
-    const [localContent, setLocalContent] = useState(memory.content);
-    const [localPrize, setLocalPrize] = useState(memory.prize);
-    const [localExp, setLocalExp] = useState(memory.experience ?? '');
-    const [localSecretNote, setLocalSecretNote] = useState(memory.secretNote ?? '');
+    const [local, setLocal] = useState({
+      date: memory.date,
+      content: memory.content,
+      prize: memory.prize,
+      exp: Number.isFinite(memory.experience) ? String(memory.experience) : '',
+      secretNote: memory.secretNote ?? '',
+    });
+    const [prevMemory, setPrevMemory] = useState<Memory>(memory);
 
-    const [prevDate, setPrevDate] = useState(memory.date);
-    const [prevContent, setPrevContent] = useState(memory.content);
-    const [prevPrize, setPrevPrize] = useState(memory.prize);
-    const [prevExp, setPrevExp] = useState(memory.experience);
-    const [prevSecretNote, setPrevSecretNote] = useState(memory.secretNote);
-
-    if (memory.date !== prevDate) {
-      setPrevDate(memory.date);
-      setLocalDate(memory.date);
-    }
-    if (memory.content !== prevContent) {
-      setPrevContent(memory.content);
-      setLocalContent(memory.content);
-    }
-    if (memory.prize !== prevPrize) {
-      setPrevPrize(memory.prize);
-      setLocalPrize(memory.prize);
-    }
-    if (memory.experience !== prevExp) {
-      setPrevExp(memory.experience);
-      setLocalExp(memory.experience ?? '');
-    }
-    if ((memory.secretNote ?? '') !== (prevSecretNote ?? '')) {
-      setPrevSecretNote(memory.secretNote);
-      setLocalSecretNote(memory.secretNote ?? '');
+    if (prevMemory !== memory) {
+      const next = { ...local };
+      let hasChange = false;
+      if (memory.date !== prevMemory.date) {
+        next.date = memory.date;
+        hasChange = true;
+      }
+      if (memory.content !== prevMemory.content) {
+        next.content = memory.content;
+        hasChange = true;
+      }
+      if (memory.prize !== prevMemory.prize) {
+        next.prize = memory.prize;
+        hasChange = true;
+      }
+      // NaN !== NaN が true になるため Number.isFinite で安全比較
+      const expA = memory.experience;
+      const expB = prevMemory.experience;
+      if (expA !== expB && !(Number.isNaN(expA as number) && Number.isNaN(expB as number))) {
+        next.exp = Number.isFinite(expA) ? String(expA) : '';
+        hasChange = true;
+      }
+      if ((memory.secretNote ?? '') !== (prevMemory.secretNote ?? '')) {
+        next.secretNote = memory.secretNote ?? '';
+        hasChange = true;
+      }
+      setPrevMemory(memory);
+      if (hasChange) setLocal(next);
     }
 
     const handleRemove = useCallback(() => onRemove(index), [index, onRemove]);
@@ -91,12 +97,12 @@ const MemoryRow = memo(
             <input
               className={formStyles.input}
               onChange={(e) => {
-                setLocalDate(e.target.value);
+                setLocal((l) => ({ ...l, date: e.target.value }));
                 onUpdate(index, 'date', e.target.value);
               }}
               placeholder='日付'
               type='text'
-              value={localDate}
+              value={local.date}
             />
           )}
         </div>
@@ -126,12 +132,12 @@ const MemoryRow = memo(
               autoResize={autoResize}
               className={formStyles.textareaTable}
               onChange={(e) => {
-                setLocalContent(e.target.value);
+                setLocal((l) => ({ ...l, content: e.target.value }));
                 onUpdate(index, 'content', e.target.value);
               }}
               placeholder='メモリー'
               rows={1}
-              value={localContent}
+              value={local.content}
             />
           )}
         </div>
@@ -162,12 +168,12 @@ const MemoryRow = memo(
             <input
               className={formStyles.input}
               onChange={(e) => {
-                setLocalPrize(e.target.value);
+                setLocal((l) => ({ ...l, prize: e.target.value }));
                 onUpdate(index, 'prize', e.target.value);
               }}
               placeholder='プライズ'
               type='text'
-              value={localPrize}
+              value={local.prize}
             />
           )}
         </div>
@@ -176,23 +182,25 @@ const MemoryRow = memo(
         {showExperience !== false && (
           <div className={tableStyles.cell} style={{ borderLeft: '1px solid var(--card-border)' }}>
             {isReadOnly ? (
-              <span>{memory.experience ?? ''}</span>
+              <span>{Number.isFinite(memory.experience) ? memory.experience : ''}</span>
             ) : (
               <input
                 className={formStyles.input}
                 inputMode='numeric'
                 onChange={(e) => {
-                  setLocalExp(e.target.value);
-                  onUpdate(
-                    index,
-                    'experience',
-                    e.target.value === '' ? undefined : Number(e.target.value)
-                  );
+                  setLocal((l) => ({ ...l, exp: e.target.value }));
+                  if (e.target.value === '') {
+                    onUpdate(index, 'experience', undefined);
+                  } else {
+                    const num = Number(e.target.value);
+                    if (!Number.isNaN(num)) onUpdate(index, 'experience', num);
+                    // NaN の場合は親 state を更新しない（入力途中を許容）
+                  }
                 }}
                 placeholder='0'
                 style={{ textAlign: 'center' }}
                 type='text'
-                value={localExp}
+                value={local.exp}
               />
             )}
           </div>
@@ -231,12 +239,12 @@ const MemoryRow = memo(
                 autoResize={autoResize}
                 className={`${formStyles.textarea} ${formStyles.secretNoteTextarea}`}
                 onChange={(e) => {
-                  setLocalSecretNote(e.target.value);
+                  setLocal((l) => ({ ...l, secretNote: e.target.value }));
                   onUpdate(index, 'secretNote', e.target.value);
                 }}
                 placeholder='秘匿メモ'
                 rows={1}
-                value={localSecretNote}
+                value={local.secretNote}
               />
             </div>
           </div>
