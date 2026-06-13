@@ -570,3 +570,36 @@ $col-gap: 12px;
   padding: 3px 8px 5px 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
+
+/* ============================================================
+   成長テーブル専用グリッド
+   ============================================================ */
+
+/* マイルストーンテーブル（経験点 / 内容 / 達成） */
+.milestoneGrid {
+  display: grid;
+  grid-template-columns: 72px 1fr 44px;
+}
+
+/* サマリーテーブル（項目 / ベース / 経験点分 / GUP選択 / 現在数） */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 72px repeat(4, 1fr);
+}
+
+/* ============================================================
+   セル修飾ユーティリティ（.cell と組み合わせて使用）
+   .cell より後に定義することで cascade を制御する
+   ============================================================ */
+
+/* 左寄せセル（.cell のデフォルト中央揃えを上書き） */
+.cell.cellLeft {
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+
+/* セル内の小さいセカンダリテキスト */
+.cell.cellTextSmall {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+}

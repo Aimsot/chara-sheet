@@ -9,6 +9,7 @@ import Loading from '@/components/ui/Loading';
 import { INITIAL_CHARACTER } from '@/constants/preciousdays';
 import { useCharacterActions } from '@/hooks/preciousdays/useCharacterActions';
 import { Character } from '@/types/preciousdays/character';
+import { deepEqual } from '@/utils/deepEqual';
 
 interface EditFormProps {
   initialData: Character | null;
@@ -39,11 +40,8 @@ function EditFormContent({ initialData, characterKey, isClone }: EditFormProps) 
   });
 
   const isDirty = useMemo(() => {
-    const baseData = savedData || INITIAL_CHARACTER;
-    const isDataChanged = JSON.stringify(char) !== JSON.stringify(baseData);
-    const isImageChanged = selectedFile !== null;
-
-    return isDataChanged || isImageChanged;
+    if (selectedFile !== null) return true;
+    return !deepEqual(char, savedData ?? INITIAL_CHARACTER);
   }, [char, savedData, selectedFile]);
 
   const handleSaveSuccess = useCallback(

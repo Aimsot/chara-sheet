@@ -86,7 +86,7 @@ export const LifepathSection: React.FC<LifepathProps> = memo(
                       </div>
                     )
                   ) : (
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div className={formStyles.flexRow}>
                       <input
                         className={formStyles.input}
                         inputMode='text'
@@ -98,24 +98,8 @@ export const LifepathSection: React.FC<LifepathProps> = memo(
                         value={currentValue}
                       />
                       {isMaster && (
-                        <div
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '2px',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: '0.65rem',
-                              color: 'var(--text-secondary)',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            秘匿
-                          </span>
+                        <div className={formStyles.checkboxStack}>
+                          <span className={formStyles.labelSmall}>秘匿</span>
                           <input
                             checked={spoilerValue ?? field.k === 'secret'}
                             onChange={(e) =>

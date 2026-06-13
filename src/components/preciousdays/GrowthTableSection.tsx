@@ -40,16 +40,6 @@ const MILESTONES = [
   { exp: 8000, label: 'スキルをひとつ獲得', skills: 1, items: 0, consumables: 0, hpMp: false },
 ] as const;
 
-const milestoneGridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '72px 1fr 44px',
-};
-
-const summaryGridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '72px 1fr 1fr 1fr 1fr',
-};
-
 const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
   ({ experience = 0, gl, items, style }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -104,12 +94,12 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
               {currentCycleExp.toLocaleString()} pt
             </strong>
             {experience > 0 && (
-              <span style={{ marginLeft: '8px', opacity: 0.6 }}>
+              <span className={formStyles.dimNote}>
                 （累計: {experience.toLocaleString()} pt）
               </span>
             )}
             {glLevel > 0 && (
-              <span style={{ marginLeft: '8px', opacity: 0.6 }}>— GL{glLevel}サイクル目</span>
+              <span className={formStyles.dimNote}>— GL{glLevel}サイクル目</span>
             )}
             {isExpInsufficient && (
               <>
@@ -138,7 +128,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
             >
-              <div className={tableStyles.headerRow} style={milestoneGridStyle}>
+              <div className={`${tableStyles.headerRow} ${tableStyles.milestoneGrid}`}>
                 <div className={tableStyles.labelCell}>経験点</div>
                 <div className={tableStyles.cell}>内容</div>
                 <div className={tableStyles.cell}>達成</div>
@@ -147,15 +137,11 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
                 const reached = currentCycleExp >= milestone.exp;
                 return (
                   <div
-                    className={`${tableStyles.row}${reached ? ` ${tableStyles.totalRow}` : ''}`}
+                    className={`${tableStyles.row} ${tableStyles.milestoneGrid}${reached ? ` ${tableStyles.totalRow}` : ''}`}
                     key={milestone.exp}
-                    style={milestoneGridStyle}
                   >
                     <div className={tableStyles.labelCell}>{milestone.exp.toLocaleString()}</div>
-                    <div
-                      className={tableStyles.cell}
-                      style={{ justifyContent: 'flex-start', paddingLeft: '8px' }}
-                    >
+                    <div className={`${tableStyles.cell} ${tableStyles.cellLeft}`}>
                       {milestone.label}
                     </div>
                     <div className={tableStyles.cell}>{reached ? '✓' : ''}</div>
@@ -163,14 +149,10 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
                 );
               })}
               <div
-                className={`${tableStyles.row}${currentCycleExp >= 10000 ? ` ${tableStyles.totalRow}` : ''}`}
-                style={milestoneGridStyle}
+                className={`${tableStyles.row} ${tableStyles.milestoneGrid}${currentCycleExp >= 10000 ? ` ${tableStyles.totalRow}` : ''}`}
               >
                 <div className={tableStyles.labelCell}>10,000</div>
-                <div
-                  className={tableStyles.cell}
-                  style={{ justifyContent: 'flex-start', paddingLeft: '8px' }}
-                >
+                <div className={`${tableStyles.cell} ${tableStyles.cellLeft}`}>
                   グレードアップ
                 </div>
                 <div className={tableStyles.cell}>{currentCycleExp >= 10000 ? '✓' : ''}</div>
@@ -183,14 +165,14 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
             <div
               className={`${tableStyles.gridTable} ${tableStyles.denseTable} ${tableStyles.zebraTable}`}
             >
-              <div className={tableStyles.headerRow} style={summaryGridStyle}>
+              <div className={`${tableStyles.headerRow} ${tableStyles.summaryGrid}`}>
                 <div className={tableStyles.labelCell}>項目</div>
                 <div className={tableStyles.cell}>ベース</div>
                 <div className={tableStyles.cell}>経験点分</div>
                 <div className={tableStyles.cell}>GUP選択 ×{glLevel}</div>
                 <div className={tableStyles.cell}>現在数</div>
               </div>
-              <div className={tableStyles.row} style={summaryGridStyle}>
+              <div className={`${tableStyles.row} ${tableStyles.summaryGrid}`}>
                 <div className={tableStyles.labelCell}>スキル</div>
                 <div className={tableStyles.cell}>4</div>
                 <div className={tableStyles.cell}>{totalSkillsFromMilestones}</div>
@@ -199,7 +181,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
                   {4 + totalSkillsFromMilestones}~{4 + totalSkillsFromMilestones + glLevel}
                 </div>
               </div>
-              <div className={tableStyles.row} style={summaryGridStyle}>
+              <div className={`${tableStyles.row} ${tableStyles.summaryGrid}`}>
                 <div className={tableStyles.labelCell}>アイテム</div>
                 <div className={tableStyles.cell}>1</div>
                 <div className={tableStyles.cell}>{totalItemsFromMilestones}</div>
@@ -208,54 +190,48 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
                   {1 + totalItemsFromMilestones}~{1 + totalItemsFromMilestones + glLevel}
                 </div>
               </div>
-              <div className={tableStyles.row} style={summaryGridStyle}>
+              <div className={`${tableStyles.row} ${tableStyles.summaryGrid}`}>
                 <div className={tableStyles.labelCell}>消耗品</div>
                 <div className={tableStyles.cell}>—</div>
                 <div className={tableStyles.cell}>{totalConsumablesFromMilestones}</div>
                 <div className={tableStyles.cell}>—</div>
                 <div className={tableStyles.cell}>{currentConsumableCount}</div>
               </div>
-              <div className={tableStyles.row} style={summaryGridStyle}>
+              <div className={`${tableStyles.row} ${tableStyles.summaryGrid}`}>
                 <div className={tableStyles.labelCell}>HP</div>
                 <div className={tableStyles.cell}>{styleData?.hp.base ?? 0}</div>
                 <div className={tableStyles.cell}>
                   +{hpGrowth * hpMpMilestoneCount}
-                  <span style={{ fontSize: '0.65rem', marginLeft: '3px', opacity: 0.65 }}>
+                  <span className={formStyles.calcNote}>
                     ({hpGrowth}×{hpMpMilestoneCount})
                   </span>
                 </div>
                 <div className={tableStyles.cell}>
                   +{hpGrowth * glLevel}
-                  <span style={{ fontSize: '0.65rem', marginLeft: '3px', opacity: 0.65 }}>
+                  <span className={formStyles.calcNote}>
                     ({hpGrowth}×{glLevel})
                   </span>
                 </div>
-                <div
-                  className={tableStyles.cell}
-                  style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}
-                >
+                <div className={`${tableStyles.cell} ${tableStyles.cellTextSmall}`}>
                   HP欄で管理
                 </div>
               </div>
-              <div className={tableStyles.row} style={summaryGridStyle}>
+              <div className={`${tableStyles.row} ${tableStyles.summaryGrid}`}>
                 <div className={tableStyles.labelCell}>MP</div>
                 <div className={tableStyles.cell}>{styleData?.mp.base ?? 0}</div>
                 <div className={tableStyles.cell}>
                   +{mpGrowth * hpMpMilestoneCount}
-                  <span style={{ fontSize: '0.65rem', marginLeft: '3px', opacity: 0.65 }}>
+                  <span className={formStyles.calcNote}>
                     ({mpGrowth}×{hpMpMilestoneCount})
                   </span>
                 </div>
                 <div className={tableStyles.cell}>
                   +{mpGrowth * glLevel}
-                  <span style={{ fontSize: '0.65rem', marginLeft: '3px', opacity: 0.65 }}>
+                  <span className={formStyles.calcNote}>
                     ({mpGrowth}×{glLevel})
                   </span>
                 </div>
-                <div
-                  className={tableStyles.cell}
-                  style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}
-                >
+                <div className={`${tableStyles.cell} ${tableStyles.cellTextSmall}`}>
                   MP欄で管理
                 </div>
               </div>

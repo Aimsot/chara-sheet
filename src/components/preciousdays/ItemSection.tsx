@@ -30,25 +30,30 @@ const ItemRow = memo(
     onUpdate: (index: number, field: keyof Item, value: any) => void;
     onRemove: (index: number) => void;
   }) => {
-    const [prevName, setPrevName] = useState(item.name);
-    const [prevNotes, setPrevNotes] = useState(item.notes);
-    const [prevPage, setPrevPage] = useState(item.page || '');
+    const [local, setLocal] = useState({
+      name: item.name,
+      notes: item.notes,
+      page: item.page || '',
+    });
+    const [prevItem, setPrevItem] = useState<Item>(item);
 
-    const [localName, setLocalName] = useState(item.name);
-    const [localNotes, setLocalNotes] = useState(item.notes);
-    const [localPage, setLocalPage] = useState(item.page || '');
-
-    if (item.name !== prevName) {
-      setPrevName(item.name);
-      setLocalName(item.name);
-    }
-    if (item.notes !== prevNotes) {
-      setPrevNotes(item.notes);
-      setLocalNotes(item.notes);
-    }
-    if ((item.page || '') !== prevPage) {
-      setPrevPage(item.page || '');
-      setLocalPage(item.page || '');
+    if (prevItem !== item) {
+      const next = { ...local };
+      let hasChange = false;
+      if (item.name !== prevItem.name) {
+        next.name = item.name;
+        hasChange = true;
+      }
+      if (item.notes !== prevItem.notes) {
+        next.notes = item.notes;
+        hasChange = true;
+      }
+      if ((item.page || '') !== (prevItem.page || '')) {
+        next.page = item.page || '';
+        hasChange = true;
+      }
+      setPrevItem(item);
+      if (hasChange) setLocal(next);
     }
 
     const handleGLChange = useCallback(
@@ -150,12 +155,12 @@ const ItemRow = memo(
                 className={formStyles.input}
                 inputMode='text'
                 onChange={(e) => {
-                  setLocalName(e.target.value);
+                  setLocal((l) => ({ ...l, name: e.target.value }));
                   onUpdate(index, 'name', e.target.value);
                 }}
                 placeholder='名称'
                 type='text'
-                value={localName}
+                value={local.name}
               />
             </div>
 
@@ -218,12 +223,12 @@ const ItemRow = memo(
                 className={formStyles.input}
                 inputMode='text'
                 onChange={(e) => {
-                  setLocalNotes(e.target.value);
+                  setLocal((l) => ({ ...l, notes: e.target.value }));
                   onUpdate(index, 'notes', e.target.value);
                 }}
                 placeholder='効果'
                 type='text'
-                value={localNotes}
+                value={local.notes}
               />
             </div>
 
@@ -233,12 +238,12 @@ const ItemRow = memo(
                 className={formStyles.input}
                 inputMode='text'
                 onChange={(e) => {
-                  setLocalPage(e.target.value);
+                  setLocal((l) => ({ ...l, page: e.target.value }));
                   onUpdate(index, 'page', e.target.value);
                 }}
                 placeholder='p.'
                 type='text'
-                value={localPage}
+                value={local.page}
               />
             </div>
 

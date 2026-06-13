@@ -453,3 +453,43 @@
   border: none;
   border-radius: 0;
 }
+
+/* ============================================================
+   Utility: フォーム共通ユーティリティ
+   ============================================================ */
+
+/* 入力 + 秘匿チェックなど横並びラッパー */
+.flexRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 秘匿チェックボックスの縦積みコンテナ */
+.checkboxStack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* 小さいセカンダリラベルテキスト（秘匿・補足など） */
+.labelSmall {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* 計算式の注釈 span（括弧内の小さい数式） */
+.calcNote {
+  font-size: 0.65rem;
+  margin-left: 3px;
+  opacity: 0.65;
+}
+
+/* 薄い補足 span（累計経験点・GLサイクル表示など） */
+.dimNote {
+  margin-left: 8px;
+  opacity: 0.6;
+}

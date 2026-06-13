@@ -214,7 +214,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                       </div>
                     )
                   ) : (
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div className={formStyles.flexRow}>
                       <select
                         className={formStyles.select}
                         onChange={(e) => updateAbilities({ species: e.target.value as SpeciesKey })}
@@ -228,24 +228,8 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                         ))}
                       </select>
                       {isMaster && (
-                        <div
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '2px',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: '0.65rem',
-                              color: 'var(--text-secondary)',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            秘匿
-                          </span>
+                        <div className={formStyles.checkboxStack}>
+                          <span className={formStyles.labelSmall}>秘匿</span>
                           <input
                             checked={profileSpoilers?.species ?? false}
                             onChange={(e) => onSpoilerChange?.('species', e.target.checked)}
@@ -275,7 +259,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                       </div>
                     )
                   ) : (
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div className={formStyles.flexRow}>
                       <select
                         className={formStyles.select}
                         onChange={(e) => updateAbilities({ style: e.target.value as StyleKey })}
@@ -289,24 +273,8 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                         ))}
                       </select>
                       {isMaster && (
-                        <div
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '2px',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: '0.65rem',
-                              color: 'var(--text-secondary)',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            秘匿
-                          </span>
+                        <div className={formStyles.checkboxStack}>
+                          <span className={formStyles.labelSmall}>秘匿</span>
                           <input
                             checked={profileSpoilers?.style ?? false}
                             onChange={(e) => onSpoilerChange?.('style', e.target.checked)}
@@ -343,7 +311,7 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                       </div>
                     )
                   ) : (
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div className={formStyles.flexRow}>
                       <select
                         className={formStyles.select}
                         onChange={(e) => updateAbilities({ element: e.target.value as ElementKey })}
@@ -361,24 +329,8 @@ export const ProfileSection: React.FC<ProfileProps> = memo(
                         ))}
                       </select>
                       {isMaster && (
-                        <div
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '2px',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: '0.65rem',
-                              color: 'var(--text-secondary)',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            秘匿
-                          </span>
+                        <div className={formStyles.checkboxStack}>
+                          <span className={formStyles.labelSmall}>秘匿</span>
                           <input
                             checked={profileSpoilers?.element ?? false}
                             onChange={(e) => onSpoilerChange?.('element', e.target.checked)}
