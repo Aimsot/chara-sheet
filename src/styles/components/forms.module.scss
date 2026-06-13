@@ -468,10 +468,10 @@
 /* 秘匿チェックボックスの縦積みコンテナ */
 .checkboxStack {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
   flex-shrink: 0;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
 }
 
 /* 小さいセカンダリラベルテキスト（秘匿・補足など） */
@@ -483,8 +483,8 @@
 
 /* 計算式の注釈 span（括弧内の小さい数式） */
 .calcNote {
-  font-size: 0.65rem;
   margin-left: 3px;
+  font-size: 0.65rem;
   opacity: 0.65;
 }
 

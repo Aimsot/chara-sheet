@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import { STYLE_MAGIC_TYPE } from '@/constants/preciousdays';
+import { ABILITY_DATA, STYLE_MAGIC_TYPE } from '@/constants/preciousdays';
 import cardStyles from '@/styles/components/cards.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
 import layoutStyles from '@/styles/components/layout.module.scss';
@@ -18,6 +18,7 @@ interface CombatRowProps {
   equipMod?: number;
   isSpecial?: boolean;
   diceText?: string;
+  formulaNote?: string;
   isReadOnly?: boolean;
   onUpdate: (target: 'combatValues' | 'specialChecks', key: string, newValue: number) => void;
   gridStyle: React.CSSProperties;
@@ -33,6 +34,7 @@ const CombatRow: React.FC<CombatRowProps> = memo(
     equipMod = 0,
     isSpecial = false,
     diceText = '',
+    formulaNote,
     isReadOnly,
     onUpdate,
     gridStyle,
@@ -52,7 +54,22 @@ const CombatRow: React.FC<CombatRowProps> = memo(
         className={`${tableStyles.row} ${isReadOnly ? tableStyles.readonly : ''}`}
         style={gridStyle}
       >
-        <div className={tableStyles.labelCell}>{label}</div>
+        <div className={tableStyles.labelCell}>
+          {label}
+          {formulaNote && (
+            <span
+              style={{
+                display: 'block',
+                fontSize: '0.68rem',
+                color: 'var(--text-muted)',
+                fontWeight: 'normal',
+                lineHeight: 1.4,
+              }}
+            >
+              {formulaNote}
+            </span>
+          )}
+        </div>
         <div className={tableStyles.cell}>{baseValue}</div>
 
         {!isSpecial && (
@@ -150,15 +167,25 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
 
       const magicType = STYLE_MAGIC_TYPE[style] || '付与術式';
 
+      const n = (key: keyof typeof ABILITY_DATA) => ABILITY_DATA[key].name;
+
       let magicBase = 0;
-      if (magicType === '付与術式') magicBase = p + a;
-      else if (magicType === '詠唱術式') magicBase = i + pa;
-      else if (magicType === '神性術式') magicBase = m + af;
+      let magicFormula = '';
+      if (magicType === '付与術式') {
+        magicBase = p + a;
+        magicFormula = `${n('physical')}(${p})+${n('agility')}(${a})`;
+      } else if (magicType === '詠唱術式') {
+        magicBase = i + pa;
+        magicFormula = `${n('intellect')}(${i})+${n('passion')}(${pa})`;
+      } else if (magicType === '神性術式') {
+        magicBase = m + af;
+        magicFormula = `${n('mystic')}(${m})+${n('affection')}(${af})`;
+      }
 
       return {
-        magic: { base: magicBase, label: magicType },
-        dodge: { base: m + a + 7 },
-        defense: { base: p },
+        magic: { base: magicBase, label: magicType, formula: magicFormula },
+        dodge: { base: m + a + 7, formula: `${n('mystic')}(${m})+${n('agility')}(${a})+7` },
+        defense: { base: p, formula: `${n('physical')}(${p})` },
         lore: { base: i },
       };
     }, [abilities, style]);
@@ -214,7 +241,7 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
             >
               <div className={tableStyles.headerRow} style={combatGridStyle}>
                 <div className={tableStyles.labelCell}>戦闘値</div>
-                <div className={tableStyles.cell}>判定</div>
+                <div className={tableStyles.cell}>ベース</div>
                 <div className={tableStyles.cell}>装備修正</div>
                 <div className={tableStyles.cell}>修正</div>
                 <div className={tableStyles.cell}>合計</div>
@@ -224,6 +251,7 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
                 baseValue={stats.magic.base}
                 dataKey='magic'
                 equipMod={calculateEquipBonus('magic')}
+                formulaNote={stats.magic.formula}
                 gridStyle={combatGridStyle}
                 isReadOnly={isReadOnly}
                 label={`魔術値: ${magicLabelText}`}
@@ -235,6 +263,7 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
                 baseValue={stats.dodge.base}
                 dataKey='dodge'
                 equipMod={calculateEquipBonus('dodge')}
+                formulaNote={stats.dodge.formula}
                 gridStyle={combatGridStyle}
                 isReadOnly={isReadOnly}
                 label='回避値'
@@ -246,6 +275,7 @@ export const CombatSection: React.FC<CombatSectionProps> = memo(
                 baseValue={stats.defense.base}
                 dataKey='defense'
                 equipMod={calculateEquipBonus('defense')}
+                formulaNote={stats.defense.formula}
                 gridStyle={combatGridStyle}
                 isReadOnly={isReadOnly}
                 label='防御値'

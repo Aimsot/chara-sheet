@@ -64,10 +64,6 @@ const ItemRow = memo(
       (val: number) => onUpdate(index, 'weight', val),
       [index, onUpdate]
     );
-    const handleQuantityChange = useCallback(
-      (val: number) => onUpdate(index, 'quantity', val),
-      [index, onUpdate]
-    );
     const handleRemove = useCallback(() => onRemove(index), [index, onRemove]);
     const [isHovered, setIsHovered] = useState(false);
 
@@ -108,7 +104,9 @@ const ItemRow = memo(
               </div>
               <div className={tableStyles.cell}>{item.gl ?? 0}</div>
               <div className={tableStyles.cell}>{item.weight}</div>
-              <div className={tableStyles.cell}>{item.quantity}</div>
+              <div className={tableStyles.cell}>
+                <input checked={item.used ?? false} disabled readOnly type='checkbox' />
+              </div>
             </div>
             {showSubRow && (
               <div className={tableStyles.subRow}>
@@ -198,23 +196,13 @@ const ItemRow = memo(
               </div>
             </div>
 
-            {/* 個数 */}
+            {/* 使用済 */}
             <div className={tableStyles.cell}>
-              <div className={formStyles.stepperSmall}>
-                <button
-                  onClick={() => handleQuantityChange((item.quantity || 0) - 1)}
-                  type='button'
-                >
-                  -
-                </button>
-                <NumberInput onChange={handleQuantityChange} value={item.quantity} />
-                <button
-                  onClick={() => handleQuantityChange((item.quantity || 0) + 1)}
-                  type='button'
-                >
-                  +
-                </button>
-              </div>
+              <input
+                checked={item.used ?? false}
+                onChange={(e) => onUpdate(index, 'used', e.target.checked)}
+                type='checkbox'
+              />
             </div>
 
             {/* 効果 */}
@@ -282,12 +270,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
     const [showAll, setShowAll] = useState(false);
 
     const totalItemWeight = useMemo(
-      () =>
-        items.reduce(
-          (sum, item) =>
-            sum + (item.acquired !== false ? (item.weight || 0) * (item.quantity || 0) : 0),
-          0
-        ),
+      () => items.reduce((sum, item) => sum + (item.acquired !== false ? item.weight || 0 : 0), 0),
       [items]
     );
 
@@ -328,7 +311,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                   <div className={tableStyles.cell}>名称</div>
                   <div className={tableStyles.cell}>GL</div>
                   <div className={tableStyles.cell}>重量</div>
-                  <div className={tableStyles.cell}>個数</div>
+                  <div className={tableStyles.cell}>使用済</div>
                 </div>
               ) : (
                 <div className={`${tableStyles.headerRow} ${tableStyles.itemEditGrid}`}>
@@ -339,7 +322,7 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
                   <div className={tableStyles.cell}>名称</div>
                   <div className={tableStyles.cell}>GL</div>
                   <div className={tableStyles.cell}>重量</div>
-                  <div className={tableStyles.cell}>個数</div>
+                  <div className={tableStyles.cell}>使用済</div>
                   <div className={tableStyles.cell}>効果</div>
                   <div className={tableStyles.cell}>ページ</div>
                   <div className={tableStyles.cell}>削除</div>

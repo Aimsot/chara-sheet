@@ -251,7 +251,6 @@ export const useCharacterActions = (
       id: generateUUID(),
       name: '',
       weight: 1,
-      quantity: 1,
       notes: '',
       category: '',
     };

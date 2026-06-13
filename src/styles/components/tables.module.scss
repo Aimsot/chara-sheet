@@ -463,8 +463,8 @@ $col-gap: 12px;
 
 /* 所持品（編集） */
 .itemEditGrid {
-  grid-template-columns: ($lbl-equip + 36px) $col-name 80px 80px 80px 2fr 60px 50px;
-  min-width: 884px;
+  grid-template-columns: ($lbl-equip + 36px) $col-name 80px 80px 60px 2fr 60px 50px;
+  min-width: 864px;
 }
 
 /* メモリー（編集） */
@@ -531,14 +531,14 @@ $col-gap: 12px;
 
 /* 所持品（閲覧）：ヘッダー・合計行フラットグリッド */
 .itemViewHeaderGrid {
-  grid-template-columns: ($lbl-equip + 36px) $col-name 80px 80px 80px;
-  min-width: 584px;
+  grid-template-columns: ($lbl-equip + 36px) $col-name 80px 80px 60px;
+  min-width: 564px;
 }
 
 /* 所持品（編集）：内側グリッド（labelBlock列を除く） */
 .itemEditInnerGrid {
   display: grid;
-  grid-template-columns: $col-name 80px 80px 80px 2fr 60px 50px;
+  grid-template-columns: $col-name 80px 80px 60px 2fr 60px 50px;
   align-items: center;
   padding: 4px 0;
 }
@@ -546,7 +546,7 @@ $col-gap: 12px;
 /* 所持品（閲覧）：内側グリッド（種別列を除く） */
 .itemViewGrid {
   display: grid;
-  grid-template-columns: $col-name 80px 80px 80px;
+  grid-template-columns: $col-name 80px 80px 60px;
   align-items: center;
   padding: 4px 0;
 }

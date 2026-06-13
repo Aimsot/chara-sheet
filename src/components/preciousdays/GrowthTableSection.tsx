@@ -94,13 +94,9 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
               {currentCycleExp.toLocaleString()} pt
             </strong>
             {experience > 0 && (
-              <span className={formStyles.dimNote}>
-                （累計: {experience.toLocaleString()} pt）
-              </span>
+              <span className={formStyles.dimNote}>（累計: {experience.toLocaleString()} pt）</span>
             )}
-            {glLevel > 0 && (
-              <span className={formStyles.dimNote}>— GL{glLevel}サイクル目</span>
-            )}
+            {glLevel > 0 && <span className={formStyles.dimNote}>— GL{glLevel}サイクル目</span>}
             {isExpInsufficient && (
               <>
                 <TriangleAlert
@@ -152,9 +148,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
                 className={`${tableStyles.row} ${tableStyles.milestoneGrid}${currentCycleExp >= 10000 ? ` ${tableStyles.totalRow}` : ''}`}
               >
                 <div className={tableStyles.labelCell}>10,000</div>
-                <div className={`${tableStyles.cell} ${tableStyles.cellLeft}`}>
-                  グレードアップ
-                </div>
+                <div className={`${tableStyles.cell} ${tableStyles.cellLeft}`}>グレードアップ</div>
                 <div className={tableStyles.cell}>{currentCycleExp >= 10000 ? '✓' : ''}</div>
               </div>
             </div>
@@ -212,9 +206,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
                     ({hpGrowth}×{glLevel})
                   </span>
                 </div>
-                <div className={`${tableStyles.cell} ${tableStyles.cellTextSmall}`}>
-                  HP欄で管理
-                </div>
+                <div className={`${tableStyles.cell} ${tableStyles.cellTextSmall}`}>HP欄で管理</div>
               </div>
               <div className={`${tableStyles.row} ${tableStyles.summaryGrid}`}>
                 <div className={tableStyles.labelCell}>MP</div>
@@ -231,9 +223,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
                     ({mpGrowth}×{glLevel})
                   </span>
                 </div>
-                <div className={`${tableStyles.cell} ${tableStyles.cellTextSmall}`}>
-                  MP欄で管理
-                </div>
+                <div className={`${tableStyles.cell} ${tableStyles.cellTextSmall}`}>MP欄で管理</div>
               </div>
             </div>
           </div>

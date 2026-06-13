@@ -174,7 +174,7 @@ export interface Item {
   name: string;
   gl?: number; // 必要GL
   weight: number;
-  quantity: number; // 個数
+  used?: boolean; // 使用済みフラグ
   notes: string;
   page?: string; // ページ数
   category?: string; // 種別
