@@ -270,7 +270,11 @@ export const ItemSection: React.FC<ItemSectionProps> = memo(
     const [showAll, setShowAll] = useState(false);
 
     const totalItemWeight = useMemo(
-      () => items.reduce((sum, item) => sum + (item.acquired !== false ? item.weight || 0 : 0), 0),
+      () =>
+        items.reduce(
+          (sum, item) => sum + (item.acquired !== false && !item.used ? item.weight || 0 : 0),
+          0
+        ),
       [items]
     );
 

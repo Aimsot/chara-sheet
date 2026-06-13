@@ -405,7 +405,8 @@ export const EquipmentSection: React.FC<EquipmentSectionProps> = memo(
       }, init);
       const itemsWeight =
         items?.reduce(
-          (acc, item) => acc + (item.acquired !== false ? Number(item.weight) || 0 : 0),
+          (acc, item) =>
+            acc + (item.acquired !== false && !item.used ? Number(item.weight) || 0 : 0),
           0
         ) || 0;
       const totalWeight = equipStats.weight + itemsWeight;

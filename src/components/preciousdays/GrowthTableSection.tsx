@@ -135,6 +135,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
                   <div
                     className={`${tableStyles.row} ${tableStyles.milestoneGrid}${reached ? ` ${tableStyles.totalRow}` : ''}`}
                     key={milestone.exp}
+                    style={reached ? undefined : { color: 'var(--text-muted)' }}
                   >
                     <div className={tableStyles.labelCell}>{milestone.exp.toLocaleString()}</div>
                     <div className={`${tableStyles.cell} ${tableStyles.cellLeft}`}>
@@ -146,6 +147,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
               })}
               <div
                 className={`${tableStyles.row} ${tableStyles.milestoneGrid}${currentCycleExp >= 10000 ? ` ${tableStyles.totalRow}` : ''}`}
+                style={currentCycleExp >= 10000 ? undefined : { color: 'var(--text-muted)' }}
               >
                 <div className={tableStyles.labelCell}>10,000</div>
                 <div className={`${tableStyles.cell} ${tableStyles.cellLeft}`}>グレードアップ</div>
@@ -186,7 +188,7 @@ const GrowthTableSection: React.FC<GrowthTableSectionProps> = memo(
               </div>
               <div className={`${tableStyles.row} ${tableStyles.summaryGrid}`}>
                 <div className={tableStyles.labelCell}>消耗品</div>
-                <div className={tableStyles.cell}>—</div>
+                <div className={tableStyles.cell}>1</div>
                 <div className={tableStyles.cell}>{totalConsumablesFromMilestones}</div>
                 <div className={tableStyles.cell}>—</div>
                 <div className={tableStyles.cell}>{currentConsumableCount}</div>
