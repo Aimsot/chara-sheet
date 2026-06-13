@@ -114,7 +114,20 @@ const EnchantmentRow = memo(
               );
             })()}
           </div>
-          <div className={tableStyles.cell}>{enchantment.effect}</div>
+          <div className={tableStyles.cell} style={{ alignItems: 'flex-start', paddingBlock: '6px' }}>
+            <div
+              style={{
+                maxHeight: autoResize ? undefined : '4.5em',
+                overflowY: autoResize ? undefined : 'auto',
+                fontSize: '0.75rem',
+                lineHeight: 1.5,
+                whiteSpace: 'pre-wrap',
+                width: '100%',
+              }}
+            >
+              {enchantment.effect}
+            </div>
+          </div>
         </div>
       );
     }
