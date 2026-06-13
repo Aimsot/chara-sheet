@@ -157,7 +157,7 @@ const SkillReadonlyRow = memo(
                     {lines.map((line, idx) => (
                       <React.Fragment key={idx}>
                         {idx > 0 && <br />}
-                        {line}
+                        {TIMING_SHORT[line] ?? line}
                       </React.Fragment>
                     ))}
                   </span>
