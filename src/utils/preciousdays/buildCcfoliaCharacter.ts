@@ -57,9 +57,13 @@ export function buildCcfoliaCharacter(char: Character): string {
   const defenseTotal = p + defenseEquipMod + (char.combatValues.defense.modifier || 0);
   const damageModTotal = damageEquipMod + (char.combatValues.damage.modifier || 0);
 
+  const isMaster = char.characterType === 'master';
+
   const sp = char.profileSpoilers ?? {};
   const as_ = char.appearanceSpoilers ?? {};
   const ls = char.lifepathSpoilers ?? {};
+  // 閲覧画面（LifepathSection）と同じ判定：師匠の「秘密」はフラグ未設定なら秘匿扱い
+  const isSecretHidden = ls.secret ?? isMaster;
 
   const speciesName = SPECIES_DATA[char.species as keyof typeof SPECIES_DATA]?.name ?? char.species;
   const styleName = styleData?.name ?? char.style;
@@ -87,7 +91,7 @@ export function buildCcfoliaCharacter(char: Character): string {
 
   const lifepathLines = [
     !ls.origin && char.origin ? `出自：${char.origin}` : '',
-    !ls.secret && char.secret ? `秘密：${char.secret}` : '',
+    !isSecretHidden && char.secret ? `秘密：${char.secret}` : '',
     !ls.future && char.future ? `未来：${char.future}` : '',
   ].filter(Boolean);
 
@@ -108,8 +112,6 @@ export function buildCcfoliaCharacter(char: Character): string {
     ...(appearanceLines.length > 0 ? ['', '【外見】', ...appearanceLines] : []),
     ...(lifepathLines.length > 0 ? ['', '【ライフパス】', ...lifepathLines] : []),
   ].join('\n');
-
-  const isMaster = char.characterType === 'master';
 
   const commands = isMaster
     ? ''
