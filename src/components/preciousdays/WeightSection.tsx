@@ -41,6 +41,7 @@ const WeightSection = ({ items, equipment, species, abilities }: WeightProps) =>
       style={{
         display: 'grid',
         gridTemplateColumns: '140px 1fr',
+        minWidth: 0, // gridTable の min-width: 600px を打ち消す（横スクロール枠の外にあるため）
         margin: '1rem 0',
         borderColor: isOverWeight ? '#ff4d4f' : 'var(--card-border)',
         backgroundColor: isOverWeight ? '#5c1a1a' : undefined,
