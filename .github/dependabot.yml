@@ -1,0 +1,23 @@
+# 依存の更新を、週1回（土曜の朝）まとめて確認する
+# 更新の PR はプレビューのデプロイを作るので、Vercel の1日のデプロイ数を食わないよう、小さな更新は1つの PR にまとめる
+# メジャーの更新（壊れやすい）は、まとめずに1つずつ PR になる
+# 脆弱性の直し（Dependabot security updates）は、この週1回とは別に、見つかったときに PR が来る
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: saturday
+      time: '09:00'
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: chore(deps)
+    groups:
+      # Next.js と React は一緒に上げないと噛み合わないので、1つの PR にまとめる
+      next-react:
+        patterns: ['next', '@next/*', 'eslint-config-next', 'react', 'react-dom', '@types/react', '@types/react-dom']
+      # それ以外の小さな更新（minor・patch）は、1つの PR にまとめる
+      minor-and-patch:
+        update-types: ['minor', 'patch']
