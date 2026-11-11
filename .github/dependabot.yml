@@ -14,6 +14,10 @@ updates:
     open-pull-requests-limit: 3
     commit-message:
       prefix: chore(deps)
+    ignore:
+      # メジャーの更新は壊れやすいので、Dependabot では上げない（上げるときは手で、まとめて確かめながら）
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
     groups:
       # Next.js と React は一緒に上げないと噛み合わないので、1つの PR にまとめる
       next-react:
