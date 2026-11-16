@@ -69,6 +69,17 @@ function SignInContent() {
         </h1>
       </header>
 
+      <p
+        style={{
+          marginBottom: '1.5rem',
+          fontSize: '0.75rem',
+          textAlign: 'center',
+          lineHeight: 1.6,
+        }}
+      >
+        現在、リストの表示と編集には一部制限をかけています。
+      </p>
+
       <form onSubmit={handleSubmit}>
         <input
           autoComplete='username'
