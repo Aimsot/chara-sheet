@@ -15,6 +15,7 @@ import {
   ABILITY_DATA,
 } from '@/constants/preciousdays';
 import { saveCharacterAction, deleteCharacterAction } from '@/lib/preciousdays/actions';
+import { PASSWORD_SET_MARKER } from '@/lib/preciousdays/viewData';
 import { Character, Enchantment, Item, Memory, Skill } from '@/types/preciousdays/character';
 import { generateUUID } from '@/utils/uuid';
 
@@ -449,7 +450,12 @@ export const useCharacterActions = (
 
         if (result.success) {
           if (onSaveSuccess) {
-            onSaveSuccess({ ...finalCharData, id: result.id ?? finalCharData.id });
+            // 新しいパスワードは保存時にハッシュ化されるので、画面には設定済みの目印だけを残す
+            onSaveSuccess({
+              ...finalCharData,
+              id: result.id ?? finalCharData.id,
+              password: finalCharData.password ? PASSWORD_SET_MARKER : '',
+            });
           } else {
             // 同じ編集ページに留まるためアンマウントされず、ボタンを明示的に戻す
             router.push(`/preciousdays/edit?key=${result.id}`);

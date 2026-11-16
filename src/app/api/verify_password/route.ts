@@ -1,7 +1,7 @@
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getCharacterById } from '@/lib/preciousdays/data';
+import { grantEditPermission, verifyPassword } from '@/lib/preciousdays/password';
 
 // --- メイン処理 (POST) ---
 export async function POST(req: NextRequest) {
@@ -22,26 +22,10 @@ export async function POST(req: NextRequest) {
     }
 
     const storedPassword = charData.password;
-
-    let isAuthorized = false;
-
-    if (!storedPassword) {
-      isAuthorized = true;
-    } else if (storedPassword === password) {
-      isAuthorized = true;
-    }
+    const isAuthorized = !storedPassword || verifyPassword(String(password ?? ''), storedPassword);
 
     if (isAuthorized) {
-      const cookieStore = await cookies();
-
-      cookieStore.set(`edit_allowed_${id}`, 'true', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: 60 * 60 * 24,
-        sameSite: 'lax',
-      });
-
+      await grantEditPermission(id);
       return NextResponse.json({ success: true });
     } else {
       return NextResponse.json(
