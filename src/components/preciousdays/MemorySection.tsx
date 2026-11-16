@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
 import btnStyles from '@/styles/components/buttons.module.scss';
@@ -334,19 +334,12 @@ const MemoryRow = memo(
                 <div className={tableStyles.memoryViewSubRow}>
                   {!spoilerRevealed ? (
                     <button
+                      className={btnStyles.expandToggle}
                       onClick={() => setSpoilerRevealed(true)}
-                      style={{
-                        fontSize: '0.75rem',
-                        color: 'var(--text-muted)',
-                        background: 'none',
-                        border: '1px solid var(--card-border)',
-                        borderRadius: '4px',
-                        padding: '3px 10px',
-                        cursor: 'pointer',
-                      }}
                       type='button'
                     >
-                      クリックで表示 ⚠ ネタバレが含まれている場合があります
+                      <Eye size={14} />
+                      秘匿メモを表示（ネタバレ注意）
                     </button>
                   ) : (
                     <div className={tableStyles.textContent}>
