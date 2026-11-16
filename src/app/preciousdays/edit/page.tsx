@@ -1,13 +1,13 @@
 /* src/app/preciousdays/edit/page.tsx */
 import { ArrowBigLeftDash } from 'lucide-react';
 import { Metadata } from 'next';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { ActionButton } from '@/components/ui/ActionButton';
 import { ELEMENT_DATA, SPECIES_DATA, STYLE_DATA } from '@/constants/preciousdays';
 import { getCharacterById } from '@/lib/preciousdays/data';
-import { toViewCharacter } from '@/lib/preciousdays/viewData';
+import { hasEditPermission } from '@/lib/preciousdays/password';
+import { PASSWORD_SET_MARKER, toViewCharacter } from '@/lib/preciousdays/viewData';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss'; // 2カラム配置用
 import layoutStyles from '@/styles/components/layout.module.scss';
 
@@ -103,14 +103,14 @@ export default async function EditPage({
     }
 
     if (key) {
-      if (initialData.password && initialData.password !== '') {
-        const cookieStore = await cookies();
-        const allowedCookie = cookieStore.get(`edit_allowed_${key}`);
-
-        if (!allowedCookie || allowedCookie.value !== 'true') {
-          redirect('/preciousdays');
-        }
+      if (initialData.password && !(await hasEditPermission(key))) {
+        redirect('/preciousdays');
       }
+      // パスワード（ハッシュ）はブラウザーに渡さず、設定済みかどうかだけを伝える
+      initialData = {
+        ...initialData,
+        password: initialData.password ? PASSWORD_SET_MARKER : '',
+      };
     }
   }
 
