@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef } from 'react'; // useRef, useEffect を追加
 
 import imageCompression from 'browser-image-compression';
+import { useRouter } from 'next/navigation';
 
 import {
   SPECIES_DATA,
@@ -24,6 +25,8 @@ export const useCharacterActions = (
   setIsSubmitting?: React.Dispatch<React.SetStateAction<boolean>>,
   onSaveSuccess?: (savedChar: Character) => void
 ) => {
+  const router = useRouter();
+
   // ▼ 1. 最新の char を常に参照できるようにする (Refテクニック)
   const charRef = useRef(char);
   useEffect(() => {
@@ -448,7 +451,9 @@ export const useCharacterActions = (
           if (onSaveSuccess) {
             onSaveSuccess({ ...finalCharData, id: result.id ?? finalCharData.id });
           } else {
-            window.location.href = `/preciousdays/edit?key=${result.id}`;
+            // 同じ編集ページに留まるためアンマウントされず、ボタンを明示的に戻す
+            router.push(`/preciousdays/edit?key=${result.id}`);
+            setIsSubmitting(false);
           }
         } else {
           alert(`保存に失敗しました: ${result.error}`);
@@ -460,7 +465,7 @@ export const useCharacterActions = (
         setIsSubmitting(false);
       }
     },
-    [selectedFile, setIsSubmitting, onSaveSuccess]
+    [selectedFile, setIsSubmitting, onSaveSuccess, router]
   );
 
   // 削除処理
@@ -473,8 +478,8 @@ export const useCharacterActions = (
     try {
       const result = await deleteCharacterAction(currentChar.id);
       if (result.success) {
-        // 削除後も確実に一覧へ戻すため href を使用
-        window.location.href = '/preciousdays';
+        // 一覧のキャッシュは deleteCharacterAction の revalidatePath で破棄済み
+        router.push('/preciousdays');
       } else {
         alert(`削除に失敗しました: ${result.error}`);
         setIsSubmitting(false);
@@ -484,7 +489,7 @@ export const useCharacterActions = (
       alert('削除エラーが発生しました');
       setIsSubmitting(false);
     }
-  }, [setIsSubmitting]);
+  }, [setIsSubmitting, router]);
 
   return {
     updateAbilities,
