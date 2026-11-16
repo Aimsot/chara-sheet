@@ -7,6 +7,7 @@ import { ActionButton } from '@/components/ui/ActionButton';
 import Loading from '@/components/ui/Loading';
 import { ELEMENT_DATA, SPECIES_DATA, STYLE_DATA } from '@/constants/preciousdays';
 import { getCharacterById } from '@/lib/preciousdays/data';
+import { toViewCharacter } from '@/lib/preciousdays/viewData';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss'; // 2カラム配置用
 import layoutStyles from '@/styles/components/layout.module.scss';
 
@@ -90,7 +91,7 @@ export default async function CharacterViewPage({ params }: Props) {
 
   return (
     <Suspense fallback={<Loading />}>
-      <CharacterViewClient initialData={character} />
+      <CharacterViewClient initialData={toViewCharacter(character)} />
     </Suspense>
   );
 }

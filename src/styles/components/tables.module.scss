@@ -491,11 +491,34 @@ $col-gap: 12px;
   min-width: 470px;
 }
 
-/* メモリー：秘匿メモ行（編集時のみ・全列スパン） */
+/* メモリー：秘匿メモ行（全列スパン） */
 .memorySecretRow {
   grid-row: 2;
   grid-column: 1 / -1;
   padding: 0 6px 8px;
+}
+
+/* メモリー：閲覧モードのサブ行（列2以降・日付列と縦結合） */
+.memoryViewSubRow {
+  grid-row: 2;
+  grid-column: 2 / -1;
+  padding: 0 6px 8px;
+  font-size: 0.65rem;
+  border-left: 1px solid var(--card-border);
+}
+
+/* メモリー：公開秘匿メモのサブ行 */
+.memoryPublicSubRow {
+  grid-row: 2;
+  grid-column: 2 / -1;
+  padding: 4px 8px;
+  font-size: 0.65rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  border-top: 1px solid var(--card-border);
+  border-left: 1px solid var(--card-border);
 }
 
 /* --- スタンドアロン（display: grid を自ら持つ）クラス --- */

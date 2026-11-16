@@ -21,7 +21,16 @@ updates:
     groups:
       # Next.js と React は一緒に上げないと噛み合わないので、1つの PR にまとめる
       next-react:
-        patterns: ['next', '@next/*', 'eslint-config-next', 'react', 'react-dom', '@types/react', '@types/react-dom']
+        patterns:
+          [
+            'next',
+            '@next/*',
+            'eslint-config-next',
+            'react',
+            'react-dom',
+            '@types/react',
+            '@types/react-dom',
+          ]
       # それ以外の小さな更新（minor・patch）は、1つの PR にまとめる
       minor-and-patch:
         update-types: ['minor', 'patch']

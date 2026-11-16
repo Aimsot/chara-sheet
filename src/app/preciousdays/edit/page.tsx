@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { ELEMENT_DATA, SPECIES_DATA, STYLE_DATA } from '@/constants/preciousdays';
 import { getCharacterById } from '@/lib/preciousdays/data';
+import { toViewCharacter } from '@/lib/preciousdays/viewData';
 import baseStyles from '@/styles/components/charaSheet/base.module.scss'; // 2カラム配置用
 import layoutStyles from '@/styles/components/layout.module.scss';
 
@@ -94,6 +95,11 @@ export default async function EditPage({
           </div>
         </div>
       );
+    }
+
+    // 複製はパスワードなしで開けるので、元のシートのパスワードと秘匿メモを渡さない
+    if (!key && clone) {
+      initialData = { ...toViewCharacter(initialData), password: '' };
     }
 
     if (key) {

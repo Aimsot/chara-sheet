@@ -1,13 +1,61 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
 import btnStyles from '@/styles/components/buttons.module.scss';
 import cardStyles from '@/styles/components/cards.module.scss';
 import formStyles from '@/styles/components/forms.module.scss';
 import tableStyles from '@/styles/components/tables.module.scss';
-import { Character, Memory } from '@/types/preciousdays/character';
+import { Character, Memory, SecretNoteMode } from '@/types/preciousdays/character';
+
+// ||text|| 構文を持つテキストを描画するコンポーネント
+function SpoilerText({
+  text,
+  revealedSet,
+  onReveal,
+}: {
+  text: string;
+  revealedSet: Set<number>;
+  onReveal: (i: number) => void;
+}) {
+  const parts = text.split(/\|\|([^|]+)\|\|/);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (i % 2 === 0) {
+          return <React.Fragment key={i}>{part}</React.Fragment>;
+        }
+        const spoilerIndex = Math.floor(i / 2);
+        const isRevealed = revealedSet.has(spoilerIndex);
+        return (
+          <span
+            key={i}
+            onClick={() => !isRevealed && onReveal(spoilerIndex)}
+            style={{
+              backgroundColor: isRevealed ? 'rgba(128,128,128,0.2)' : 'var(--text-primary)',
+              color: isRevealed ? 'inherit' : 'transparent',
+              borderRadius: '3px',
+              padding: '0 3px',
+              cursor: isRevealed ? 'text' : 'pointer',
+              userSelect: isRevealed ? 'auto' : 'none',
+              transition: 'background-color 0.15s',
+            }}
+            title={isRevealed ? undefined : 'クリックして表示'}
+          >
+            {part}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+const SECRET_NOTE_MODE_LABELS: Record<string, string> = {
+  public: '公開',
+  private: '非公開',
+  spoiler: 'ワンクッション',
+};
 
 const MemoryRow = memo(
   ({
@@ -35,8 +83,16 @@ const MemoryRow = memo(
       prize: memory.prize,
       exp: Number.isFinite(memory.experience) ? String(memory.experience) : '',
       secretNote: memory.secretNote ?? '',
+      secretNoteMode: memory.secretNoteMode ?? 'private',
     });
     const [prevMemory, setPrevMemory] = useState<Memory>(memory);
+
+    // 閲覧モード用: ||spoiler|| 展開状態
+    const [revealedSpoilers, setRevealedSpoilers] = useState<Set<number>>(new Set());
+    // 閲覧モード用: ワンクッション展開
+    const [spoilerRevealed, setSpoilerRevealed] = useState(false);
+    // 秘匿メモ内の ||spoiler|| 展開状態
+    const [revealedSecretSpoilers, setRevealedSecretSpoilers] = useState<Set<number>>(new Set());
 
     if (prevMemory !== memory) {
       const next = { ...local };
@@ -53,7 +109,6 @@ const MemoryRow = memo(
         next.prize = memory.prize;
         hasChange = true;
       }
-      // NaN !== NaN が true になるため Number.isFinite で安全比較
       const expA = memory.experience;
       const expB = prevMemory.experience;
       if (expA !== expB && !(Number.isNaN(expA as number) && Number.isNaN(expB as number))) {
@@ -64,11 +119,38 @@ const MemoryRow = memo(
         next.secretNote = memory.secretNote ?? '';
         hasChange = true;
       }
+      if ((memory.secretNoteMode ?? 'private') !== (prevMemory.secretNoteMode ?? 'private')) {
+        next.secretNoteMode = memory.secretNoteMode ?? 'private';
+        hasChange = true;
+      }
       setPrevMemory(memory);
       if (hasChange) setLocal(next);
     }
 
     const handleRemove = useCallback(() => onRemove(index), [index, onRemove]);
+
+    const revealSpoiler = useCallback((i: number) => {
+      setRevealedSpoilers((prev) => {
+        const next = new Set(prev);
+        next.add(i);
+        return next;
+      });
+    }, []);
+
+    const revealSecretSpoiler = useCallback((i: number) => {
+      setRevealedSecretSpoilers((prev) => {
+        const next = new Set(prev);
+        next.add(i);
+        return next;
+      });
+    }, []);
+
+    const mode = local.secretNoteMode as SecretNoteMode;
+    const hasViewSubRow =
+      isReadOnly &&
+      !!memory.secretNote &&
+      !!memory.secretNoteMode &&
+      memory.secretNoteMode !== 'private';
 
     return (
       <div
@@ -89,6 +171,7 @@ const MemoryRow = memo(
           style={{
             justifyContent: isReadOnly ? 'center' : 'flex-start',
             paddingLeft: isReadOnly ? '0' : '4px',
+            gridRow: hasViewSubRow ? 'span 2' : undefined,
           }}
         >
           {isReadOnly ? (
@@ -125,7 +208,11 @@ const MemoryRow = memo(
                 overflowY: autoResize ? undefined : 'auto',
               }}
             >
-              {memory.content}
+              <SpoilerText
+                onReveal={revealSpoiler}
+                revealedSet={revealedSpoilers}
+                text={memory.content}
+              />
             </div>
           ) : (
             <AutoResizeTextarea
@@ -194,7 +281,6 @@ const MemoryRow = memo(
                   } else {
                     const num = Number(e.target.value);
                     if (!Number.isNaN(num)) onUpdate(index, 'experience', num);
-                    // NaN の場合は親 state を更新しない（入力途中を許容）
                   }
                 }}
                 placeholder='0'
@@ -226,6 +312,49 @@ const MemoryRow = memo(
           </div>
         )}
 
+        {/* 秘匿メモ サブ行（閲覧モード・全列スパン） */}
+        {isReadOnly &&
+          memory.secretNote &&
+          memory.secretNoteMode &&
+          memory.secretNoteMode !== 'private' && (
+            <>
+              {/* 公開: 枠線付きボックスで表示 */}
+              {memory.secretNoteMode === 'public' && (
+                <div className={tableStyles.memoryPublicSubRow}>
+                  <SpoilerText
+                    onReveal={revealSecretSpoiler}
+                    revealedSet={revealedSecretSpoilers}
+                    text={memory.secretNote}
+                  />
+                </div>
+              )}
+
+              {/* ワンクッション */}
+              {memory.secretNoteMode === 'spoiler' && (
+                <div className={tableStyles.memoryViewSubRow}>
+                  {!spoilerRevealed ? (
+                    <button
+                      className={btnStyles.expandToggle}
+                      onClick={() => setSpoilerRevealed(true)}
+                      type='button'
+                    >
+                      <Eye size={14} />
+                      秘匿メモを表示（ネタバレ注意）
+                    </button>
+                  ) : (
+                    <div className={tableStyles.textContent}>
+                      <SpoilerText
+                        onReveal={revealSecretSpoiler}
+                        revealedSet={revealedSecretSpoilers}
+                        text={memory.secretNote}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
         {/* 秘匿メモ行（編集時のみ・全列スパン） */}
         {!isReadOnly && (
           <div className={tableStyles.memorySecretRow}>
@@ -233,7 +362,30 @@ const MemoryRow = memo(
               <div className={formStyles.secretNoteHeader}>
                 <EyeOff className={formStyles.secretNoteIcon} size={12} />
                 <span className={formStyles.secretNoteTitle}>秘匿メモ</span>
-                <span className={formStyles.secretNoteSubtitle}>— 閲覧画面には表示されません</span>
+                <select
+                  onChange={(e) => {
+                    const val = e.target.value as SecretNoteMode;
+                    setLocal((l) => ({ ...l, secretNoteMode: val }));
+                    onUpdate(index, 'secretNoteMode', val);
+                  }}
+                  style={{
+                    fontSize: '0.72rem',
+                    padding: '1px 4px',
+                    borderRadius: '3px',
+                    border: '1px solid var(--card-border)',
+                    background: 'var(--card-bg)',
+                    color: 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    marginLeft: '4px',
+                  }}
+                  value={mode}
+                >
+                  {Object.entries(SECRET_NOTE_MODE_LABELS).map(([val, label]) => (
+                    <option key={val} value={val}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
               </div>
               <AutoResizeTextarea
                 autoResize={autoResize}

@@ -165,8 +165,12 @@ export interface Memory {
   sublimated: boolean; // 昇華チェック
   prize: string; // プライズ
   experience?: number; // 経験点
-  secretNote?: string; // 秘匿メモ（編集画面のみ表示）
+  secretNote?: string; // 秘匿メモ
+  secretNoteMode?: SecretNoteMode; // 閲覧時の秘匿メモの見せ方（未設定は private）
 }
+
+// 秘匿メモの見せ方（public: そのまま表示／private: 閲覧画面に出さない／spoiler: クリックで表示）
+export type SecretNoteMode = 'public' | 'private' | 'spoiler';
 
 // 携帯品
 export interface Item {
